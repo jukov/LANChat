@@ -8,4 +8,12 @@
 
     <string name="edit_text_message_typehere">Type message here&#8230;</string>
     <string name="button_send">Send</string>
+
+    <string name="nav_header_hello">Hello, %s</string>
+    <string name="nav_header_peers_around">Peers around: %d</string>
+
+    <string name="nav_menu_global_chat">Global chat</string>
+    <string name="nav_menu_peers">Peers</string>
+    <string name="nav_menu_rooms">Rooms</string>
+    <string name="nav_menu_settings">Settings</string>
 </resources>
