@@ -1,2 +1,2 @@
 # LANChat
-LAN chat for Android/
+LAN chat for Android
