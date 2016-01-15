@@ -1,5 +1,9 @@
 package org.jukov.lanchat.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -7,13 +11,33 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import org.jukov.lanchat.R;
+import org.jukov.lanchat.service.LANChatService;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    public static final String TAG = "LANChat_Activity";
+
+    public static final String BROADCAST_ACTION = "org.jukov.lanchat";
+
+    private ListView listViewMessages;
+    private Button buttonSend;
+    private EditText editTextMessage;
+    private TextView textViewDebug;
+
+    private ArrayAdapter<String> arrayAdapterMessages;
+
+    private BroadcastReceiver broadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +54,16 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        initViews();
+        initService();
+        initBroadcastReceiver();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(broadcastReceiver);
     }
 
     @Override
@@ -85,4 +119,34 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    private void initViews() {
+        listViewMessages = (ListView) findViewById(R.id.listViewMessages);
+        buttonSend = (Button) findViewById(R.id.buttonSend);
+        editTextMessage = (EditText) findViewById(R.id.editTextMessage);
+        textViewDebug = (TextView) findViewById(R.id.textViewDebug);
+
+        arrayAdapterMessages = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
+        listViewMessages.setAdapter(arrayAdapterMessages);
+    }
+
+    private void initService() {
+        Log.d(TAG, "Creating Service");
+        Intent intent = new Intent(this, LANChatService.class);
+        startService(intent);
+    }
+
+    private void initBroadcastReceiver() {
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d(TAG, "Receive message");
+                arrayAdapterMessages.add(intent.getStringExtra("name") + " " + intent.getStringExtra("message"));
+            }
+        };
+
+        IntentFilter intentFilter = new IntentFilter(BROADCAST_ACTION);
+        registerReceiver(broadcastReceiver, intentFilter);
+    }
+
 }
