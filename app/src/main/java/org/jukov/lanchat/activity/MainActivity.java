@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
+        Log.d(TAG, "onBackPressed");
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -141,7 +142,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.d(TAG, "Receive message");
-                arrayAdapterMessages.add(intent.getStringExtra("name") + " " + intent.getStringExtra("message"));
+                arrayAdapterMessages.add(intent.getStringExtra("name") + ": " + intent.getStringExtra("message"));
             }
         };
 

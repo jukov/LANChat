@@ -7,9 +7,8 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.jukov.lanchat.activity.MainActivity;
+import org.jukov.lanchat.network.UDP;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -27,14 +26,14 @@ public class LANChatService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
-        executorService = Executors.newFixedThreadPool(3);
+        executorService = Executors.newFixedThreadPool(2);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
-        Spam spam = new Spam();
-        executorService.execute(spam);
+        UDPWork udpWork = new UDPWork(1791);
+        executorService.execute(udpWork);
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -44,19 +43,31 @@ public class LANChatService extends Service {
         return null;
     }
 
-    class Spam extends Thread {
+    class UDPWork extends Thread {
 
-        public Spam() {
+        private int port;
+
+        public UDPWork(int port) {
+            this.port = port;
         }
 
         @Override
         public void run() {
-            try {
-                for (int i = 0; i < 100; i++) {
+            UDP udp = new UDP(getApplicationContext(), port, new UDP.BroadcastListener() {
+                @Override
+                public void onReceive(String msg, String ip) {
+                    Log.d(TAG, "Receive message");
                     Intent intent = new Intent(MainActivity.BROADCAST_ACTION);
-                    intent.putExtra("name", "vasya");
-                    intent.putExtra("message", "meow");
+                    intent.putExtra("name", ip);
+                    intent.putExtra("message", msg);
                     sendBroadcast(intent);
+                }
+            });
+            udp.start();
+            try {
+                for (int i = 0; i <= 100; i++) {
+                    udp.send("Test");
+                    Log.d(TAG, "Send broadcast");
                     TimeUnit.SECONDS.sleep(1);
                 }
             }
