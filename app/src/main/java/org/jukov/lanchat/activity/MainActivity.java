@@ -14,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,13 +23,12 @@ import android.widget.TextView;
 
 import org.jukov.lanchat.R;
 import org.jukov.lanchat.service.LANChatService;
+import org.jukov.lanchat.util.IntentStrings;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final String TAG = "LANChat_Activity";
-
-    public static final String BROADCAST_ACTION = "org.jukov.lanchat";
 
     private ListView listViewMessages;
     private Button buttonSend;
@@ -129,6 +129,13 @@ public class MainActivity extends AppCompatActivity
 
         arrayAdapterMessages = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
         listViewMessages.setAdapter(arrayAdapterMessages);
+
+        buttonSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
     }
 
     private void initService() {
@@ -142,11 +149,11 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.d(TAG, "Receive message");
-                arrayAdapterMessages.add(intent.getStringExtra("name") + ": " + intent.getStringExtra("message"));
+                arrayAdapterMessages.add(intent.getStringExtra(IntentStrings.EXTRA_NAME) + ": " + intent.getStringExtra(IntentStrings.EXTRA_MESSAGE));
             }
         };
 
-        IntentFilter intentFilter = new IntentFilter(BROADCAST_ACTION);
+        IntentFilter intentFilter = new IntentFilter(IntentStrings.BROADCAST_ACTION);
         registerReceiver(broadcastReceiver, intentFilter);
     }
 
