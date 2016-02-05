@@ -147,14 +147,24 @@ public class MainActivity extends AppCompatActivity
     private void initBroadcastReceiver() {
         broadcastReceiver = new BroadcastReceiver() {
             @Override
-            public void onReceive(Context context, Intent intent) {
+            public void onReceive(Context context, final Intent intent) {
                 Log.d(TAG, "Receive message");
-                arrayAdapterMessages.add(intent.getStringExtra(IntentStrings.EXTRA_NAME) + ": " + intent.getStringExtra(IntentStrings.EXTRA_MESSAGE));
+                if (intent.hasExtra(IntentStrings.EXTRA_DEBUG)) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            textViewDebug.setText(intent.getStringExtra(IntentStrings.EXTRA_DEBUG));
+                        }
+                    });
+                } else if (intent.hasExtra(IntentStrings.EXTRA_MESSAGE)) {
+                    arrayAdapterMessages.add(intent.getStringExtra(IntentStrings.EXTRA_NAME) + ": " + intent.getStringExtra(IntentStrings.EXTRA_MESSAGE));
+                }
             }
         };
 
         IntentFilter intentFilter = new IntentFilter(IntentStrings.BROADCAST_ACTION);
         registerReceiver(broadcastReceiver, intentFilter);
+
     }
 
 }

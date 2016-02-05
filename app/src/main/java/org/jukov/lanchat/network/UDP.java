@@ -1,8 +1,6 @@
 package org.jukov.lanchat.network;
 
 import android.content.Context;
-import android.net.DhcpInfo;
-import android.net.wifi.WifiManager;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -19,16 +17,14 @@ public class UDP extends Thread implements Closeable {
     private BroadcastListener broadcastListener;
     private Context context;
     private DatagramSocket datagramSocket;
-    private InetAddress broadcastAddress;
     private int port;
 
     public UDP(int port, InetAddress broadcastAddress, BroadcastListener broadcastListener) {
         this.port = port;
-        this.broadcastAddress = broadcastAddress;
         this.broadcastListener = broadcastListener;
     }
 
-    public void send(String msg) {
+    public static void send(int port, InetAddress broadcastAddress, String msg) {
         try {
             DatagramSocket clientSocket = new DatagramSocket();
             clientSocket.setBroadcast(true);

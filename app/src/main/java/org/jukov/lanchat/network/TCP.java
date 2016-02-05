@@ -1,7 +1,5 @@
 package org.jukov.lanchat.network;
 
-import android.content.Context;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.ServerSocket;

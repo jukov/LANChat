@@ -7,10 +7,11 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.jukov.lanchat.network.UDP;
+import org.jukov.lanchat.server.Server;
+import org.jukov.lanchat.util.BroadcastStrings;
 import org.jukov.lanchat.util.IntentStrings;
 import org.jukov.lanchat.util.NetworkUtils;
 
-import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -23,6 +24,8 @@ public class LANChatService extends Service {
     public static final String TAG = "LANChat_Service";
 
     private ExecutorService executorService;
+
+    private Server server;
 
     @Override
     public void onCreate() {
@@ -37,6 +40,15 @@ public class LANChatService extends Service {
         UDPWork udpWork = new UDPWork(1791);
         executorService.execute(udpWork);
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (server != null) {
+            server.close();
+        }
     }
 
     @Nullable
@@ -60,7 +72,9 @@ public class LANChatService extends Service {
                 UDP udp = new UDP(port, NetworkUtils.getBroadcastAddress(getApplicationContext()), new UDP.BroadcastListener() {
                     @Override
                     public void onReceive(String msg, String ip) {
-                        receive[0] = true;
+                        if (msg.equals(BroadcastStrings.SERVER_BROADCAST)) {
+                            receive[0] = true;
+                        }
                         Log.d(TAG, "Receive message");
                         Intent intent = new Intent(IntentStrings.BROADCAST_ACTION);
                         intent.putExtra(IntentStrings.EXTRA_NAME, ip);
@@ -69,26 +83,24 @@ public class LANChatService extends Service {
                     }
                 });
                 executorService.execute(udp);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
                 TimeUnit.SECONDS.sleep(2);
+                udp.close();
                 Log.d(TAG, receive[0] ? "Broadcast received" : "Broadcast not received");
-                if (receive[0]) {
+                if (!receive[0]) {
                     startServer();
                 }
                 startClient();
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void startClient() {
+    private void startServer() {
+        server = new Server(1791, getApplicationContext());
+        executorService.execute(server);
     }
 
-    private void startServer() {
-
+    private void startClient() {
     }
 }
