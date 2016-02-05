@@ -6,9 +6,11 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import org.jukov.lanchat.activity.MainActivity;
 import org.jukov.lanchat.network.UDP;
+import org.jukov.lanchat.util.IntentStrings;
+import org.jukov.lanchat.util.NetworkUtils;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -26,7 +28,7 @@ public class LANChatService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
-        executorService = Executors.newFixedThreadPool(2);
+        executorService = Executors.newFixedThreadPool(3);
     }
 
     @Override
@@ -53,27 +55,40 @@ public class LANChatService extends Service {
 
         @Override
         public void run() {
-            UDP udp = new UDP(getApplicationContext(), port, new UDP.BroadcastListener() {
-                @Override
-                public void onReceive(String msg, String ip) {
-                    Log.d(TAG, "Receive message");
-                    Intent intent = new Intent(MainActivity.BROADCAST_ACTION);
-                    intent.putExtra("name", ip);
-                    intent.putExtra("message", msg);
-                    sendBroadcast(intent);
-                }
-            });
-            udp.start();
+            final Boolean[] receive = {false};
             try {
-                for (int i = 0; i <= 100; i++) {
-                    udp.send("Test");
-                    Log.d(TAG, "Send broadcast");
-                    TimeUnit.SECONDS.sleep(1);
-                }
+                UDP udp = new UDP(port, NetworkUtils.getBroadcastAddress(getApplicationContext()), new UDP.BroadcastListener() {
+                    @Override
+                    public void onReceive(String msg, String ip) {
+                        receive[0] = true;
+                        Log.d(TAG, "Receive message");
+                        Intent intent = new Intent(IntentStrings.BROADCAST_ACTION);
+                        intent.putExtra(IntentStrings.EXTRA_NAME, ip);
+                        intent.putExtra(IntentStrings.EXTRA_MESSAGE, msg);
+                        sendBroadcast(intent);
+                    }
+                });
+                executorService.execute(udp);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            catch (InterruptedException e) {
+            try {
+                TimeUnit.SECONDS.sleep(2);
+                Log.d(TAG, receive[0] ? "Broadcast received" : "Broadcast not received");
+                if (receive[0]) {
+                    startServer();
+                }
+                startClient();
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void startClient() {
+    }
+
+    private void startServer() {
+
     }
 }

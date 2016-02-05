@@ -19,12 +19,13 @@ public class UDP extends Thread implements Closeable {
     private BroadcastListener broadcastListener;
     private Context context;
     private DatagramSocket datagramSocket;
+    private InetAddress broadcastAddress;
     private int port;
 
-    public UDP(Context context, int port, BroadcastListener broadcastListener) {
-        this.broadcastListener = broadcastListener;
-        this.context = context;
+    public UDP(int port, InetAddress broadcastAddress, BroadcastListener broadcastListener) {
         this.port = port;
+        this.broadcastAddress = broadcastAddress;
+        this.broadcastListener = broadcastListener;
     }
 
     public void send(String msg) {
@@ -33,7 +34,7 @@ public class UDP extends Thread implements Closeable {
             clientSocket.setBroadcast(true);
             byte[] sendData = msg.getBytes();
             DatagramPacket sendPacket = new DatagramPacket(
-                    sendData, sendData.length, getBroadcastAddress(context), port);
+                    sendData, sendData.length, broadcastAddress, port);
             clientSocket.send(sendPacket);
         }
         catch (IOException e) {
@@ -69,18 +70,6 @@ public class UDP extends Thread implements Closeable {
 
     public interface BroadcastListener {
         void onReceive(String msg, String ip);
-    }
-
-    public static InetAddress getBroadcastAddress(Context context) throws IOException {
-        WifiManager wifi = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-        DhcpInfo dhcp = wifi.getDhcpInfo();
-        if(dhcp == null)
-            return InetAddress.getByName("255.255.255.255");
-        int broadcast = (dhcp.ipAddress & dhcp.netmask) | ~dhcp.netmask;
-        byte[] quads = new byte[4];
-        for (int k = 0; k < 4; k++)
-            quads[k] = (byte) ((broadcast >> k * 8) & 0xFF);
-        return InetAddress.getByAddress(quads);
     }
 
 }
