@@ -46,6 +46,7 @@ public class Server extends Thread implements Closeable {
                 }
             }
         });
+        tcp.start();
     }
 
     @Override

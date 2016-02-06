@@ -1,6 +1,7 @@
 package org.jukov.lanchat.network;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -14,6 +15,8 @@ import java.net.SocketException;
  */
 public class UDP extends Thread implements Closeable {
 
+    public static final String TAG = "UDP";
+
     private BroadcastListener broadcastListener;
     private Context context;
     private DatagramSocket datagramSocket;
@@ -24,11 +27,11 @@ public class UDP extends Thread implements Closeable {
         this.broadcastListener = broadcastListener;
     }
 
-    public static void send(int port, InetAddress broadcastAddress, String msg) {
+    public static void send(int port, InetAddress broadcastAddress, String message) {
         try {
             DatagramSocket clientSocket = new DatagramSocket();
             clientSocket.setBroadcast(true);
-            byte[] sendData = msg.getBytes();
+            byte[] sendData = message.getBytes();
             DatagramPacket sendPacket = new DatagramPacket(
                     sendData, sendData.length, broadcastAddress, port);
             clientSocket.send(sendPacket);
@@ -54,7 +57,7 @@ public class UDP extends Thread implements Closeable {
                         new String(packet.getData(), 0, packet.getLength()),
                         packet.getAddress().getHostAddress());
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.d(TAG, "Stop broadcast catching");
             }
         }
         datagramSocket.close();
@@ -65,7 +68,7 @@ public class UDP extends Thread implements Closeable {
     }
 
     public interface BroadcastListener {
-        void onReceive(String msg, String ip);
+        void onReceive(String message, String ip);
     }
 
 }
