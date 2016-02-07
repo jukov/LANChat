@@ -28,7 +28,7 @@ import org.jukov.lanchat.util.IntentStrings;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    public static final String TAG = "LANChat_Activity";
+    public static final String TAG = "LC_Activity";
 
     private ListView listViewMessages;
     private Button buttonSend;
@@ -130,10 +130,17 @@ public class MainActivity extends AppCompatActivity
         arrayAdapterMessages = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
         listViewMessages.setAdapter(arrayAdapterMessages);
 
+        buttonSend.setEnabled(false);
+        editTextMessage.setEnabled(false);
+
         buttonSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Log.d(TAG, "Send message to service");
+                Intent intent = new Intent(getApplicationContext(), LANChatService.class);
+                intent.putExtra(IntentStrings.EXTRA_TYPE, IntentStrings.TYPE_MESSAGE);
+                intent.putExtra(IntentStrings.EXTRA_MESSAGE, editTextMessage.getText().toString());
+                startService(intent);
             }
         });
     }
@@ -141,6 +148,7 @@ public class MainActivity extends AppCompatActivity
     private void initService() {
         Log.d(TAG, "Creating Service");
         Intent intent = new Intent(this, LANChatService.class);
+        intent.putExtra(IntentStrings.EXTRA_TYPE, IntentStrings.TYPE_START_SERVICE);
         startService(intent);
     }
 
@@ -149,22 +157,36 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onReceive(Context context, final Intent intent) {
                 Log.d(TAG, "Receive message");
-                if (intent.hasExtra(IntentStrings.EXTRA_DEBUG)) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            textViewDebug.setText(intent.getStringExtra(IntentStrings.EXTRA_DEBUG));
-                        }
-                    });
-                } else if (intent.hasExtra(IntentStrings.EXTRA_MESSAGE)) {
-                    arrayAdapterMessages.add(intent.getStringExtra(IntentStrings.EXTRA_NAME) + ": " + intent.getStringExtra(IntentStrings.EXTRA_MESSAGE));
+                if (intent.hasExtra(IntentStrings.EXTRA_TYPE)) {
+                    Log.d(TAG, IntentStrings.EXTRA_TYPE);
+                    switch (intent.getStringExtra(IntentStrings.EXTRA_TYPE)) {
+                        case IntentStrings.TYPE_MESSAGE:
+                            arrayAdapterMessages.add(intent.getStringExtra(IntentStrings.EXTRA_NAME) + ": " + intent.getStringExtra(IntentStrings.EXTRA_MESSAGE));
+                            break;
+                        case IntentStrings.TYPE_DEBUG:
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    textViewDebug.setText(intent.getStringExtra(IntentStrings.EXTRA_DEBUG));
+                                }
+                            });
+                            break;
+                        case IntentStrings.TYPE_UNLOCK_VIEWS:
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    buttonSend.setEnabled(true);
+                                    editTextMessage.setEnabled(true);
+                                }
+                            });
+                            break;
+                        default:
+                            Log.d(TAG, "Unexpected intent type");
+                    }
                 }
             }
         };
-
         IntentFilter intentFilter = new IntentFilter(IntentStrings.BROADCAST_ACTION);
         registerReceiver(broadcastReceiver, intentFilter);
-
     }
-
 }

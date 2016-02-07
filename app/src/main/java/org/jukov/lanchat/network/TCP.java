@@ -17,15 +17,15 @@ public class TCP extends Thread implements Closeable {
     public TCP(int port, ClientListener clientListener) {
         this.clientListener = clientListener;
         this.port = port;
-    }
-
-    @Override
-    public void run() {
         try {
             serverSocket = new ServerSocket(port);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void run() {
         try {
             while (!serverSocket.isClosed()) {
                 Socket socket = serverSocket.accept();

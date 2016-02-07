@@ -15,12 +15,14 @@ import java.net.SocketException;
  */
 public class UDP extends Thread implements Closeable {
 
-    public static final String TAG = "UDP";
+    public static final String TAG = "LC_UDP";
 
     private BroadcastListener broadcastListener;
     private Context context;
-    private DatagramSocket datagramSocket;
+    private DatagramSocket receiveSocket;
     private int port;
+
+    public static DatagramSocket sendSocket;
 
     public UDP(int port, InetAddress broadcastAddress, BroadcastListener broadcastListener) {
         this.port = port;
@@ -29,12 +31,14 @@ public class UDP extends Thread implements Closeable {
 
     public static void send(int port, InetAddress broadcastAddress, String message) {
         try {
-            DatagramSocket clientSocket = new DatagramSocket();
-            clientSocket.setBroadcast(true);
+            if (sendSocket == null) {
+                sendSocket = new DatagramSocket();
+            }
+            sendSocket.setBroadcast(true);
             byte[] sendData = message.getBytes();
             DatagramPacket sendPacket = new DatagramPacket(
                     sendData, sendData.length, broadcastAddress, port);
-            clientSocket.send(sendPacket);
+            sendSocket.send(sendPacket);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -44,15 +48,15 @@ public class UDP extends Thread implements Closeable {
     @Override
     public void run() {
         try {
-            datagramSocket = new DatagramSocket(port);
+            receiveSocket = new DatagramSocket(port);
         } catch (SocketException e) {
             e.printStackTrace();
         }
-        while (!datagramSocket.isClosed()) {
+        while (!receiveSocket.isClosed()) {
             try {
                 byte[] buf = new byte[1024];
                 DatagramPacket packet = new DatagramPacket(buf, buf.length);
-                datagramSocket.receive(packet);
+                receiveSocket.receive(packet);
                 broadcastListener.onReceive(
                         new String(packet.getData(), 0, packet.getLength()),
                         packet.getAddress().getHostAddress());
@@ -60,11 +64,11 @@ public class UDP extends Thread implements Closeable {
                 Log.d(TAG, "Stop broadcast catching");
             }
         }
-        datagramSocket.close();
+        receiveSocket.close();
     }
 
     public void close() {
-        datagramSocket.close();
+        receiveSocket.close();
     }
 
     public interface BroadcastListener {

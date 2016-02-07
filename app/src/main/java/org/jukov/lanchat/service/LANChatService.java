@@ -22,8 +22,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class LANChatService extends Service {
 
-    public static final String TAG = "LANChat_Service";
-    public static final int SERVER_PORT = 1791;
+    public static final String TAG = "LC_Service";
+    public static final int TCP_PORT = 1791;
     public static final int UDP_PORT = 1791;
 
     private ExecutorService executorService;
@@ -41,8 +41,22 @@ public class LANChatService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
-        ServerSearch serverSearch = new ServerSearch(UDP_PORT);
-        executorService.execute(serverSearch);
+        if (intent.hasExtra(IntentStrings.EXTRA_TYPE)) {
+            switch (intent.getStringExtra(IntentStrings.EXTRA_TYPE)) {
+                case IntentStrings.TYPE_START_SERVICE:
+                    ServerSearch serverSearch = new ServerSearch(UDP_PORT);
+                    executorService.execute(serverSearch);
+                    break;
+                case IntentStrings.TYPE_MESSAGE:
+                    if (client != null) {
+                        Log.d(TAG, "In Type_Message, client != null");
+                        client.sendMessage(intent.getStringExtra(IntentStrings.EXTRA_MESSAGE));
+                    }
+                    break;
+                default:
+                    Log.d(TAG, "Unexpected intent type");
+            }
+        }
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -85,6 +99,7 @@ public class LANChatService extends Service {
                         }
                         Log.d(TAG, "Receive message");
                         Intent intent = new Intent(IntentStrings.BROADCAST_ACTION);
+                        intent.putExtra(IntentStrings.EXTRA_TYPE, IntentStrings.TYPE_MESSAGE);
                         intent.putExtra(IntentStrings.EXTRA_NAME, ip);
                         intent.putExtra(IntentStrings.EXTRA_MESSAGE, message);
                         sendBroadcast(intent);
@@ -97,12 +112,14 @@ public class LANChatService extends Service {
                 Log.d(TAG, receive[0] ? "Broadcast received" : "Broadcast not received");
 
                 if (receive[0]) {
-                    startClient(broadcastIP.toString(), SERVER_PORT);
+                    startClient(broadcastIP.toString(), TCP_PORT);
                 } else {
-                    startServer(SERVER_PORT);
-                    TimeUnit.MILLISECONDS.sleep(500);
-                    startClient("127.0.0.1", SERVER_PORT);
+                    startServer(TCP_PORT);
+                    startClient("127.0.0.1", TCP_PORT);
                 }
+                Intent intent = new Intent(IntentStrings.BROADCAST_ACTION);
+                intent.putExtra(IntentStrings.EXTRA_TYPE, IntentStrings.TYPE_UNLOCK_VIEWS);
+                sendBroadcast(intent);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -115,6 +132,7 @@ public class LANChatService extends Service {
     }
 
     private void startClient(String ip, int port) {
-        client = new Client(ip, port);
+        client = new Client(getApplicationContext(), ip, port);
+        executorService.execute(client);
     }
 }
