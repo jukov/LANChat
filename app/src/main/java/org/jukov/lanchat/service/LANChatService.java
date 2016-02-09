@@ -89,7 +89,7 @@ public class LANChatService extends Service {
             final StringBuffer broadcastIP = new StringBuffer();
 
             try {
-                UDP udp = new UDP(port, NetworkUtils.getBroadcastAddress(getApplicationContext()), new UDP.BroadcastListener() {
+                UDP udp = new UDP(port, new UDP.BroadcastListener() {
                     @Override
                     public void onReceive(String message, String ip) {
                         if (message.equals(BroadcastStrings.SERVER_BROADCAST)) {

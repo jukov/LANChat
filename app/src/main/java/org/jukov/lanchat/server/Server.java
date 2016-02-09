@@ -3,13 +3,13 @@ package org.jukov.lanchat.server;
 import android.content.Context;
 import android.content.Intent;
 
-import org.jukov.lanchat.network.TCP;
 import org.jukov.lanchat.network.UDP;
 import org.jukov.lanchat.util.BroadcastStrings;
 import org.jukov.lanchat.util.IntentStrings;
 import org.jukov.lanchat.util.NetworkUtils;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Collections;
@@ -28,7 +28,7 @@ public class Server extends Thread implements Closeable {
     private int port;
     private Set<ClientConnection> clientConnections;
     private ExecutorService executorService;
-    private TCP tcp;
+    private TCPListener tcpListener;
 
     private boolean stopBroadcastFlag;
 
@@ -39,7 +39,7 @@ public class Server extends Thread implements Closeable {
         clientConnections = Collections.synchronizedSet(new HashSet<ClientConnection>());
         executorService = Executors.newFixedThreadPool(10);
 
-        tcp = new TCP(port, new TCP.ClientListener() {
+        tcpListener = new TCPListener(port, new TCPListener.ClientListener() {
             @Override
             public void onReceive(Socket socket) {
                 ClientConnection clientConnection = new ClientConnection(socket, getServer());
@@ -51,7 +51,7 @@ public class Server extends Thread implements Closeable {
                 context.sendBroadcast(intent);
             }
         });
-        tcp.start();
+        tcpListener.start();
     }
 
     @Override
@@ -69,6 +69,15 @@ public class Server extends Thread implements Closeable {
 
     public void close() {
         stopBroadcastFlag = true;
+        try {
+            tcpListener.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void stopConnection(ClientConnection clientConnection) {
+        clientConnections.remove(clientConnection);
     }
 
     public Server getServer() {

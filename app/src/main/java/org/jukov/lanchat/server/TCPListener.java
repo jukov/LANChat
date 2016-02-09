@@ -1,4 +1,4 @@
-package org.jukov.lanchat.network;
+package org.jukov.lanchat.server;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -8,13 +8,13 @@ import java.net.Socket;
 /**
  * Created by jukov on 05.02.2016.
  */
-public class TCP extends Thread implements Closeable {
+public class TCPListener extends Thread implements Closeable {
 
     private ClientListener clientListener;
     private ServerSocket serverSocket;
     private int port;
 
-    public TCP(int port, ClientListener clientListener) {
+    public TCPListener(int port, ClientListener clientListener) {
         this.clientListener = clientListener;
         this.port = port;
         try {
