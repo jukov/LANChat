@@ -7,12 +7,14 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.jukov.lanchat.client.Client;
+import org.jukov.lanchat.dto.MessageDTO;
 import org.jukov.lanchat.network.UDP;
 import org.jukov.lanchat.server.Server;
 import org.jukov.lanchat.util.BroadcastStrings;
 import org.jukov.lanchat.util.IntentStrings;
-import org.jukov.lanchat.util.NetworkUtils;
+import org.jukov.lanchat.util.JSONConverter;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -50,7 +52,12 @@ public class LANChatService extends Service {
                 case IntentStrings.TYPE_MESSAGE:
                     if (client != null) {
                         Log.d(TAG, "In Type_Message, client != null");
-                        client.sendMessage(intent.getStringExtra(IntentStrings.EXTRA_MESSAGE));
+                        try {
+                            String message = JSONConverter.toJSON(new MessageDTO(client.getLocalIP(), intent.getStringExtra(IntentStrings.EXTRA_MESSAGE)));
+                            client.sendMessage(message);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                     break;
                 default:
