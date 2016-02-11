@@ -4,9 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 
 import org.jukov.lanchat.network.UDP;
-import org.jukov.lanchat.util.BroadcastStrings;
 import org.jukov.lanchat.util.IntentStrings;
 import org.jukov.lanchat.util.NetworkUtils;
+import org.jukov.lanchat.util.Strings;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -59,7 +59,7 @@ public class Server extends Thread implements Closeable {
         try {
             InetAddress broadcastAddress = NetworkUtils.getBroadcastAddress(context);
             while (!stopBroadcastFlag) {
-                UDP.send(port, broadcastAddress, BroadcastStrings.SERVER_BROADCAST);
+                UDP.send(port, broadcastAddress, Strings.SERVER_BROADCAST);
                 TimeUnit.MILLISECONDS.sleep(500);
             }
         } catch (Exception e) {
@@ -68,6 +68,9 @@ public class Server extends Thread implements Closeable {
     }
 
     public void close() {
+        for (ClientConnection clientConnection: clientConnections) {
+            clientConnection.close();
+        }
         stopBroadcastFlag = true;
         try {
             tcpListener.close();

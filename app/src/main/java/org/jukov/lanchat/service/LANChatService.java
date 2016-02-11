@@ -10,9 +10,9 @@ import org.jukov.lanchat.client.Client;
 import org.jukov.lanchat.dto.MessageDTO;
 import org.jukov.lanchat.network.UDP;
 import org.jukov.lanchat.server.Server;
-import org.jukov.lanchat.util.BroadcastStrings;
 import org.jukov.lanchat.util.IntentStrings;
 import org.jukov.lanchat.util.JSONConverter;
+import org.jukov.lanchat.util.Strings;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -74,6 +74,9 @@ public class LANChatService extends Service {
         if (server != null) {
             server.close();
         }
+        if (client != null) {
+            client.close();
+        }
     }
 
     @Nullable
@@ -99,7 +102,7 @@ public class LANChatService extends Service {
                 UDP udp = new UDP(port, new UDP.BroadcastListener() {
                     @Override
                     public void onReceive(String message, String ip) {
-                        if (message.equals(BroadcastStrings.SERVER_BROADCAST)) {
+                        if (message.equals(Strings.SERVER_BROADCAST)) {
                             receive[0] = true;
                             broadcastIP.delete(0, broadcastIP.length());
                             broadcastIP.append(ip);

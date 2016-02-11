@@ -49,11 +49,15 @@ public class ClientConnection extends Thread implements Closeable {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         server.stopConnection(this);
-        dataOutputStream.close();
-        dataInputStream.close();
-        socket.close();
+        try {
+            dataOutputStream.close();
+            dataInputStream.close();
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void sendMessage(String message) {

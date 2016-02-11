@@ -63,10 +63,14 @@ public class Client extends Thread implements Closeable {
     }
 
     @Override
-    public void close() throws IOException {
-        dataOutputStream.close();
-        dataInputStream.close();
-        socket.close();
+    public void close() {
+        try {
+            dataOutputStream.close();
+            dataInputStream.close();
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void sendMessage(String message) {

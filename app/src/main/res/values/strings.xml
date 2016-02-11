@@ -10,10 +10,11 @@
     <string name="button_send">Send</string>
 
     <string name="nav_header_hello">Hello, %s</string>
-    <string name="nav_header_peers_around">Peers around: %d</string>
+    <string name="nav_header_peoples_around">Peoples around: %d</string>
 
     <string name="nav_menu_global_chat">Global chat</string>
-    <string name="nav_menu_peers">Peers</string>
+    <string name="nav_menu_peoples">Peoples</string>
     <string name="nav_menu_rooms">Rooms</string>
     <string name="nav_menu_settings">Settings</string>
+    <string name="nav_menu_exit">Exit</string>
 </resources>

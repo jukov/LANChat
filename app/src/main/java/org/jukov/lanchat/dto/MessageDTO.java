@@ -1,12 +1,7 @@
 package org.jukov.lanchat.dto;
 
-import android.content.Context;
-import android.text.format.DateUtils;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 
 /**
