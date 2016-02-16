@@ -7,7 +7,7 @@ public interface IntentStrings {
     String BROADCAST_ACTION = "org.jukov.lanchat";
 
     String EXTRA_TYPE = "type";
-    String TYPE_START_SERVICE = "start_service";
+    String TYPE_CONNECT_TO_SERVICE = "connect_to_service";
     String TYPE_MESSAGE = "message";
     String TYPE_DEBUG = "debug";
     String TYPE_UNLOCK_VIEWS = "unlock_views";

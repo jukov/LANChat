@@ -28,6 +28,11 @@ public class LANChatService extends Service {
     public static final int TCP_PORT = 1791;
     public static final int UDP_PORT = 1791;
 
+    private int mode;
+    public static final int MODE_NONE = 0;
+    public static final int MODE_CLIENT = 1;
+    public static final int MODE_SERVER = 2;
+
     private ExecutorService executorService;
 
     private Server server;
@@ -38,6 +43,7 @@ public class LANChatService extends Service {
         super.onCreate();
         Log.d(TAG, "onCreate");
         executorService = Executors.newFixedThreadPool(3);
+        mode = MODE_NONE;
     }
 
     @Override
@@ -45,9 +51,19 @@ public class LANChatService extends Service {
         Log.d(TAG, "onStartCommand");
         if (intent.hasExtra(IntentStrings.EXTRA_TYPE)) {
             switch (intent.getStringExtra(IntentStrings.EXTRA_TYPE)) {
-                case IntentStrings.TYPE_START_SERVICE:
-                    ServerSearch serverSearch = new ServerSearch(UDP_PORT);
-                    executorService.execute(serverSearch);
+                case IntentStrings.TYPE_CONNECT_TO_SERVICE:
+                    switch (mode) {
+                        case MODE_NONE:
+                            ServerSearch serverSearch = new ServerSearch(UDP_PORT);
+                            executorService.execute(serverSearch);
+                            break;
+                        case MODE_CLIENT:
+                            client.updateStatus();
+                            break;
+                        case MODE_SERVER:
+                            server.updateStatus();
+                            break;
+                    }
                     break;
                 case IntentStrings.TYPE_MESSAGE:
                     if (client != null) {
@@ -69,6 +85,7 @@ public class LANChatService extends Service {
 
     @Override
     public void onDestroy() {
+        Log.d(getClass().getSimpleName(), "onDestroy()");
         super.onDestroy();
 
         if (server != null) {
@@ -122,14 +139,14 @@ public class LANChatService extends Service {
                 Log.d(TAG, receive[0] ? "Broadcast received" : "Broadcast not received");
 
                 if (receive[0]) {
+                    mode = MODE_CLIENT;
                     startClient(broadcastIP.toString(), TCP_PORT);
+                    client.updateStatus();
                 } else {
+                    mode = MODE_SERVER;
                     startServer(TCP_PORT);
                     startClient("127.0.0.1", TCP_PORT);
                 }
-                Intent intent = new Intent(IntentStrings.BROADCAST_ACTION);
-                intent.putExtra(IntentStrings.EXTRA_TYPE, IntentStrings.TYPE_UNLOCK_VIEWS);
-                sendBroadcast(intent);
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -45,10 +45,7 @@ public class Server extends Thread implements Closeable {
                 ClientConnection clientConnection = new ClientConnection(socket, getServer());
                 executorService.execute(clientConnection);
                 clientConnections.add(clientConnection);
-                Intent intent = new Intent(IntentStrings.BROADCAST_ACTION);
-                intent.putExtra(IntentStrings.EXTRA_TYPE, IntentStrings.TYPE_DEBUG);
-                intent.putExtra(IntentStrings.EXTRA_DEBUG, "Mode: server; clients - " + clientConnections.size());
-                context.sendBroadcast(intent);
+                updateStatus();
             }
         });
         tcpListener.start();
@@ -91,5 +88,12 @@ public class Server extends Thread implements Closeable {
         for (ClientConnection clientConnection: clientConnections) {
             clientConnection.sendMessage(message);
         }
+    }
+
+    public void updateStatus() {
+        Intent intent = new Intent(IntentStrings.BROADCAST_ACTION);
+        intent.putExtra(IntentStrings.EXTRA_TYPE, IntentStrings.TYPE_DEBUG);
+        intent.putExtra(IntentStrings.EXTRA_DEBUG, "Mode: server; clients - " + clientConnections.size());
+        context.sendBroadcast(intent);
     }
 }

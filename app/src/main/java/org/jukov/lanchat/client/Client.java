@@ -86,4 +86,13 @@ public class Client extends Thread implements Closeable {
     public String getLocalIP() {
         return socket.getLocalAddress().toString();
     }
+
+    public void updateStatus() {
+        Intent intent = new Intent(IntentStrings.BROADCAST_ACTION);
+        intent.putExtra(IntentStrings.EXTRA_TYPE, IntentStrings.TYPE_DEBUG);
+        intent.putExtra(IntentStrings.EXTRA_DEBUG, "Mode: client");
+        context.sendBroadcast(intent);
+    }
+
+
 }
