@@ -1,9 +1,12 @@
 package org.jukov.lanchat.activity;
 
+import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -13,6 +16,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.TextView;
 
 import org.jukov.lanchat.R;
 import org.jukov.lanchat.fragment.BaseFragment;
@@ -24,11 +29,12 @@ import org.jukov.lanchat.service.LANChatService;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String TAG = "LC_Activity";
 
-    private HashMap<Integer, BaseFragment> fragments;
+    private HashMap<Integer, Fragment> fragments;
 
     private int currentNavigationId;
 
@@ -36,6 +42,7 @@ public class MainActivity extends AppCompatActivity
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private ActionBarDrawerToggle actionBarDrawerToggle;
+    private View navigationDrawerHeaderView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,7 +111,8 @@ public class MainActivity extends AppCompatActivity
                 case R.id.nav_rooms:
                     break;
                 case R.id.nav_settings:
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new SettingsFragment()).addToBackStack(null).commit();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragments.get(id)).addToBackStack(null).commit();
+                    toolbar.setTitle(getString(R.string.settings));
                     break;
                 case R.id.nav_exit:
                     stopService(new Intent(getApplicationContext(), LANChatService.class));
@@ -118,10 +126,21 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        Log.d(getClass().getSimpleName(), "onSharedPreferenceChanged() " + key);
+        switch (key) {
+            case "name":
+                TextView textView = (TextView) navigationDrawerHeaderView.findViewById(R.id.textViewName);
+                textView.setText(getString(R.string.nav_header_hello, sharedPreferences.getString("name", "Anonym")));
+                break;
+        }
+    }
+
     private void initViews() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle(getString(R.string.global_chat));
+        getSupportActionBar().setTitle(getString(R.string.global_chat));
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -130,42 +149,42 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         actionBarDrawerToggle = new ActionBarDrawerToggle (
                 this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawerLayout.setDrawerListener(actionBarDrawerToggle);
+        drawerLayout.setDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                InputMethodManager inputMethodManager = (InputMethodManager) MainActivity.
+                        this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+                if (MainActivity.this.getCurrentFocus().getWindowToken() != null)
+                    inputMethodManager.hideSoftInputFromWindow(MainActivity.this
+                            .getCurrentFocus().getWindowToken(), 0);
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        });
+//        drawerLayout.setDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-//        drawerLayout.setDrawerListener(new DrawerLayout.DrawerListener() {
-//            @Override
-//            public void onDrawerSlide(View drawerView, float slideOffset) {
-//
-//            }
-//
-//            @Override
-//            public void onDrawerOpened(View drawerView) {
-//                InputMethodManager inputMethodManager = (InputMethodManager) MainActivity.
-//                        this.getSystemService(Activity.INPUT_METHOD_SERVICE);
-//                if (MainActivity.this.getCurrentFocus().getWindowToken() != null)
-//                    inputMethodManager.hideSoftInputFromWindow(MainActivity.this
-//                            .getCurrentFocus().getWindowToken(), 0);
-//            }
-//
-//            @Override
-//            public void onDrawerClosed(View drawerView) {
-//
-//            }
-//
-//            @Override
-//            public void onDrawerStateChanged(int newState) {
-//
-//            }
-//        });
+        navigationDrawerHeaderView = navigationView.getHeaderView(0);
     }
 
     private void initFragments() {
@@ -174,6 +193,7 @@ public class MainActivity extends AppCompatActivity
 
         fragments.put(R.id.nav_global_chat, new ChatFragment());
         fragments.put(R.id.nav_peoples, new ListFragment());
+        fragments.put(R.id.nav_settings, new SettingsFragment());
 
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragments.get(R.id.nav_global_chat)).commit();
 
