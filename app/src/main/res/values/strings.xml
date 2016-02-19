@@ -17,4 +17,7 @@
     <string name="rooms">Rooms</string>
     <string name="settings">Settings</string>
     <string name="exit">Exit</string>
+
+    <string name="settings_name">Name</string>
+    <string name="settings_name_summary">Name summary</string>
 </resources>

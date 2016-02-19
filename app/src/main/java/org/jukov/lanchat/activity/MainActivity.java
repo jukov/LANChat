@@ -1,6 +1,6 @@
 package org.jukov.lanchat.activity;
 
-import android.app.Activity;
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -13,12 +13,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 
 import org.jukov.lanchat.R;
 import org.jukov.lanchat.fragment.BaseFragment;
 import org.jukov.lanchat.fragment.ChatFragment;
 import org.jukov.lanchat.fragment.ListFragment;
+import org.jukov.lanchat.fragment.SettingsFragment;
 import org.jukov.lanchat.service.LANChatService;
 
 import java.util.HashMap;
@@ -30,9 +30,12 @@ public class MainActivity extends AppCompatActivity
 
     private HashMap<Integer, BaseFragment> fragments;
 
+    private int currentNavigationId;
+
     private Toolbar toolbar;
-    private DrawerLayout drawer;
+    private DrawerLayout drawerLayout;
     private NavigationView navigationView;
+    private ActionBarDrawerToggle actionBarDrawerToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,28 +91,30 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         Log.d(TAG, Integer.toString(id));
 
-//        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragments.get(id)).commit();
-        switch (id) {
-            case R.id.nav_global_chat:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragments.get(id)).commit();
-                toolbar.setTitle(getString(R.string.global_chat));
-                break;
-            case R.id.nav_peoples:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragments.get(id)).commit();
-                toolbar.setTitle(getString(R.string.peoples));
-                break;
-            case R.id.nav_rooms:
-                break;
-            case R.id.nav_settings:
-                break;
-            case R.id.nav_exit:
-                stopService(new Intent(getApplicationContext(), LANChatService.class));
-                finish();
-                break;
-        }
+        if (currentNavigationId != id)
+            switch (id) {
+                case R.id.nav_global_chat:
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragments.get(id)).addToBackStack(null).commit();
+                    toolbar.setTitle(getString(R.string.global_chat));
+                    break;
+                case R.id.nav_peoples:
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragments.get(id)).addToBackStack(null).commit();
+                    toolbar.setTitle(getString(R.string.peoples));
+                    break;
+                case R.id.nav_rooms:
+                    break;
+                case R.id.nav_settings:
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new SettingsFragment()).addToBackStack(null).commit();
+                    break;
+                case R.id.nav_exit:
+                    stopService(new Intent(getApplicationContext(), LANChatService.class));
+                    finish();
+                    break;
+            }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+        currentNavigationId = id;
+
+        drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
 
@@ -118,41 +123,49 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         toolbar.setTitle(getString(R.string.global_chat));
 
-        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(getClass().getSimpleName(), "NavigationOnClickListener");
+            }
+        });
 
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
+
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        actionBarDrawerToggle = new ActionBarDrawerToggle (
+                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.setDrawerListener(actionBarDrawerToggle);
+        actionBarDrawerToggle.syncState();
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        drawer.setDrawerListener(new DrawerLayout.DrawerListener() {
-            @Override
-            public void onDrawerSlide(View drawerView, float slideOffset) {
-
-            }
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                InputMethodManager inputMethodManager = (InputMethodManager) MainActivity.
-                        this.getSystemService(Activity.INPUT_METHOD_SERVICE);
-                if (MainActivity.this.getCurrentFocus().getWindowToken() != null)
-                    inputMethodManager.hideSoftInputFromWindow(MainActivity.this
-                            .getCurrentFocus().getWindowToken(), 0);
-            }
-
-            @Override
-            public void onDrawerClosed(View drawerView) {
-
-            }
-
-            @Override
-            public void onDrawerStateChanged(int newState) {
-
-            }
-        });
+//        drawerLayout.setDrawerListener(new DrawerLayout.DrawerListener() {
+//            @Override
+//            public void onDrawerSlide(View drawerView, float slideOffset) {
+//
+//            }
+//
+//            @Override
+//            public void onDrawerOpened(View drawerView) {
+//                InputMethodManager inputMethodManager = (InputMethodManager) MainActivity.
+//                        this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+//                if (MainActivity.this.getCurrentFocus().getWindowToken() != null)
+//                    inputMethodManager.hideSoftInputFromWindow(MainActivity.this
+//                            .getCurrentFocus().getWindowToken(), 0);
+//            }
+//
+//            @Override
+//            public void onDrawerClosed(View drawerView) {
+//
+//            }
+//
+//            @Override
+//            public void onDrawerStateChanged(int newState) {
+//
+//            }
+//        });
     }
 
     private void initFragments() {

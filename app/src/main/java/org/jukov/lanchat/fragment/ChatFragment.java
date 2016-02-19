@@ -20,6 +20,9 @@ import org.jukov.lanchat.R;
 import org.jukov.lanchat.service.LANChatService;
 import org.jukov.lanchat.util.IntentStrings;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by jukov on 15.02.2016.
  */
@@ -33,7 +36,12 @@ public class ChatFragment extends BaseFragment {
     private ArrayAdapter<String> arrayAdapterMessages;
 
     private BroadcastReceiver broadcastReceiver;
-    
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -61,8 +69,10 @@ public class ChatFragment extends BaseFragment {
         editTextMessage = (EditText) layout.findViewById(R.id.editTextMessage);
         textViewDebug = (TextView) layout.findViewById(R.id.textViewDebug);
 
-        arrayAdapterMessages = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1);
+        if (arrayAdapterMessages == null)
+            arrayAdapterMessages = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1);
         listViewMessages.setAdapter(arrayAdapterMessages);
+
 
         buttonSend.setOnClickListener(new View.OnClickListener() {
             @Override
