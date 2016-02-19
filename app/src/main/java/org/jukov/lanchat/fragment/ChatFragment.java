@@ -20,9 +20,6 @@ import org.jukov.lanchat.R;
 import org.jukov.lanchat.service.LANChatService;
 import org.jukov.lanchat.util.IntentStrings;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by jukov on 15.02.2016.
  */

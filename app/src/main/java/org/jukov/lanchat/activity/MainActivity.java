@@ -1,7 +1,6 @@
 package org.jukov.lanchat.activity;
 
 import android.app.Activity;
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,6 +10,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -20,7 +20,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import org.jukov.lanchat.R;
-import org.jukov.lanchat.fragment.BaseFragment;
 import org.jukov.lanchat.fragment.ChatFragment;
 import org.jukov.lanchat.fragment.ListFragment;
 import org.jukov.lanchat.fragment.SettingsFragment;
@@ -185,6 +184,9 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         navigationDrawerHeaderView = navigationView.getHeaderView(0);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        TextView textView = (TextView) navigationDrawerHeaderView.findViewById(R.id.textViewName);
+        textView.setText(getString(R.string.nav_header_hello, sharedPreferences.getString("name", "Anonym")));
     }
 
     private void initFragments() {
