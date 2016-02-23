@@ -38,16 +38,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_above="@+id/editTextMessage"
-        android:layout_below="@+id/textViewDebug"
         android:transcriptMode="alwaysScroll"
         android:stackFromBottom="true"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="status appear here"
-        android:id="@+id/textViewDebug"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
 </RelativeLayout>

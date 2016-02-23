@@ -30,7 +30,6 @@ public class ClientConnection extends Thread implements Closeable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Log.d(TAG, "Connection created");
     }
 
     @Override

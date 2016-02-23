@@ -24,4 +24,8 @@ public class NetworkUtils {
         return InetAddress.getByAddress(quads);
     }
 
+    public static String getMACAddress(Context context) {
+        return ((WifiManager) context.getSystemService(Context.WIFI_SERVICE)).getConnectionInfo().getMacAddress();
+    }
+
 }

@@ -2,11 +2,12 @@ package org.jukov.lanchat.server;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
-import org.jukov.lanchat.network.UDP;
 import org.jukov.lanchat.util.IntentStrings;
 import org.jukov.lanchat.util.NetworkUtils;
 import org.jukov.lanchat.util.Strings;
+import org.jukov.lanchat.util.UDP;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -45,6 +46,7 @@ public class Server extends Thread implements Closeable {
                 ClientConnection clientConnection = new ClientConnection(socket, getServer());
                 executorService.execute(clientConnection);
                 clientConnections.add(clientConnection);
+                Log.d(getClass().getSimpleName(), "Connections - " + clientConnections.size());
                 updateStatus();
             }
         });
@@ -91,9 +93,8 @@ public class Server extends Thread implements Closeable {
     }
 
     public void updateStatus() {
-        Intent intent = new Intent(IntentStrings.BROADCAST_ACTION);
-        intent.putExtra(IntentStrings.EXTRA_TYPE, IntentStrings.TYPE_DEBUG);
-        intent.putExtra(IntentStrings.EXTRA_DEBUG, "Mode: server; clients - " + clientConnections.size());
+        Intent intent = new Intent(IntentStrings.ACTIVITY_ACTION);
+        intent.putExtra(IntentStrings.EXTRA_MODE, "Mode: server; clients - " + clientConnections.size());
         context.sendBroadcast(intent);
     }
 }

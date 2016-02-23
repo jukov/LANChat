@@ -7,12 +7,12 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.jukov.lanchat.client.Client;
-import org.jukov.lanchat.dto.MessageDTO;
-import org.jukov.lanchat.network.UDP;
+import org.jukov.lanchat.dto.ChatData;
+import org.jukov.lanchat.json.JSONConverter;
 import org.jukov.lanchat.server.Server;
 import org.jukov.lanchat.util.IntentStrings;
-import org.jukov.lanchat.util.JSONConverter;
 import org.jukov.lanchat.util.Strings;
+import org.jukov.lanchat.util.UDP;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -24,7 +24,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class LANChatService extends Service {
 
-    public static final String TAG = "LC_Service";
     public static final int TCP_PORT = 1791;
     public static final int UDP_PORT = 1791;
 
@@ -41,19 +40,19 @@ public class LANChatService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "onCreate");
+        Log.d(getClass().getSimpleName(), "onCreate");
         executorService = Executors.newFixedThreadPool(3);
         mode = MODE_NONE;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "onStartCommand");
-        if (intent.hasExtra(IntentStrings.EXTRA_TYPE)) {
-            switch (intent.getStringExtra(IntentStrings.EXTRA_TYPE)) {
-                case IntentStrings.TYPE_CONNECT_TO_SERVICE:
+        Log.d(getClass().getSimpleName(), "onStartCommand");
+        if (intent != null) {
+            switch (intent.getAction()) {
+                case IntentStrings.START_SERVICE_ACTION:
                     switch (mode) {
-                        case MODE_NONE:
+                        case MODE_NONE: //TODO optimize modes
                             ServerSearch serverSearch = new ServerSearch(UDP_PORT);
                             executorService.execute(serverSearch);
                             break;
@@ -65,11 +64,11 @@ public class LANChatService extends Service {
                             break;
                     }
                     break;
-                case IntentStrings.TYPE_MESSAGE:
+                case IntentStrings.CHAT_ACTION:
                     if (client != null) {
-                        Log.d(TAG, "In Type_Message, client != null");
                         try {
-                            String message = JSONConverter.toJSON(new MessageDTO(client.getLocalIP(), intent.getStringExtra(IntentStrings.EXTRA_MESSAGE)));
+                            String message = JSONConverter.toJSON(new ChatData(getApplicationContext(), intent.getStringExtra(IntentStrings.EXTRA_MESSAGE)));
+                            Log.d(getClass().getSimpleName(), message);
                             client.sendMessage(message);
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -77,10 +76,10 @@ public class LANChatService extends Service {
                     }
                     break;
                 default:
-                    Log.d(TAG, "Unexpected intent type");
+                    Log.d(getClass().getSimpleName(), "Unexpected intent action type");
             }
         }
-        return super.onStartCommand(intent, flags, startId);
+        return Service.START_STICKY;
     }
 
     @Override
@@ -88,11 +87,11 @@ public class LANChatService extends Service {
         Log.d(getClass().getSimpleName(), "onDestroy()");
         super.onDestroy();
 
-        if (server != null) {
-            server.close();
-        }
         if (client != null) {
             client.close();
+        }
+        if (server != null) {
+            server.close();
         }
     }
 
@@ -124,9 +123,8 @@ public class LANChatService extends Service {
                             broadcastIP.delete(0, broadcastIP.length());
                             broadcastIP.append(ip);
                         }
-                        Log.d(TAG, "Receive message");
-                        Intent intent = new Intent(IntentStrings.BROADCAST_ACTION);
-                        intent.putExtra(IntentStrings.EXTRA_TYPE, IntentStrings.TYPE_MESSAGE);
+                        Log.d(getClass().getSimpleName(), "Receive message");
+                        Intent intent = new Intent(IntentStrings.CHAT_ACTION);
                         intent.putExtra(IntentStrings.EXTRA_NAME, ip);
                         intent.putExtra(IntentStrings.EXTRA_MESSAGE, message);
                         sendBroadcast(intent);
@@ -136,7 +134,7 @@ public class LANChatService extends Service {
 
                 TimeUnit.SECONDS.sleep(2);
                 udp.close();
-                Log.d(TAG, receive[0] ? "Broadcast received" : "Broadcast not received");
+                Log.d(getClass().getSimpleName(), receive[0] ? "Broadcast received" : "Broadcast not received");
 
                 if (receive[0]) {
                     mode = MODE_CLIENT;

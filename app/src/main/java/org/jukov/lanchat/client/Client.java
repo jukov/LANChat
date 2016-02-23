@@ -4,9 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import org.jukov.lanchat.dto.MessageDTO;
+import org.jukov.lanchat.dto.ChatData;
+import org.jukov.lanchat.dto.Data;
+import org.jukov.lanchat.dto.PeopleData;
+import org.jukov.lanchat.json.JSONConverter;
 import org.jukov.lanchat.util.IntentStrings;
-import org.jukov.lanchat.util.JSONConverter;
+import org.jukov.lanchat.util.NetworkUtils;
 
 import java.io.Closeable;
 import java.io.DataInputStream;
@@ -24,6 +27,7 @@ public class Client extends Thread implements Closeable {
     private Context context;
     private int port;
     private String ip;
+    private PeopleData peopleData;
 
     private Socket socket;
     private DataOutputStream dataOutputStream;
@@ -33,10 +37,21 @@ public class Client extends Thread implements Closeable {
         this.context = context;
         this.port = port;
         this.ip = ip;
+        peopleData = new PeopleData(context, NetworkUtils.getMACAddress(context));
         try {
             socket = new Socket(ip, port);
             dataOutputStream = new DataOutputStream(socket.getOutputStream());
             dataInputStream = new DataInputStream(socket.getInputStream());
+            sendMessage(JSONConverter.toJSON(peopleData));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void changeName(String name) {
+        peopleData.setName(name);
+        try {
+            sendMessage(JSONConverter.toJSON(peopleData));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -48,13 +63,21 @@ public class Client extends Thread implements Closeable {
         try {
             while (!socket.isClosed()) {
                 String message = dataInputStream.readUTF();
-                Log.d(TAG, "Receive message");
-                MessageDTO messageDTO = JSONConverter.toJavaObject(message);
-                Intent intent = new Intent(IntentStrings.BROADCAST_ACTION);
-                intent.putExtra(IntentStrings.EXTRA_TYPE, IntentStrings.TYPE_MESSAGE);
-                intent.putExtra(IntentStrings.EXTRA_NAME, messageDTO.getAuthor());
-                intent.putExtra(IntentStrings.EXTRA_MESSAGE, messageDTO.getText());
-                context.sendBroadcast(intent);
+                Data data = JSONConverter.toJavaObject(message);
+                Log.d(TAG, "Receive message " + data.getClass().getName());
+                if (data.getClass().getName().equals(ChatData.class.getName())) {
+                    ChatData chatData = (ChatData) data;
+                    Intent intent = new Intent(IntentStrings.CHAT_ACTION);
+                    intent.putExtra(IntentStrings.EXTRA_NAME, chatData.getName());
+                    intent.putExtra(IntentStrings.EXTRA_MESSAGE, chatData.getText());
+                    context.sendBroadcast(intent);
+                } else if (data.getClass().getName().equals(PeopleData.class.getName())) {
+                    PeopleData peopleData = (PeopleData) data;
+                    Intent intent = new Intent(IntentStrings.PEOPLES_ACTION);
+                    intent.putExtra(IntentStrings.EXTRA_NAME, peopleData.getName());
+                    intent.putExtra(IntentStrings.EXTRA_UID, peopleData.getUid());
+                    context.sendBroadcast(intent);
+                }
             }
         }
         catch (IOException e) {
@@ -65,6 +88,7 @@ public class Client extends Thread implements Closeable {
     @Override
     public void close() {
         try {
+            sendMessage(JSONConverter.toJSON(peopleData));
             dataOutputStream.close();
             dataInputStream.close();
             socket.close();
@@ -88,9 +112,8 @@ public class Client extends Thread implements Closeable {
     }
 
     public void updateStatus() {
-        Intent intent = new Intent(IntentStrings.BROADCAST_ACTION);
-        intent.putExtra(IntentStrings.EXTRA_TYPE, IntentStrings.TYPE_DEBUG);
-        intent.putExtra(IntentStrings.EXTRA_DEBUG, "Mode: client");
+        Intent intent = new Intent(IntentStrings.ACTIVITY_ACTION);
+        intent.putExtra(IntentStrings.EXTRA_MODE, "Mode: client");
         context.sendBroadcast(intent);
     }
 

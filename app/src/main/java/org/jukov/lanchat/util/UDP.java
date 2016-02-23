@@ -1,4 +1,4 @@
-package org.jukov.lanchat.network;
+package org.jukov.lanchat.util;
 
 import android.content.Context;
 import android.util.Log;

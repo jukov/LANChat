@@ -1,7 +1,10 @@
 package org.jukov.lanchat.activity;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -21,17 +24,17 @@ import android.widget.TextView;
 
 import org.jukov.lanchat.R;
 import org.jukov.lanchat.fragment.ChatFragment;
-import org.jukov.lanchat.fragment.ListFragment;
+import org.jukov.lanchat.fragment.PeopleListFragment;
 import org.jukov.lanchat.fragment.SettingsFragment;
 import org.jukov.lanchat.service.LANChatService;
+import org.jukov.lanchat.service.ServiceHelper;
+import org.jukov.lanchat.util.IntentStrings;
 
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
-
-    public static final String TAG = "LC_Activity";
 
     private HashMap<Integer, Fragment> fragments;
 
@@ -43,6 +46,10 @@ public class MainActivity extends AppCompatActivity
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private View navigationDrawerHeaderView;
 
+    private TextView textViewMode;
+
+    private BroadcastReceiver broadcastReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,16 +57,19 @@ public class MainActivity extends AppCompatActivity
 
         initViews();
         initFragments();
+        initService();
+        initBroadcastReceiver();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unregisterReceiver(broadcastReceiver);
     }
 
     @Override
     public void onBackPressed() {
-        Log.d(TAG, "onBackPressed");
+        Log.d(getClass().getSimpleName(), "onBackPressed");
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -95,7 +105,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        Log.d(TAG, Integer.toString(id));
+        Log.d(getClass().getSimpleName(), Integer.toString(id));
 
         if (currentNavigationId != id)
             switch (id) {
@@ -130,7 +140,7 @@ public class MainActivity extends AppCompatActivity
         Log.d(getClass().getSimpleName(), "onSharedPreferenceChanged() " + key);
         switch (key) {
             case "name":
-                TextView textView = (TextView) navigationDrawerHeaderView.findViewById(R.id.textViewName);
+                TextView textView = (TextView) navigationDrawerHeaderView.findViewById(R.id.navTextViewName);
                 textView.setText(getString(R.string.nav_header_hello, sharedPreferences.getString("name", "Anonym")));
                 break;
         }
@@ -185,8 +195,10 @@ public class MainActivity extends AppCompatActivity
 
         navigationDrawerHeaderView = navigationView.getHeaderView(0);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        TextView textView = (TextView) navigationDrawerHeaderView.findViewById(R.id.textViewName);
+        TextView textView = (TextView) navigationDrawerHeaderView.findViewById(R.id.navTextViewName);
         textView.setText(getString(R.string.nav_header_hello, sharedPreferences.getString("name", "Anonym")));
+
+        textViewMode = (TextView) navigationDrawerHeaderView.findViewById(R.id.naeTextViewPeoplesAround);
     }
 
     private void initFragments() {
@@ -194,10 +206,33 @@ public class MainActivity extends AppCompatActivity
         fragments = new HashMap<>();
 
         fragments.put(R.id.nav_global_chat, new ChatFragment());
-        fragments.put(R.id.nav_peoples, new ListFragment());
+        fragments.put(R.id.nav_peoples, new PeopleListFragment());
         fragments.put(R.id.nav_settings, new SettingsFragment());
 
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragments.get(R.id.nav_global_chat)).commit();
 
+    }
+
+    private void initService() {
+        Log.d(getClass().getSimpleName(), "Connecting to service");
+        ServiceHelper.startService(this);
+    }
+
+    private void initBroadcastReceiver() {
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, final Intent intent) {
+                if (intent.hasExtra(IntentStrings.EXTRA_MODE)) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            textViewMode.setText(intent.getStringExtra(IntentStrings.EXTRA_MODE));
+                        }
+                    });
+                }
+            }
+        };
+        IntentFilter intentFilter = new IntentFilter(IntentStrings.ACTIVITY_ACTION);
+        registerReceiver(broadcastReceiver, intentFilter);
     }
 }
