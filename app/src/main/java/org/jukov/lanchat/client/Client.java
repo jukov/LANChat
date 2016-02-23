@@ -22,8 +22,6 @@ import java.net.Socket;
  */
 public class Client extends Thread implements Closeable {
 
-    public static final String TAG = "LC_Client";
-
     private Context context;
     private int port;
     private String ip;
@@ -59,12 +57,12 @@ public class Client extends Thread implements Closeable {
 
     @Override
     public void run() {
-        Log.d(TAG, "Client started");
+        Log.d(getClass().getSimpleName(), "Client started");
         try {
             while (!socket.isClosed()) {
                 String message = dataInputStream.readUTF();
                 Data data = JSONConverter.toJavaObject(message);
-                Log.d(TAG, "Receive message " + data.getClass().getName());
+                Log.d(getClass().getSimpleName(), "Receive message " + data.getClass().getName());
                 if (data.getClass().getName().equals(ChatData.class.getName())) {
                     ChatData chatData = (ChatData) data;
                     Intent intent = new Intent(IntentStrings.CHAT_ACTION);
@@ -99,7 +97,7 @@ public class Client extends Thread implements Closeable {
 
     public void sendMessage(String message) {
         try {
-            Log.d(TAG, "In sendMessage()");
+            Log.d(getClass().getSimpleName(), "In sendMessage()");
             dataOutputStream.writeUTF(message);
             dataOutputStream.flush();
         } catch (IOException e) {

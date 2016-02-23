@@ -13,8 +13,6 @@ import java.net.Socket;
  */
 public class ClientConnection extends Thread implements Closeable {
 
-    public static final String TAG = "LC_ClientConnection";
-
     private Socket socket;
     private DataOutputStream dataOutputStream;
     private DataInputStream dataInputStream;
@@ -34,17 +32,17 @@ public class ClientConnection extends Thread implements Closeable {
 
     @Override
     public void run() {
-        Log.d(TAG, "Connection started");
+        Log.d(getClass().getSimpleName(), "Connection started");
         while (!socket.isClosed()) {
             try {
                 String message = dataInputStream.readUTF();
-                Log.d(TAG, "Receive message");
+                Log.d(getClass().getSimpleName(), "Receive message");
                 server.broadcastMessage(message);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        Log.d(TAG, "Connection closed");
+        Log.d(getClass().getSimpleName(), "Connection closed");
     }
 
     @Override
@@ -61,7 +59,7 @@ public class ClientConnection extends Thread implements Closeable {
 
     public void sendMessage(String message) {
         try {
-            Log.d(TAG, "In sendMessage()");
+            Log.d(getClass().getSimpleName(), "In sendMessage()");
             dataOutputStream.writeUTF(message);
             dataOutputStream.flush();
         } catch (IOException e) {

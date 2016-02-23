@@ -15,8 +15,6 @@ import java.net.SocketException;
  */
 public class UDP extends Thread implements Closeable {
 
-    public static final String TAG = "LC_UDP";
-
     private BroadcastListener broadcastListener;
     private Context context;
     private DatagramSocket receiveSocket;
@@ -61,7 +59,7 @@ public class UDP extends Thread implements Closeable {
                         new String(packet.getData(), 0, packet.getLength()),
                         packet.getAddress().getHostAddress());
             } catch (IOException e) {
-                Log.d(TAG, "Stop broadcast catching");
+                Log.d(getClass().getSimpleName(), "Stop broadcast catching");
             }
         }
         receiveSocket.close();
