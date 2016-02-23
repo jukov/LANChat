@@ -1,10 +1,9 @@
 package org.jukov.lanchat.server;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
-import org.jukov.lanchat.util.IntentStrings;
+import org.jukov.lanchat.service.ServiceHelper;
 import org.jukov.lanchat.util.NetworkUtils;
 import org.jukov.lanchat.util.Strings;
 import org.jukov.lanchat.util.UDP;
@@ -93,8 +92,6 @@ public class Server extends Thread implements Closeable {
     }
 
     public void updateStatus() {
-        Intent intent = new Intent(IntentStrings.ACTIVITY_ACTION);
-        intent.putExtra(IntentStrings.EXTRA_MODE, "Mode: server; clients - " + clientConnections.size());
-        context.sendBroadcast(intent);
+        ServiceHelper.updateStatus(context, "Mode: server; clients - " + clientConnections.size());
     }
 }

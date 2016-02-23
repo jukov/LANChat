@@ -1,14 +1,13 @@
 package org.jukov.lanchat.client;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.Data;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.json.JSONConverter;
-import org.jukov.lanchat.util.IntentStrings;
+import org.jukov.lanchat.service.ServiceHelper;
 import org.jukov.lanchat.util.NetworkUtils;
 
 import java.io.Closeable;
@@ -65,16 +64,10 @@ public class Client extends Thread implements Closeable {
                 Log.d(getClass().getSimpleName(), "Receive message " + data.getClass().getName());
                 if (data.getClass().getName().equals(ChatData.class.getName())) {
                     ChatData chatData = (ChatData) data;
-                    Intent intent = new Intent(IntentStrings.CHAT_ACTION);
-                    intent.putExtra(IntentStrings.EXTRA_NAME, chatData.getName());
-                    intent.putExtra(IntentStrings.EXTRA_MESSAGE, chatData.getText());
-                    context.sendBroadcast(intent);
+                    ServiceHelper.receiveMessage(context, chatData);
                 } else if (data.getClass().getName().equals(PeopleData.class.getName())) {
                     PeopleData peopleData = (PeopleData) data;
-                    Intent intent = new Intent(IntentStrings.PEOPLES_ACTION);
-                    intent.putExtra(IntentStrings.EXTRA_NAME, peopleData.getName());
-                    intent.putExtra(IntentStrings.EXTRA_UID, peopleData.getUid());
-                    context.sendBroadcast(intent);
+                    ServiceHelper.receivePeople(context, peopleData);
                 }
             }
         }
@@ -110,9 +103,7 @@ public class Client extends Thread implements Closeable {
     }
 
     public void updateStatus() {
-        Intent intent = new Intent(IntentStrings.ACTIVITY_ACTION);
-        intent.putExtra(IntentStrings.EXTRA_MODE, "Mode: client");
-        context.sendBroadcast(intent);
+        ServiceHelper.updateStatus(context, "Mode: client");
     }
 
 

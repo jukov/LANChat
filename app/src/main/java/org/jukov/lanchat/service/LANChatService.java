@@ -124,10 +124,6 @@ public class LANChatService extends Service {
                             broadcastIP.append(ip);
                         }
                         Log.d(getClass().getSimpleName(), "Receive message");
-                        Intent intent = new Intent(IntentStrings.CHAT_ACTION);
-                        intent.putExtra(IntentStrings.EXTRA_NAME, ip);
-                        intent.putExtra(IntentStrings.EXTRA_MESSAGE, message);
-                        sendBroadcast(intent);
                     }
                 });
                 executorService.execute(udp);
