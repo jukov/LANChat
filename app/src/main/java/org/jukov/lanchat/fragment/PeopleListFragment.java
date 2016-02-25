@@ -1,13 +1,7 @@
 package org.jukov.lanchat.fragment;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +12,6 @@ import android.widget.ListView;
 import org.jukov.lanchat.R;
 import org.jukov.lanchat.activity.MainActivity;
 import org.jukov.lanchat.dto.PeopleData;
-import org.jukov.lanchat.util.IntentStrings;
 
 /**
  * Created by jukov on 16.02.2016.

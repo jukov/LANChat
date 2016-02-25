@@ -25,16 +25,25 @@ public class ServiceHelper {
         context.startService(intent);
     }
 
+    public static void changeName(Context context, String newName) {
+        Intent intent = new Intent(context, LANChatService.class);
+        intent.setAction(IntentStrings.NAME_CHANGE_ACTION);
+        intent.putExtra(IntentStrings.EXTRA_NAME, newName);
+        context.startService(intent);
+    }
+
     public static void updateStatus(Context context, String status) {
         Intent intent = new Intent(IntentStrings.ACTIVITY_ACTION);
         intent.putExtra(IntentStrings.EXTRA_MODE, status);
         context.sendBroadcast(intent);
     }
 
+
     public static void receivePeople(Context context, PeopleData peopleData) {
         Intent intent = new Intent(IntentStrings.PEOPLES_ACTION);
         intent.putExtra(IntentStrings.EXTRA_NAME, peopleData.getName());
         intent.putExtra(IntentStrings.EXTRA_UID, peopleData.getUid());
+        intent.putExtra(IntentStrings.EXTRA_MODE, peopleData.getAction());
         context.sendBroadcast(intent);
     }
 

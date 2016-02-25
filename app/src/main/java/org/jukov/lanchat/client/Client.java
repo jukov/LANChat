@@ -1,6 +1,7 @@
 package org.jukov.lanchat.client;
 
 import android.content.Context;
+import android.os.NetworkOnMainThreadException;
 import android.util.Log;
 
 import org.jukov.lanchat.dto.ChatData;
@@ -34,24 +35,30 @@ public class Client extends Thread implements Closeable {
         this.context = context;
         this.port = port;
         this.ip = ip;
-        peopleData = new PeopleData(context, NetworkUtils.getMACAddress(context));
-        try {
-            socket = new Socket(ip, port);
-            dataOutputStream = new DataOutputStream(socket.getOutputStream());
-            dataInputStream = new DataInputStream(socket.getInputStream());
-            sendMessage(JSONConverter.toJSON(peopleData));
-        } catch (IOException e) {
-            e.printStackTrace();
+        peopleData = new PeopleData(context, NetworkUtils.getMACAddress(context), PeopleData.ACTION_NONE);
+        while (socket == null) {
+            try {
+                socket = new Socket(ip, port);
+                dataOutputStream = new DataOutputStream(socket.getOutputStream());
+                dataInputStream = new DataInputStream(socket.getInputStream());
+                peopleData.setAction(PeopleData.ACTION_CONNECT);
+                sendMessage(JSONConverter.toJSON(peopleData));
+                peopleData.setAction(PeopleData.ACTION_NONE);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public void changeName(String name) {
         peopleData.setName(name);
+        peopleData.setAction(PeopleData.ACTION_CHANGE_NAME);
         try {
             sendMessage(JSONConverter.toJSON(peopleData));
         } catch (IOException e) {
             e.printStackTrace();
         }
+        peopleData.setAction(PeopleData.ACTION_NONE);
     }
 
     @Override
@@ -79,6 +86,7 @@ public class Client extends Thread implements Closeable {
     @Override
     public void close() {
         try {
+            peopleData.setAction(PeopleData.ACTION_DISCONNECT);
             sendMessage(JSONConverter.toJSON(peopleData));
             dataOutputStream.close();
             dataInputStream.close();

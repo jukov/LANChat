@@ -8,19 +8,27 @@ import android.content.Context;
 
 public class PeopleData extends Data {
 
+    public static final int ACTION_NONE = 0;
+    public static final int ACTION_CONNECT = 1;
+    public static final int ACTION_DISCONNECT = 2;
+    public static final int ACTION_CHANGE_NAME = 3;
+
     private String uid;
+    private int action;
 
     public PeopleData() {
     }
 
-    public PeopleData(Context context, String uid) {
+    public PeopleData(Context context, String uid, int action) {
         super(context);
         this.uid = uid;
+        this.action = action;
     }
 
-    public PeopleData(String name, String uid) {
+    public PeopleData(String name, String uid, int action) {
         setName(name);
         this.uid = uid;
+        this.action = action;
     }
 
     public String getUid() {
@@ -29,6 +37,14 @@ public class PeopleData extends Data {
 
     public void setUid(String uid) {
         this.uid = uid;
+    }
+
+    public int getAction() {
+        return action;
+    }
+
+    public void setAction(int action) {
+        this.action = action;
     }
 
     @Override

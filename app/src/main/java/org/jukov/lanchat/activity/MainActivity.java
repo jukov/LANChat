@@ -16,14 +16,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
-
-import com.fasterxml.jackson.databind.deser.Deserializers;
 
 import org.jukov.lanchat.R;
 import org.jukov.lanchat.dto.PeopleData;
@@ -138,8 +135,10 @@ public class MainActivity extends AppCompatActivity
         Log.d(getClass().getSimpleName(), "onSharedPreferenceChanged() " + key);
         switch (key) {
             case "name":
+                String name = sharedPreferences.getString("name", "Anonym");
                 TextView textView = (TextView) navigationDrawerHeaderView.findViewById(R.id.navTextViewName);
-                textView.setText(getString(R.string.nav_header_hello, sharedPreferences.getString("name", "Anonym")));
+                ServiceHelper.changeName(this, name);
+                textView.setText(getString(R.string.nav_header_hello, name));
                 break;
         }
     }
@@ -209,11 +208,6 @@ public class MainActivity extends AppCompatActivity
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, fragments.get(R.id.nav_peoples))
-                .commit();
-
-        getSupportFragmentManager()
-                .beginTransaction()
                 .replace(R.id.fragment_container, fragments.get(R.id.nav_global_chat))
                 .commit();
 
@@ -243,11 +237,20 @@ public class MainActivity extends AppCompatActivity
                     case IntentStrings.PEOPLES_ACTION:
                         String name = intent.getStringExtra(IntentStrings.EXTRA_NAME);
                         String uid = intent.getStringExtra(IntentStrings.EXTRA_UID);
-                        PeopleData peopleData = new PeopleData(name, uid);
-                        if (arrayAdapterPeoples.getPosition(peopleData) == -1)
-                            arrayAdapterPeoples.add(peopleData);
-                        else
-                            arrayAdapterPeoples.remove(peopleData);
+                        int action = intent.getIntExtra(IntentStrings.EXTRA_ACTION, -1);
+                        PeopleData peopleData = new PeopleData(name, uid, action);
+                        Log.d(getClass().getSimpleName(), Integer.toString(action));
+                        switch (action) {
+                            case PeopleData.ACTION_CONNECT:
+                                arrayAdapterPeoples.add(peopleData);
+                                break;
+                            case PeopleData.ACTION_DISCONNECT:
+                                arrayAdapterPeoples.remove(peopleData);
+                                break;
+                            case PeopleData.ACTION_CHANGE_NAME:
+                                arrayAdapterPeoples.remove(peopleData);
+                                arrayAdapterPeoples.add(peopleData);
+                        }
                 }
             }
         };

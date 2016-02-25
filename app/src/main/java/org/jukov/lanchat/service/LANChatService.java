@@ -75,6 +75,11 @@ public class LANChatService extends Service {
                         }
                     }
                     break;
+                case IntentStrings.NAME_CHANGE_ACTION:
+                    if (client != null) {
+                        client.changeName(intent.getStringExtra(IntentStrings.EXTRA_NAME));
+                    }
+                    break;
                 default:
                     Log.d(getClass().getSimpleName(), "Unexpected intent action type");
             }

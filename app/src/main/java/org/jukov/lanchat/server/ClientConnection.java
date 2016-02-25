@@ -46,9 +46,9 @@ public class ClientConnection extends Thread implements Closeable {
                 Data data = JSONConverter.toJavaObject(message);
                 if (data.getClass().getName().equals(PeopleData.class.getName())) {
                     peopleData = (PeopleData) data;
-                    server.broadcastPeoples(this);
                 }
                 server.broadcastMessage(message);
+                peopleData.setAction(PeopleData.ACTION_NONE);
             } catch (IOException e) {
                 close();
                 e.printStackTrace();

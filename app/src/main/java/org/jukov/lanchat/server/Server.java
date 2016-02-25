@@ -97,9 +97,11 @@ public class Server extends Thread implements Closeable {
         for (ClientConnection clientConnection : clientConnections) {
             try {
                 PeopleData peopleData = clientConnection.getPeopleData();
-                if (peopleData != null)
+                if (peopleData != null) {
+                    peopleData.setAction(PeopleData.ACTION_CONNECT);
                     if (!clientConnection.equals(targetClientConnection))
                         targetClientConnection.sendMessage(JSONConverter.toJSON(peopleData));
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }

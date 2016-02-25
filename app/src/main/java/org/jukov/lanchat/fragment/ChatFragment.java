@@ -1,9 +1,5 @@
 package org.jukov.lanchat.fragment;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -18,7 +14,6 @@ import android.widget.ListView;
 import org.jukov.lanchat.R;
 import org.jukov.lanchat.activity.MainActivity;
 import org.jukov.lanchat.service.ServiceHelper;
-import org.jukov.lanchat.util.IntentStrings;
 
 /**
  * Created by jukov on 15.02.2016.
