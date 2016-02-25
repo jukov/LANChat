@@ -3,6 +3,8 @@ package org.jukov.lanchat.server;
 import android.content.Context;
 import android.util.Log;
 
+import org.jukov.lanchat.dto.PeopleData;
+import org.jukov.lanchat.json.JSONConverter;
 import org.jukov.lanchat.service.ServiceHelper;
 import org.jukov.lanchat.util.NetworkUtils;
 import org.jukov.lanchat.util.Strings;
@@ -66,9 +68,9 @@ public class Server extends Thread implements Closeable {
     }
 
     public void close() {
-        for (ClientConnection clientConnection: clientConnections) {
-            clientConnection.close();
-        }
+//        for (ClientConnection clientConnection: clientConnections) {
+//            clientConnection.close();
+//        }
         stopBroadcastFlag = true;
         try {
             tcpListener.close();
@@ -86,8 +88,21 @@ public class Server extends Thread implements Closeable {
     }
 
     public void broadcastMessage(String message) {
-        for (ClientConnection clientConnection: clientConnections) {
+        for (ClientConnection clientConnection : clientConnections) {
             clientConnection.sendMessage(message);
+        }
+    }
+
+    public void broadcastPeoples(ClientConnection targetClientConnection) {
+        for (ClientConnection clientConnection : clientConnections) {
+            try {
+                PeopleData peopleData = clientConnection.getPeopleData();
+                if (peopleData != null)
+                    if (!clientConnection.equals(targetClientConnection))
+                        targetClientConnection.sendMessage(JSONConverter.toJSON(peopleData));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

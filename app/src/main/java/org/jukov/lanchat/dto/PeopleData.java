@@ -35,4 +35,12 @@ public class PeopleData extends Data {
     public String toString() {
         return getName();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o.getClass().getName().equals(PeopleData.class.getName()))
+            return uid.equals(((PeopleData) o).getUid());
+        else
+            return super.equals(o);
+    }
 }

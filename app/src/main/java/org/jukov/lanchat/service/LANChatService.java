@@ -52,7 +52,7 @@ public class LANChatService extends Service {
             switch (intent.getAction()) {
                 case IntentStrings.START_SERVICE_ACTION:
                     switch (mode) {
-                        case MODE_NONE: //TODO optimize modes
+                        case MODE_NONE:
                             ServerSearch serverSearch = new ServerSearch(UDP_PORT);
                             executorService.execute(serverSearch);
                             break;

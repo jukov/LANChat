@@ -20,9 +20,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.fasterxml.jackson.databind.deser.Deserializers;
+
 import org.jukov.lanchat.R;
+import org.jukov.lanchat.dto.PeopleData;
+import org.jukov.lanchat.fragment.BaseFragment;
 import org.jukov.lanchat.fragment.ChatFragment;
 import org.jukov.lanchat.fragment.PeopleListFragment;
 import org.jukov.lanchat.fragment.SettingsFragment;
@@ -36,19 +41,21 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private HashMap<Integer, Fragment> fragments;
-
-    private int currentNavigationId;
-
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private View navigationDrawerHeaderView;
-
     private TextView textViewMode;
 
+    private HashMap<Integer, Fragment> fragments;
+
+    private int currentNavigationId;
+
     private BroadcastReceiver broadcastReceiver;
+
+    private ArrayAdapter<PeopleData> arrayAdapterPeoples;
+    private ArrayAdapter<String> arrayAdapterMessages;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,8 +64,9 @@ public class MainActivity extends AppCompatActivity
 
         initViews();
         initFragments();
-        initService();
+        initAdapters();
         initBroadcastReceiver();
+        initService();
     }
 
     @Override
@@ -78,47 +86,34 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.main, menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//
+//        //noinspection SimplifiableIfStatement
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
-        Log.d(getClass().getSimpleName(), Integer.toString(id));
-
-        if (currentNavigationId != id)
+        if (currentNavigationId != id) {
             switch (id) {
-                case R.id.nav_global_chat:
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragments.get(id)).addToBackStack(null).commit();
-                    toolbar.setTitle(getString(R.string.global_chat));
-                    break;
-                case R.id.nav_peoples:
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragments.get(id)).addToBackStack(null).commit();
-                    toolbar.setTitle(getString(R.string.peoples));
-                    break;
-                case R.id.nav_rooms:
-                    break;
                 case R.id.nav_settings:
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragments.get(id)).addToBackStack(null).commit();
                     toolbar.setTitle(getString(R.string.settings));
@@ -127,10 +122,13 @@ public class MainActivity extends AppCompatActivity
                     stopService(new Intent(getApplicationContext(), LANChatService.class));
                     finish();
                     break;
+                default:
+                    BaseFragment baseFragment = (BaseFragment) fragments.get(id);
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, baseFragment).addToBackStack(null).commit();
+                    toolbar.setTitle(baseFragment.getTitle());
             }
-
+        }
         currentNavigationId = id;
-
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -146,17 +144,18 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    public ArrayAdapter<PeopleData> getArrayAdapterPeoples() {
+        return arrayAdapterPeoples;
+    }
+
+    public ArrayAdapter<String> getArrayAdapterMessages() {
+        return arrayAdapterMessages;
+    }
+
     private void initViews() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(getString(R.string.global_chat));
-
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(getClass().getSimpleName(), "NavigationOnClickListener");
-            }
-        });
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
@@ -187,7 +186,6 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
-//        drawerLayout.setDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -209,30 +207,59 @@ public class MainActivity extends AppCompatActivity
         fragments.put(R.id.nav_peoples, new PeopleListFragment());
         fragments.put(R.id.nav_settings, new SettingsFragment());
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragments.get(R.id.nav_global_chat)).commit();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, fragments.get(R.id.nav_peoples))
+                .commit();
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, fragments.get(R.id.nav_global_chat))
+                .commit();
 
     }
 
-    private void initService() {
-        Log.d(getClass().getSimpleName(), "Connecting to service");
-        ServiceHelper.startService(this);
+    private void initAdapters() {
+        arrayAdapterMessages = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
+        arrayAdapterPeoples = new ArrayAdapter<>(this, R.layout.people_listview_layout, R.id.textViewName);
     }
 
     private void initBroadcastReceiver() {
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, final Intent intent) {
-                if (intent.hasExtra(IntentStrings.EXTRA_MODE)) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            textViewMode.setText(intent.getStringExtra(IntentStrings.EXTRA_MODE));
-                        }
-                    });
+                switch (intent.getAction()) {
+                    case IntentStrings.ACTIVITY_ACTION:
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                textViewMode.setText(intent.getStringExtra(IntentStrings.EXTRA_MODE));
+                            }
+                        });
+                        break;
+                    case IntentStrings.CHAT_ACTION:
+                        arrayAdapterMessages.add(intent.getStringExtra(IntentStrings.EXTRA_NAME) + ": " + intent.getStringExtra(IntentStrings.EXTRA_MESSAGE));
+                        break;
+                    case IntentStrings.PEOPLES_ACTION:
+                        String name = intent.getStringExtra(IntentStrings.EXTRA_NAME);
+                        String uid = intent.getStringExtra(IntentStrings.EXTRA_UID);
+                        PeopleData peopleData = new PeopleData(name, uid);
+                        if (arrayAdapterPeoples.getPosition(peopleData) == -1)
+                            arrayAdapterPeoples.add(peopleData);
+                        else
+                            arrayAdapterPeoples.remove(peopleData);
                 }
             }
         };
-        IntentFilter intentFilter = new IntentFilter(IntentStrings.ACTIVITY_ACTION);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(IntentStrings.ACTIVITY_ACTION);
+        intentFilter.addAction(IntentStrings.CHAT_ACTION);
+        intentFilter.addAction(IntentStrings.PEOPLES_ACTION);
         registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+    private void initService() {
+        Log.d(getClass().getSimpleName(), "Connecting to service");
+        ServiceHelper.startService(this);
     }
 }

@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import org.jukov.lanchat.R;
+import org.jukov.lanchat.activity.MainActivity;
 import org.jukov.lanchat.service.ServiceHelper;
 import org.jukov.lanchat.util.IntentStrings;
 
@@ -30,13 +31,11 @@ public class ChatFragment extends BaseFragment {
 
     private ArrayAdapter<String> arrayAdapterMessages;
 
-    private BroadcastReceiver broadcastReceiver;
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(getClass().getSimpleName(), "onCreate()");
-        initBroadcastReceiver();
+        setTitle(getString(R.string.global_chat));
         initAdapter();
     }
 
@@ -47,17 +46,9 @@ public class ChatFragment extends BaseFragment {
 
         layout = inflater.inflate(R.layout.chat_layout, container, false);
 
-        setTitle(getString(R.string.global_chat));
         initViews();
 
         return layout;
-    }
-
-    @Override
-    public void onDestroy() {        getActivity().unregisterReceiver(broadcastReceiver);
-        Log.d(getClass().getSimpleName(), "onDestroy()");
-        super.onDestroy();
-
     }
 
     private void initViews() {
@@ -78,20 +69,6 @@ public class ChatFragment extends BaseFragment {
     }
 
     private void initAdapter() {
-        if (arrayAdapterMessages == null)
-            arrayAdapterMessages = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1);
-    }
-
-    private void initBroadcastReceiver() {
-        broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, final Intent intent) {
-                if (intent.hasExtra(IntentStrings.EXTRA_MESSAGE)) {
-                    arrayAdapterMessages.add(intent.getStringExtra(IntentStrings.EXTRA_NAME) + ": " + intent.getStringExtra(IntentStrings.EXTRA_MESSAGE));
-                }
-            }
-        };
-        IntentFilter intentFilter = new IntentFilter(IntentStrings.CHAT_ACTION);
-        getActivity().registerReceiver(broadcastReceiver, intentFilter);
+        arrayAdapterMessages = ((MainActivity) getActivity()).getArrayAdapterMessages();
     }
 }
