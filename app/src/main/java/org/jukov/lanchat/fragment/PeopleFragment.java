@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -16,25 +17,38 @@ import org.jukov.lanchat.dto.PeopleData;
 /**
  * Created by jukov on 16.02.2016.
  */
-public class PeopleListFragment extends BaseFragment {
+public class PeopleFragment extends BaseFragment {
+
+    MainActivity mainActivity;
 
     private ArrayAdapter<PeopleData> arrayAdapterPeoples;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(getClass().getSimpleName(), "onCreate()");
         setTitle(getString(R.string.peoples));
+        mainActivity = (MainActivity) getActivity();
         initAdapter();
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        layout = inflater.inflate(R.layout.peoples_list_layout, container, false);
-        ListView listViewPeoples = (ListView) layout.findViewById(R.id.listViewPeoples);
+        layout = inflater.inflate(R.layout.fragment_peoples, container, false);
+        ListView listViewPeoples = (ListView) layout.findViewById(R.id.frPeoplesPeoplesList);
 
         listViewPeoples.setAdapter(arrayAdapterPeoples);
+
+        listViewPeoples.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mainActivity.getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragmentContainer, new ChatFragment())
+                        .addToBackStack(null)
+                        .commit();
+                mainActivity.getSupportActionBar().setTitle(arrayAdapterPeoples.getItem(position).getName());
+            }
+        });
 
         return layout;
     }

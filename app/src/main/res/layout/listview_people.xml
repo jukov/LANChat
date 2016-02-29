@@ -6,7 +6,7 @@
     <ImageView
         android:layout_width="64dp"
         android:layout_height="64dp"
-        android:id="@+id/imageViewPicture"
+        android:id="@+id/listviewPeoplesPicture"
         android:layout_marginTop="4pt"
         android:layout_marginBottom="4pt"
         android:layout_marginLeft="4pt"
@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:text="Name"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/textViewName"
+        android:id="@+id/listviewPeoplesName"
         android:layout_marginTop="26dp"
         android:textColor="#000000" />
 

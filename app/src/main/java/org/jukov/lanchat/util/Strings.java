@@ -5,6 +5,4 @@ package org.jukov.lanchat.util;
  */
 public interface Strings {
     String SERVER_BROADCAST = "org.jukov.lanchat.SERVER";
-
-    String DEFAULT_NAME = "Anonym";
 }

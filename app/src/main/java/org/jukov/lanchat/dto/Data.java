@@ -7,6 +7,7 @@ import android.support.v7.preference.PreferenceManager;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import org.jukov.lanchat.R;
 import org.jukov.lanchat.util.Strings;
 
 /**
@@ -30,7 +31,7 @@ public abstract class Data {
 
     public Data(Context context) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        name = sharedPreferences.getString("name", Strings.DEFAULT_NAME);
+        name = sharedPreferences.getString("name", context.getString(R.string.default_name));
     }
 
     public String getName() {

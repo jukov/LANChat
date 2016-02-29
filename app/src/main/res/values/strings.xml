@@ -20,4 +20,6 @@
 
     <string name="settings_name">Name</string>
     <string name="settings_name_summary">Name summary</string>
+
+    <string name="default_name">Anonym</string>
 </resources>

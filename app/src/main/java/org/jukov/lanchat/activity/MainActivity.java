@@ -25,8 +25,9 @@ import android.widget.TextView;
 import org.jukov.lanchat.R;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.fragment.BaseFragment;
-import org.jukov.lanchat.fragment.ChatFragment;
-import org.jukov.lanchat.fragment.PeopleListFragment;
+import org.jukov.lanchat.fragment.GroupChatFragment;
+import org.jukov.lanchat.fragment.PeopleFragment;
+import org.jukov.lanchat.fragment.RoomFragment;
 import org.jukov.lanchat.fragment.SettingsFragment;
 import org.jukov.lanchat.service.LANChatService;
 import org.jukov.lanchat.service.ServiceHelper;
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initValues();
         initViews();
         initFragments();
         initAdapters();
@@ -86,7 +88,7 @@ public class MainActivity extends AppCompatActivity
 //    @Override
 //    public boolean onCreateOptionsMenu(Menu menu) {
 //        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.main, menu);
+//        getMenuInflater().inflate(R.menu.context_menu, menu);
 //        return true;
 //    }
 //
@@ -111,21 +113,27 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         if (currentNavigationId != id) {
             switch (id) {
-                case R.id.nav_settings:
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragments.get(id)).addToBackStack(null).commit();
-                    toolbar.setTitle(getString(R.string.settings));
+                case R.id.drawerMenuSettings:
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentContainer, fragments.get(id))
+                            .addToBackStack(null)
+                            .commit();
+                    getSupportActionBar().setTitle(getString(R.string.settings));
                     break;
-                case R.id.nav_exit:
+                case R.id.drawerMenuExit:
                     stopService(new Intent(getApplicationContext(), LANChatService.class));
                     finish();
                     break;
                 default:
                     BaseFragment baseFragment = (BaseFragment) fragments.get(id);
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, baseFragment).addToBackStack(null).commit();
-                    toolbar.setTitle(baseFragment.getTitle());
+                    getSupportActionBar().setTitle(baseFragment.getTitle());
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentContainer, baseFragment)
+                            .addToBackStack(null)
+                            .commit();
             }
+            currentNavigationId = id;
         }
-        currentNavigationId = id;
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -135,7 +143,7 @@ public class MainActivity extends AppCompatActivity
         Log.d(getClass().getSimpleName(), "onSharedPreferenceChanged() " + key);
         switch (key) {
             case "name":
-                String name = sharedPreferences.getString("name", "Anonym");
+                String name = sharedPreferences.getString("name", getString(R.string.default_name));
                 TextView textView = (TextView) navigationDrawerHeaderView.findViewById(R.id.navTextViewName);
                 ServiceHelper.changeName(this, name);
                 textView.setText(getString(R.string.nav_header_hello, name));
@@ -149,6 +157,10 @@ public class MainActivity extends AppCompatActivity
 
     public ArrayAdapter<String> getArrayAdapterMessages() {
         return arrayAdapterMessages;
+    }
+
+    private void initValues() {
+        currentNavigationId = R.id.drawerMenuGlobalChat;
     }
 
     private void initViews() {
@@ -193,7 +205,7 @@ public class MainActivity extends AppCompatActivity
         navigationDrawerHeaderView = navigationView.getHeaderView(0);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         TextView textView = (TextView) navigationDrawerHeaderView.findViewById(R.id.navTextViewName);
-        textView.setText(getString(R.string.nav_header_hello, sharedPreferences.getString("name", "Anonym")));
+        textView.setText(getString(R.string.nav_header_hello, sharedPreferences.getString("name", getString(R.string.default_name))));
 
         textViewMode = (TextView) navigationDrawerHeaderView.findViewById(R.id.naeTextViewPeoplesAround);
     }
@@ -202,20 +214,19 @@ public class MainActivity extends AppCompatActivity
 
         fragments = new HashMap<>();
 
-        fragments.put(R.id.nav_global_chat, new ChatFragment());
-        fragments.put(R.id.nav_peoples, new PeopleListFragment());
-        fragments.put(R.id.nav_settings, new SettingsFragment());
+        fragments.put(R.id.drawerMenuGlobalChat, new GroupChatFragment());
+        fragments.put(R.id.drawerMenuPeoples, new PeopleFragment());
+        fragments.put(R.id.drawerMenuRooms, new RoomFragment());
+        fragments.put(R.id.drawerMenuSettings, new SettingsFragment());
 
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, fragments.get(R.id.nav_global_chat))
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragmentContainer, fragments.get(R.id.drawerMenuGlobalChat))
                 .commit();
-
     }
 
     private void initAdapters() {
         arrayAdapterMessages = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
-        arrayAdapterPeoples = new ArrayAdapter<>(this, R.layout.people_listview_layout, R.id.textViewName);
+        arrayAdapterPeoples = new ArrayAdapter<>(this, R.layout.listview_people, R.id.listviewPeoplesName);
     }
 
     private void initBroadcastReceiver() {
