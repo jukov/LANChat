@@ -1,5 +1,6 @@
 package org.jukov.lanchat.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -26,10 +27,19 @@ public class GroupChatFragment extends BaseFragment {
 
     private ArrayAdapter<String> arrayAdapterMessages;
 
+    public static GroupChatFragment newInstance(Context context) {
+
+        Bundle args = new Bundle();
+
+        GroupChatFragment fragment = new GroupChatFragment();
+        fragment.setTitle(context.getString(R.string.global_chat));
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle(getString(R.string.global_chat));
         initAdapter();
     }
 
@@ -56,7 +66,8 @@ public class GroupChatFragment extends BaseFragment {
         buttonSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ServiceHelper.sendMessage(getActivity(), editTextMessage.getText().toString());
+                if (editTextMessage.getText().length() > 0)
+                    ServiceHelper.sendMessage(getActivity(), editTextMessage.getText().toString());
                 editTextMessage.setText("");
             }
         });

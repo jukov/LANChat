@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity
                             .replace(R.id.fragmentContainer, fragments.get(id))
                             .addToBackStack(null)
                             .commit();
-                    getSupportActionBar().setTitle(getString(R.string.settings));
+                    toolbar.setTitle(getString(R.string.settings));
                     break;
                 case R.id.drawerMenuExit:
                     stopService(new Intent(getApplicationContext(), LANChatService.class));
@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity
                     break;
                 default:
                     BaseFragment baseFragment = (BaseFragment) fragments.get(id);
-                    getSupportActionBar().setTitle(baseFragment.getTitle());
+                    toolbar.setTitle(baseFragment.getTitle());
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragmentContainer, baseFragment)
                             .addToBackStack(null)
@@ -214,9 +214,9 @@ public class MainActivity extends AppCompatActivity
 
         fragments = new HashMap<>();
 
-        fragments.put(R.id.drawerMenuGlobalChat, new GroupChatFragment());
-        fragments.put(R.id.drawerMenuPeoples, new PeopleFragment());
-        fragments.put(R.id.drawerMenuRooms, new RoomFragment());
+        fragments.put(R.id.drawerMenuGlobalChat, GroupChatFragment.newInstance(this));
+        fragments.put(R.id.drawerMenuPeoples, PeopleFragment.newInstance(this));
+        fragments.put(R.id.drawerMenuRooms, RoomFragment.newInstance(this));
         fragments.put(R.id.drawerMenuSettings, new SettingsFragment());
 
         getSupportFragmentManager().beginTransaction()

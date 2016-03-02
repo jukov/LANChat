@@ -1,5 +1,6 @@
 package org.jukov.lanchat.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -23,10 +24,19 @@ public class PeopleFragment extends BaseFragment {
 
     private ArrayAdapter<PeopleData> arrayAdapterPeoples;
 
+    public static PeopleFragment newInstance(Context context) {
+
+        Bundle args = new Bundle();
+
+        PeopleFragment fragment = new PeopleFragment();
+        fragment.setTitle(context.getString(R.string.peoples));
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle(getString(R.string.peoples));
         mainActivity = (MainActivity) getActivity();
         initAdapter();
     }
