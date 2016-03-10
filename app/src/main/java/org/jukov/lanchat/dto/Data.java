@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import org.jukov.lanchat.R;
-import org.jukov.lanchat.util.Strings;
 
 /**
  * Created by jukov on 22.02.2016.

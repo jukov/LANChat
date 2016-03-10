@@ -12,8 +12,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import org.jukov.lanchat.MainActivity;
 import org.jukov.lanchat.R;
-import org.jukov.lanchat.activity.MainActivity;
 import org.jukov.lanchat.service.ServiceHelper;
 
 /**

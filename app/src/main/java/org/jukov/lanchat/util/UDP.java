@@ -15,6 +15,8 @@ import java.net.SocketException;
  */
 public class UDP extends Thread implements Closeable {
 
+    public static final String SERVER_BROADCAST = "org.jukov.lanchat.SERVER";
+
     private BroadcastListener broadcastListener;
     private Context context;
     private DatagramSocket receiveSocket;

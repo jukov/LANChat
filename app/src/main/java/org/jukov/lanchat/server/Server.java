@@ -7,7 +7,6 @@ import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.json.JSONConverter;
 import org.jukov.lanchat.service.ServiceHelper;
 import org.jukov.lanchat.util.NetworkUtils;
-import org.jukov.lanchat.util.Strings;
 import org.jukov.lanchat.util.UDP;
 
 import java.io.Closeable;
@@ -59,7 +58,7 @@ public class Server extends Thread implements Closeable {
         try {
             InetAddress broadcastAddress = NetworkUtils.getBroadcastAddress(context);
             while (!stopBroadcastFlag) {
-                UDP.send(port, broadcastAddress, Strings.SERVER_BROADCAST);
+                UDP.send(port, broadcastAddress, UDP.SERVER_BROADCAST);
                 TimeUnit.MILLISECONDS.sleep(500);
             }
         } catch (Exception e) {

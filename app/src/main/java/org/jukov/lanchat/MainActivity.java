@@ -1,4 +1,4 @@
-package org.jukov.lanchat.activity;
+package org.jukov.lanchat;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -22,11 +22,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import org.jukov.lanchat.R;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.fragment.BaseFragment;
 import org.jukov.lanchat.fragment.GroupChatFragment;
-import org.jukov.lanchat.fragment.PeopleFragment;
+import org.jukov.lanchat.fragment.PeoplesFragment;
 import org.jukov.lanchat.fragment.RoomFragment;
 import org.jukov.lanchat.fragment.SettingsFragment;
 import org.jukov.lanchat.service.LANChatService;
@@ -215,7 +214,7 @@ public class MainActivity extends AppCompatActivity
         fragments = new HashMap<>();
 
         fragments.put(R.id.drawerMenuGlobalChat, GroupChatFragment.newInstance(this));
-        fragments.put(R.id.drawerMenuPeoples, PeopleFragment.newInstance(this));
+        fragments.put(R.id.drawerMenuPeoples, PeoplesFragment.newInstance(this));
         fragments.put(R.id.drawerMenuRooms, RoomFragment.newInstance(this));
         fragments.put(R.id.drawerMenuSettings, new SettingsFragment());
 

@@ -12,23 +12,23 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import org.jukov.lanchat.R;
-import org.jukov.lanchat.activity.MainActivity;
+import org.jukov.lanchat.MainActivity;
 import org.jukov.lanchat.dto.PeopleData;
 
 /**
  * Created by jukov on 16.02.2016.
  */
-public class PeopleFragment extends BaseFragment {
+public class PeoplesFragment extends BaseFragment {
 
     MainActivity mainActivity;
 
     private ArrayAdapter<PeopleData> arrayAdapterPeoples;
 
-    public static PeopleFragment newInstance(Context context) {
+    public static PeoplesFragment newInstance(Context context) {
 
         Bundle args = new Bundle();
 
-        PeopleFragment fragment = new PeopleFragment();
+        PeoplesFragment fragment = new PeoplesFragment();
         fragment.setTitle(context.getString(R.string.peoples));
         fragment.setArguments(args);
         return fragment;
