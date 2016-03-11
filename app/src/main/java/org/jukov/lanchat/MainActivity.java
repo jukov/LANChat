@@ -241,7 +241,7 @@ public class MainActivity extends AppCompatActivity
                             }
                         });
                         break;
-                    case IntentStrings.CHAT_ACTION:
+                    case IntentStrings.GLOBAL_CHAT_ACTION:
                         arrayAdapterMessages.add(intent.getStringExtra(IntentStrings.EXTRA_NAME) + ": " + intent.getStringExtra(IntentStrings.EXTRA_MESSAGE));
                         break;
                     case IntentStrings.PEOPLES_ACTION:
@@ -266,7 +266,7 @@ public class MainActivity extends AppCompatActivity
         };
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(IntentStrings.ACTIVITY_ACTION);
-        intentFilter.addAction(IntentStrings.CHAT_ACTION);
+        intentFilter.addAction(IntentStrings.GLOBAL_CHAT_ACTION);
         intentFilter.addAction(IntentStrings.PEOPLES_ACTION);
         registerReceiver(broadcastReceiver, intentFilter);
     }

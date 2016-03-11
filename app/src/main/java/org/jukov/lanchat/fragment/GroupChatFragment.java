@@ -62,12 +62,11 @@ public class GroupChatFragment extends BaseFragment {
 
         listViewMessages.setAdapter(arrayAdapterMessages);
 
-
         buttonSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (editTextMessage.getText().length() > 0)
-                    ServiceHelper.sendMessage(getActivity(), editTextMessage.getText().toString());
+                    ServiceHelper.sendMessage(getActivity(), ServiceHelper.MessageType.GLOBAL, editTextMessage.getText().toString());
                 editTextMessage.setText("");
             }
         });

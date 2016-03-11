@@ -12,15 +12,26 @@ import org.jukov.lanchat.util.IntentStrings;
  */
 public class ServiceHelper {
 
+    public enum MessageType {
+        PRIVATE,
+        GLOBAL
+    }
+
     public static void startService(Context context) {
         Intent intent = new Intent(context, LANChatService.class);
         intent.setAction(IntentStrings.START_SERVICE_ACTION);
         context.startService(intent);
     }
 
-    public static void sendMessage(Context context, String message) {
+    public static void sendMessage(Context context, MessageType messageType, String message) {
         Intent intent = new Intent(context, LANChatService.class);
-        intent.setAction(IntentStrings.CHAT_ACTION);
+        switch (messageType) {
+            case PRIVATE:
+                intent.setAction(IntentStrings.PRIVATE_CHAT_ACTION);
+                break;
+            case GLOBAL:
+                intent.setAction(IntentStrings.GLOBAL_CHAT_ACTION);
+        }
         intent.putExtra(IntentStrings.EXTRA_MESSAGE, message);
         context.startService(intent);
     }
@@ -47,8 +58,15 @@ public class ServiceHelper {
         context.sendBroadcast(intent);
     }
 
-    public static void receiveMessage(Context context, ChatData chatData) {
-        Intent intent = new Intent(IntentStrings.CHAT_ACTION);
+    public static void receiveMessage(Context context, MessageType messageType, ChatData chatData) {
+        Intent intent = new Intent();
+        switch (messageType) {
+            case PRIVATE:
+                intent.setAction(IntentStrings.PRIVATE_CHAT_ACTION);
+                break;
+            case GLOBAL:
+                intent.setAction(IntentStrings.GLOBAL_CHAT_ACTION);
+        }
         intent.putExtra(IntentStrings.EXTRA_NAME, chatData.getName());
         intent.putExtra(IntentStrings.EXTRA_MESSAGE, chatData.getText());
         context.sendBroadcast(intent);

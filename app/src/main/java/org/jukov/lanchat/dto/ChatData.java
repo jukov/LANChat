@@ -2,6 +2,8 @@ package org.jukov.lanchat.dto;
 
 import android.content.Context;
 
+import org.jukov.lanchat.service.ServiceHelper;
+
 import java.util.Date;
 
 /**
@@ -10,16 +12,25 @@ import java.util.Date;
 public class ChatData extends Data {
 
     private String text;
-
     private String sendDate;
+    private ServiceHelper.MessageType messageType;
 
     public ChatData() {
     }
 
-    public ChatData(Context context, String text) {
+    public ChatData(Context context, String text, ServiceHelper.MessageType messageType) {
         super(context);
         this.text = text;
+        this.messageType = messageType;
         sendDate = new Date().toString();
+    }
+
+    public ServiceHelper.MessageType getMessageType() {
+        return messageType;
+    }
+
+    public void setMessageType(ServiceHelper.MessageType messageType) {
+        this.messageType = messageType;
     }
 
     public String getText() {

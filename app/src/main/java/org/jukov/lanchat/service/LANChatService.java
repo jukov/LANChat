@@ -63,10 +63,23 @@ public class LANChatService extends Service {
                             break;
                     }
                     break;
-                case IntentStrings.CHAT_ACTION:
+                case IntentStrings.GLOBAL_CHAT_ACTION:
                     if (client != null) {
                         try {
-                            String message = JSONConverter.toJSON(new ChatData(getApplicationContext(), intent.getStringExtra(IntentStrings.EXTRA_MESSAGE)));
+                            String message = JSONConverter.toJSON(new ChatData(getApplicationContext(),
+                                    intent.getStringExtra(IntentStrings.EXTRA_MESSAGE), ServiceHelper.MessageType.GLOBAL));
+                            Log.d(getClass().getSimpleName(), message);
+                            client.sendMessage(message);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    break;
+                case IntentStrings.PRIVATE_CHAT_ACTION:
+                    if (client != null) {
+                        try {
+                            String message = JSONConverter.toJSON(new ChatData(getApplicationContext(),
+                                    intent.getStringExtra(IntentStrings.EXTRA_MESSAGE), ServiceHelper.MessageType.PRIVATE));
                             Log.d(getClass().getSimpleName(), message);
                             client.sendMessage(message);
                         } catch (IOException e) {

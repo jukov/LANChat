@@ -5,7 +5,8 @@ package org.jukov.lanchat.util;
  */
 public interface IntentStrings {
     String ACTIVITY_ACTION = "org.jukov.lanchat.ACTIVITY";
-    String CHAT_ACTION = "org.jukov.lanchat.CHAT";
+    String GLOBAL_CHAT_ACTION = "org.jukov.lanchat.GLOBAL_CHAT";
+    String PRIVATE_CHAT_ACTION = "org.jukov.lanchat.PRIVATE_CHAT";
     String PEOPLES_ACTION = "org.jukov.lanchat.PEOPLES";
     String START_SERVICE_ACTION = "org.jukov.lanchat.CONNECT_TO_SERVICE";
     String NAME_CHANGE_ACTION = "org.jukov.lanchat.CHANGE_NAME";

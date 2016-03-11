@@ -71,7 +71,7 @@ public class Client extends Thread implements Closeable {
                 Log.d(getClass().getSimpleName(), "Receive message " + data.getClass().getName());
                 if (data.getClass().getName().equals(ChatData.class.getName())) {
                     ChatData chatData = (ChatData) data;
-                    ServiceHelper.receiveMessage(context, chatData);
+                    ServiceHelper.receiveMessage(context, chatData.getMessageType(), chatData);
                 } else if (data.getClass().getName().equals(PeopleData.class.getName())) {
                     PeopleData peopleData = (PeopleData) data;
                     ServiceHelper.receivePeople(context, peopleData);
