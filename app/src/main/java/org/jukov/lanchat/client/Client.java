@@ -36,7 +36,7 @@ public class Client extends Thread implements Closeable {
     private DataOutputStream dataOutputStream;
     private DataInputStream dataInputStream;
 
-    private SQLiteDatabase sqLiteDatabase;
+    private DBHelper dbHelper;
 
     public Client(Context context, String ip, int port) {
         this.context = context;
@@ -55,8 +55,7 @@ public class Client extends Thread implements Closeable {
                 e.printStackTrace();
             }
         }
-        DBHelper dbHelper = new DBHelper(context, DBHelper.DATABASE_NAME, null, DBHelper.DATABASE_VERSION);
-        sqLiteDatabase = dbHelper.getReadableDatabase();
+        dbHelper = new DBHelper(context, DBHelper.DATABASE_NAME, null, DBHelper.DATABASE_VERSION);
     }
 
     public void changeName(String name) {
@@ -78,39 +77,13 @@ public class Client extends Thread implements Closeable {
                 String message = dataInputStream.readUTF();
                 Data data = JSONConverter.toJavaObject(message);
                 Log.d(getClass().getSimpleName(), "Receive message " + data.getClass().getName());
-                ContentValues contentValues = new ContentValues(1);
                 if (data.getClass().getName().equals(ChatData.class.getName())) {
                     ChatData chatData = (ChatData) data;
-                    Cursor cursor = sqLiteDatabase.query(
-                            DatabaseConstants.TABLE_PEOPLE,
-                            new String[]{"_id"},
-                            DatabaseConstants.KEY_MAC + " = ?",
-                            new String[]{chatData.getUid()},
-                            null, null, null);
-                    cursor.moveToFirst();
-//                    int idIndex = cursor.getColumnIndex("_id");
-                    contentValues.put(DatabaseConstants.ID_PEOPLE, cursor.getInt(0));
-                    contentValues.put(DatabaseConstants.KEY_DATE, chatData.getSendDate());
-                    contentValues.put(DatabaseConstants.KEY_MESSAGE, chatData.getText());
-                    switch (chatData.getMessageType()) {
-                        case GLOBAL:
-                            sqLiteDatabase.insert(DatabaseConstants.TABLE_PUBLIC_MESSAGES, null, contentValues);
-                            break;
-                        case PRIVATE:
-                            sqLiteDatabase.insert(DatabaseConstants.TABLE_PRIVATE_MESSAGES, null, contentValues);
-                    }
+                    dbHelper.insertMessage(chatData);
                     ServiceHelper.receiveMessage(context, chatData.getMessageType(), chatData);
                 } else if (data.getClass().getName().equals(PeopleData.class.getName())) {
                     PeopleData peopleData = (PeopleData) data;
-                    contentValues.put(DatabaseConstants.KEY_NAME, peopleData.getName());
-                    contentValues.put(DatabaseConstants.KEY_MAC, peopleData.getUid());
-                    if (sqLiteDatabase.update(
-                            DatabaseConstants.TABLE_PEOPLE,
-                            contentValues,
-                            DatabaseConstants.KEY_MAC + " = ?",
-                            new String[] {peopleData.getUid()}) == 0) {
-                        sqLiteDatabase.insert(DatabaseConstants.TABLE_PEOPLE, null, contentValues);
-                    }
+                    dbHelper.insertOrRenamePeople(peopleData);
                     ServiceHelper.receivePeople(context, peopleData);
                 }
             }
