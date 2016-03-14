@@ -24,13 +24,23 @@ import org.jukov.lanchat.R;
 public abstract class Data {
 
     private String name;
+    private String uid;
 
     public Data() {
     }
 
-    public Data(Context context) {
+    public Data(Context context, String uid) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         name = sharedPreferences.getString("name", context.getString(R.string.default_name));
+        this.uid = uid;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getName() {

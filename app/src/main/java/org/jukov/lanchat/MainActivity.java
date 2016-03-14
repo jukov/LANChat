@@ -25,12 +25,12 @@ import android.widget.TextView;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.fragment.BaseFragment;
 import org.jukov.lanchat.fragment.GroupChatFragment;
-import org.jukov.lanchat.fragment.PeoplesFragment;
+import org.jukov.lanchat.fragment.PeopleFragment;
 import org.jukov.lanchat.fragment.RoomFragment;
 import org.jukov.lanchat.fragment.SettingsFragment;
 import org.jukov.lanchat.service.LANChatService;
 import org.jukov.lanchat.service.ServiceHelper;
-import org.jukov.lanchat.util.IntentStrings;
+import org.jukov.lanchat.util.Constants;
 
 import java.util.HashMap;
 
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity
 
     private BroadcastReceiver broadcastReceiver;
 
-    private ArrayAdapter<PeopleData> arrayAdapterPeoples;
+    private ArrayAdapter<PeopleData> arrayAdapterPeople;
     private ArrayAdapter<String> arrayAdapterMessages;
 
     @Override
@@ -150,8 +150,8 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public ArrayAdapter<PeopleData> getArrayAdapterPeoples() {
-        return arrayAdapterPeoples;
+    public ArrayAdapter<PeopleData> getArrayAdapterPeople() {
+        return arrayAdapterPeople;
     }
 
     public ArrayAdapter<String> getArrayAdapterMessages() {
@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity
         fragments = new HashMap<>();
 
         fragments.put(R.id.drawerMenuGlobalChat, GroupChatFragment.newInstance(this));
-        fragments.put(R.id.drawerMenuPeoples, PeoplesFragment.newInstance(this));
+        fragments.put(R.id.drawerMenuPeoples, PeopleFragment.newInstance(this));
         fragments.put(R.id.drawerMenuRooms, RoomFragment.newInstance(this));
         fragments.put(R.id.drawerMenuSettings, new SettingsFragment());
 
@@ -225,7 +225,7 @@ public class MainActivity extends AppCompatActivity
 
     private void initAdapters() {
         arrayAdapterMessages = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
-        arrayAdapterPeoples = new ArrayAdapter<>(this, R.layout.listview_people, R.id.listviewPeoplesName);
+        arrayAdapterPeople = new ArrayAdapter<>(this, R.layout.listview_people, R.id.listviewPeoplesName);
     }
 
     private void initBroadcastReceiver() {
@@ -233,41 +233,41 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onReceive(Context context, final Intent intent) {
                 switch (intent.getAction()) {
-                    case IntentStrings.ACTIVITY_ACTION:
+                    case Constants.IntentConstants.ACTIVITY_ACTION:
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                textViewMode.setText(intent.getStringExtra(IntentStrings.EXTRA_MODE));
+                                textViewMode.setText(intent.getStringExtra(Constants.IntentConstants.EXTRA_MODE));
                             }
                         });
                         break;
-                    case IntentStrings.GLOBAL_CHAT_ACTION:
-                        arrayAdapterMessages.add(intent.getStringExtra(IntentStrings.EXTRA_NAME) + ": " + intent.getStringExtra(IntentStrings.EXTRA_MESSAGE));
+                    case Constants.IntentConstants.GLOBAL_CHAT_ACTION:
+                        arrayAdapterMessages.add(intent.getStringExtra(Constants.IntentConstants.EXTRA_NAME) + ": " + intent.getStringExtra(Constants.IntentConstants.EXTRA_MESSAGE));
                         break;
-                    case IntentStrings.PEOPLES_ACTION:
-                        String name = intent.getStringExtra(IntentStrings.EXTRA_NAME);
-                        String uid = intent.getStringExtra(IntentStrings.EXTRA_UID);
-                        int action = intent.getIntExtra(IntentStrings.EXTRA_ACTION, -1);
+                    case Constants.IntentConstants.PEOPLE_ACTION:
+                        String name = intent.getStringExtra(Constants.IntentConstants.EXTRA_NAME);
+                        String uid = intent.getStringExtra(Constants.IntentConstants.EXTRA_UID);
+                        int action = intent.getIntExtra(Constants.IntentConstants.EXTRA_ACTION, -1);
                         PeopleData peopleData = new PeopleData(name, uid, action);
                         Log.d(getClass().getSimpleName(), Integer.toString(action));
                         switch (action) {
                             case PeopleData.ACTION_CONNECT:
-                                arrayAdapterPeoples.add(peopleData);
+                                arrayAdapterPeople.add(peopleData);
                                 break;
                             case PeopleData.ACTION_DISCONNECT:
-                                arrayAdapterPeoples.remove(peopleData);
+                                arrayAdapterPeople.remove(peopleData);
                                 break;
                             case PeopleData.ACTION_CHANGE_NAME:
-                                arrayAdapterPeoples.remove(peopleData);
-                                arrayAdapterPeoples.add(peopleData);
+                                arrayAdapterPeople.remove(peopleData);
+                                arrayAdapterPeople.add(peopleData);
                         }
                 }
             }
         };
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(IntentStrings.ACTIVITY_ACTION);
-        intentFilter.addAction(IntentStrings.GLOBAL_CHAT_ACTION);
-        intentFilter.addAction(IntentStrings.PEOPLES_ACTION);
+        intentFilter.addAction(Constants.IntentConstants.ACTIVITY_ACTION);
+        intentFilter.addAction(Constants.IntentConstants.GLOBAL_CHAT_ACTION);
+        intentFilter.addAction(Constants.IntentConstants.PEOPLE_ACTION);
         registerReceiver(broadcastReceiver, intentFilter);
     }
 

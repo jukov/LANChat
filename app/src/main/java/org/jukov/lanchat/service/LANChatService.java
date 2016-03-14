@@ -10,7 +10,8 @@ import org.jukov.lanchat.client.Client;
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.json.JSONConverter;
 import org.jukov.lanchat.server.Server;
-import org.jukov.lanchat.util.IntentStrings;
+import org.jukov.lanchat.util.Constants;
+import org.jukov.lanchat.util.NetworkUtils;
 import org.jukov.lanchat.util.UDP;
 
 import java.io.IOException;
@@ -49,7 +50,7 @@ public class LANChatService extends Service {
         Log.d(getClass().getSimpleName(), "onStartCommand");
         if (intent != null) {
             switch (intent.getAction()) {
-                case IntentStrings.START_SERVICE_ACTION:
+                case Constants.IntentConstants.START_SERVICE_ACTION:
                     switch (mode) {
                         case MODE_NONE:
                             ServerSearch serverSearch = new ServerSearch(UDP_PORT);
@@ -63,11 +64,14 @@ public class LANChatService extends Service {
                             break;
                     }
                     break;
-                case IntentStrings.GLOBAL_CHAT_ACTION:
+                case Constants.IntentConstants.GLOBAL_CHAT_ACTION:
                     if (client != null) {
                         try {
-                            String message = JSONConverter.toJSON(new ChatData(getApplicationContext(),
-                                    intent.getStringExtra(IntentStrings.EXTRA_MESSAGE), ServiceHelper.MessageType.GLOBAL));
+                            String message = JSONConverter.toJSON(new ChatData(
+                                    getApplicationContext(),
+                                    intent.getStringExtra(Constants.IntentConstants.EXTRA_MESSAGE),
+                                    NetworkUtils.getMACAddress(getApplicationContext()),
+                                    ServiceHelper.MessageType.GLOBAL));
                             Log.d(getClass().getSimpleName(), message);
                             client.sendMessage(message);
                         } catch (IOException e) {
@@ -75,11 +79,14 @@ public class LANChatService extends Service {
                         }
                     }
                     break;
-                case IntentStrings.PRIVATE_CHAT_ACTION:
+                case Constants.IntentConstants.PRIVATE_CHAT_ACTION:
                     if (client != null) {
                         try {
-                            String message = JSONConverter.toJSON(new ChatData(getApplicationContext(),
-                                    intent.getStringExtra(IntentStrings.EXTRA_MESSAGE), ServiceHelper.MessageType.PRIVATE));
+                            String message = JSONConverter.toJSON(new ChatData(
+                                    getApplicationContext(),
+                                    intent.getStringExtra(Constants.IntentConstants.EXTRA_MESSAGE),
+                                    NetworkUtils.getMACAddress(getApplicationContext()),
+                                    ServiceHelper.MessageType.PRIVATE));
                             Log.d(getClass().getSimpleName(), message);
                             client.sendMessage(message);
                         } catch (IOException e) {
@@ -87,9 +94,9 @@ public class LANChatService extends Service {
                         }
                     }
                     break;
-                case IntentStrings.NAME_CHANGE_ACTION:
+                case Constants.IntentConstants.NAME_CHANGE_ACTION:
                     if (client != null) {
-                        client.changeName(intent.getStringExtra(IntentStrings.EXTRA_NAME));
+                        client.changeName(intent.getStringExtra(Constants.IntentConstants.EXTRA_NAME));
                     }
                     break;
                 default:

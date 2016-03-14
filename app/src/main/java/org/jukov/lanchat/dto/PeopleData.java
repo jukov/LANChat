@@ -13,30 +13,19 @@ public class PeopleData extends Data {
     public static final int ACTION_DISCONNECT = 2;
     public static final int ACTION_CHANGE_NAME = 3;
 
-    private String uid;
     private int action;
 
     public PeopleData() {
     }
 
     public PeopleData(Context context, String uid, int action) {
-        super(context);
-        this.uid = uid;
+        super(context, uid);
         this.action = action;
     }
 
     public PeopleData(String name, String uid, int action) {
         setName(name);
-        this.uid = uid;
         this.action = action;
-    }
-
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
     }
 
     public int getAction() {
@@ -55,7 +44,7 @@ public class PeopleData extends Data {
     @Override
     public boolean equals(Object o) {
         if (o.getClass().getName().equals(PeopleData.class.getName()))
-            return uid.equals(((PeopleData) o).getUid());
+            return getUid().equals(((PeopleData) o).getUid());
         else
             return super.equals(o);
     }

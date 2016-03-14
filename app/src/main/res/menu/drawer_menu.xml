@@ -11,7 +11,7 @@
         <item
             android:id="@+id/drawerMenuPeoples"
             android:icon="@drawable/ic_account_multiple"
-            android:title="@string/peoples" />
+            android:title="@string/people" />
         <item
             android:id="@+id/drawerMenuRooms"
             android:icon="@drawable/ic_border_all"

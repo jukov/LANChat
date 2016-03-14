@@ -12,27 +12,27 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import org.jukov.lanchat.MainActivity;
 import org.jukov.lanchat.MessagingActivity;
 import org.jukov.lanchat.R;
-import org.jukov.lanchat.MainActivity;
 import org.jukov.lanchat.dto.PeopleData;
-import org.jukov.lanchat.util.IntentStrings;
+import org.jukov.lanchat.util.Constants;
 
 /**
  * Created by jukov on 16.02.2016.
  */
-public class PeoplesFragment extends BaseFragment {
+public class PeopleFragment extends BaseFragment {
 
     MainActivity mainActivity;
 
-    private ArrayAdapter<PeopleData> arrayAdapterPeoples;
+    private ArrayAdapter<PeopleData> arrayAdapterPeople;
 
-    public static PeoplesFragment newInstance(Context context) {
+    public static PeopleFragment newInstance(Context context) {
 
         Bundle args = new Bundle();
 
-        PeoplesFragment fragment = new PeoplesFragment();
-        fragment.setTitle(context.getString(R.string.peoples));
+        PeopleFragment fragment = new PeopleFragment();
+        fragment.setTitle(context.getString(R.string.people));
         fragment.setArguments(args);
         return fragment;
     }
@@ -50,13 +50,13 @@ public class PeoplesFragment extends BaseFragment {
         layout = inflater.inflate(R.layout.fragment_peoples, container, false);
         ListView listViewPeoples = (ListView) layout.findViewById(R.id.frPeoplesPeoplesList);
 
-        listViewPeoples.setAdapter(arrayAdapterPeoples);
+        listViewPeoples.setAdapter(arrayAdapterPeople);
 
         listViewPeoples.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getContext(), MessagingActivity.class);
-                intent.putExtra(IntentStrings.EXTRA_NAME, arrayAdapterPeoples.getItem(position).getName());
+                intent.putExtra(Constants.IntentConstants.EXTRA_NAME, arrayAdapterPeople.getItem(position).getName());
                 startActivity(intent);
             }
         });
@@ -65,7 +65,7 @@ public class PeoplesFragment extends BaseFragment {
     }
 
     private void initAdapter() {
-        arrayAdapterPeoples = ((MainActivity) getActivity()).getArrayAdapterPeoples();
+        arrayAdapterPeople = ((MainActivity) getActivity()).getArrayAdapterPeople();
     }
 
     @Override

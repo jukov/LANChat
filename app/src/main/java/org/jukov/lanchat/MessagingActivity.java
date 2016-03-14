@@ -11,9 +11,8 @@ import android.util.Log;
 import android.widget.ArrayAdapter;
 
 import org.jukov.lanchat.fragment.ChatFragment;
-import org.jukov.lanchat.fragment.GroupChatFragment;
 import org.jukov.lanchat.service.ServiceHelper;
-import org.jukov.lanchat.util.IntentStrings;
+import org.jukov.lanchat.util.Constants;
 
 /**
  * Created by jukov on 10.03.2016.
@@ -34,7 +33,7 @@ public class MessagingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_messaging);
 
         Intent intent = getIntent();
-        talkerName = intent.getStringExtra(IntentStrings.EXTRA_NAME);
+        talkerName = intent.getStringExtra(Constants.IntentConstants.EXTRA_NAME);
 
         initViews();
         initAdapter();
@@ -49,6 +48,12 @@ public class MessagingActivity extends AppCompatActivity {
         unregisterReceiver(broadcastReceiver);
     }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
     public ArrayAdapter<String> getArrayAdapterMessages() {
         return arrayAdapterMessages;
     }
@@ -57,10 +62,11 @@ public class MessagingActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(talkerName);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     private void initAdapter() {
-        arrayAdapterMessages = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+        arrayAdapterMessages = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
     }
 
     private void initFragment() {
@@ -75,11 +81,11 @@ public class MessagingActivity extends AppCompatActivity {
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, final Intent intent) {
-//                if (talkerName.equals(intent.getStringExtra(IntentStrings.EXTRA_NAME)))
-                    arrayAdapterMessages.add(intent.getStringExtra(IntentStrings.EXTRA_NAME) + ": " + intent.getStringExtra(IntentStrings.EXTRA_MESSAGE));
+//                if (talkerName.equals(intent.getStringExtra(Constants.IntentConstants.EXTRA_NAME)))
+                    arrayAdapterMessages.add(intent.getStringExtra(Constants.IntentConstants.EXTRA_NAME) + ": " + intent.getStringExtra(Constants.IntentConstants.EXTRA_MESSAGE));
             }
         };
-        IntentFilter intentFilter = new IntentFilter(IntentStrings.PRIVATE_CHAT_ACTION);
+        IntentFilter intentFilter = new IntentFilter(Constants.IntentConstants.PRIVATE_CHAT_ACTION);
         registerReceiver(broadcastReceiver, intentFilter);
     }
 

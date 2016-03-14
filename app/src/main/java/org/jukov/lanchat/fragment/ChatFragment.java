@@ -13,7 +13,7 @@ import android.widget.ListView;
 import org.jukov.lanchat.MessagingActivity;
 import org.jukov.lanchat.R;
 import org.jukov.lanchat.service.ServiceHelper;
-import org.jukov.lanchat.util.IntentStrings;
+import org.jukov.lanchat.util.Constants;
 
 /**
  * Created by jukov on 26.02.2016.
@@ -31,7 +31,7 @@ public class ChatFragment extends BaseFragment {
     public static ChatFragment newInstance(String talkerName) {
         
         Bundle args = new Bundle();
-        args.putCharSequence(IntentStrings.EXTRA_NAME, talkerName);
+        args.putCharSequence(Constants.IntentConstants.EXTRA_NAME, talkerName);
 
         ChatFragment fragment = new ChatFragment();
         fragment.setArguments(args);
