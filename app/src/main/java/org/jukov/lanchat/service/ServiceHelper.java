@@ -22,6 +22,12 @@ public class ServiceHelper {
         context.startService(intent);
     }
 
+    public static void searchServer(Context context) {
+        Intent intent = new Intent(context, LANChatService.class);
+        intent.setAction(Constants.IntentConstants.SEARCH_SERVER_ACTION);
+        context.startService(intent);
+    }
+
     public static void sendMessage(Context context, MessageType messageType, String message) {
         Intent intent = new Intent(context, LANChatService.class);
         switch (messageType) {

@@ -12,6 +12,7 @@ public interface Constants {
         public static final String PEOPLE_ACTION = "org.jukov.lanchat.PEOPLE";
         public static final String START_SERVICE_ACTION = "org.jukov.lanchat.CONNECT_TO_SERVICE";
         public static final String NAME_CHANGE_ACTION = "org.jukov.lanchat.CHANGE_NAME";
+        public static final String SEARCH_SERVER_ACTION = "org.jukov.lanchat.SEARCH_SERVER";
 
         public static final String EXTRA_NAME = "name";
         public static final String EXTRA_MESSAGE = "message";

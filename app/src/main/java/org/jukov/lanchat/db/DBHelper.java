@@ -19,6 +19,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private SQLiteDatabase sqLiteDatabase;
     private ContentValues contentValues;
+    private Cursor cursor;
 
     public DBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
@@ -39,7 +40,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public void insertMessage(ChatData chatData) {
-        Cursor cursor = sqLiteDatabase.query(
+        cursor = sqLiteDatabase.query(
                 Constants.DatabaseConstants.TABLE_PEOPLE,
                 new String[]{"_id"},
                 Constants.DatabaseConstants.KEY_MAC + " = ?",
@@ -76,7 +77,9 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public synchronized void close() {
-        super.close();
+        if (cursor != null)
+            cursor.close();
         sqLiteDatabase.close();
+        super.close();
     }
 }

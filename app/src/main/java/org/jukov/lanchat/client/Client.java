@@ -71,7 +71,6 @@ public class Client extends Thread implements Closeable {
             while (!socket.isClosed()) {
                 String message = dataInputStream.readUTF();
                 Data data = JSONConverter.toJavaObject(message);
-                Log.d(getClass().getSimpleName(), "Receive message " + data.getClass().getName());
                 if (data instanceof ChatData) {
                     ChatData chatData = (ChatData) data;
                     dbHelper.insertMessage(chatData);
@@ -84,7 +83,11 @@ public class Client extends Thread implements Closeable {
             }
         }
         catch (IOException e) {
-            e.printStackTrace();
+            if (!e.getMessage().equals("Socket closed"))
+                e.printStackTrace();
+        }
+        if (peopleData.getAction() != PeopleData.ACTION_DISCONNECT) {
+            ServiceHelper.searchServer(context);
         }
     }
 

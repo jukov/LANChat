@@ -17,6 +17,7 @@ import org.jukov.lanchat.util.UDP;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -28,15 +29,15 @@ public class LANChatService extends Service {
     public static final int UDP_PORT = 1791;
 
     private int mode;
+
     public static final int MODE_NONE = 0;
     public static final int MODE_CLIENT = 1;
     public static final int MODE_SERVER = 2;
-
     private ExecutorService executorService;
 
     private Server server;
-    private Client client;
 
+    private Client client;
     @Override
     public void onCreate() {
         super.onCreate();
@@ -49,6 +50,7 @@ public class LANChatService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(getClass().getSimpleName(), "onStartCommand");
         if (intent != null) {
+            Log.d(getClass().getSimpleName(), intent.getAction());
             switch (intent.getAction()) {
                 case Constants.IntentConstants.START_SERVICE_ACTION:
                     switch (mode) {
@@ -63,6 +65,10 @@ public class LANChatService extends Service {
                             server.updateStatus();
                             break;
                     }
+                    break;
+                case Constants.IntentConstants.SEARCH_SERVER_ACTION:
+                    ServerSearch serverSearch = new ServerSearch(UDP_PORT);
+                    executorService.execute(serverSearch);
                     break;
                 case Constants.IntentConstants.GLOBAL_CHAT_ACTION:
                     if (client != null) {
@@ -131,9 +137,11 @@ public class LANChatService extends Service {
     class ServerSearch extends Thread {
 
         private int port;
+        final Semaphore semaphore;
 
         public ServerSearch(int port) {
             this.port = port;
+            semaphore = new Semaphore(1);
         }
 
         @Override
@@ -149,13 +157,15 @@ public class LANChatService extends Service {
                             receive[0] = true;
                             broadcastIP.delete(0, broadcastIP.length());
                             broadcastIP.append(ip);
+                            semaphore.release();
                         }
                         Log.d(getClass().getSimpleName(), "Receive message");
                     }
                 });
                 executorService.execute(udp);
+                semaphore.acquire();
+                semaphore.tryAcquire(2, TimeUnit.SECONDS);
 
-                TimeUnit.SECONDS.sleep(2);
                 udp.close();
                 Log.d(getClass().getSimpleName(), receive[0] ? "Broadcast received" : "Broadcast not received");
 

@@ -76,7 +76,6 @@ public class ClientConnection extends Thread implements Closeable {
     public void sendMessage(String message) {
         lock.lock();
         try {
-            Log.d(getClass().getSimpleName(), "In sendMessage()");
             dataOutputStream.writeUTF(message);
             dataOutputStream.flush();
         } catch (IOException e) {
