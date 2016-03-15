@@ -40,14 +40,14 @@ public class LANChatService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(getClass().getSimpleName(), "onCreate");
+        Log.i(getClass().getSimpleName(), "onCreate");
         executorService = Executors.newFixedThreadPool(3);
         mode = MODE_NONE;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(getClass().getSimpleName(), "onStartCommand");
+        Log.i(getClass().getSimpleName(), "onStartCommand");
         if (intent != null) {
             switch (intent.getAction()) {
                 case Constants.IntentConstants.START_SERVICE_ACTION:
@@ -100,8 +100,11 @@ public class LANChatService extends Service {
                     }
                     break;
                 default:
-                    Log.d(getClass().getSimpleName(), "Unexpected intent action type");
+                    Log.i(getClass().getSimpleName(), "Unexpected intent action type");
             }
+        } else {
+            Log.i(getClass().getSimpleName(), "Service stopped");
+            stopSelf();
         }
         return Service.START_STICKY;
     }
@@ -110,13 +113,13 @@ public class LANChatService extends Service {
     public void onDestroy() {
         Log.d(getClass().getSimpleName(), "onDestroy()");
         super.onDestroy();
-
         if (client != null) {
             client.close();
         }
         if (server != null) {
             server.close();
         }
+        executorService.shutdown();
     }
 
     @Nullable

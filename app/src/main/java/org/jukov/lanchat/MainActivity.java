@@ -249,7 +249,6 @@ public class MainActivity extends AppCompatActivity
                         String uid = intent.getStringExtra(Constants.IntentConstants.EXTRA_UID);
                         int action = intent.getIntExtra(Constants.IntentConstants.EXTRA_ACTION, -1);
                         PeopleData peopleData = new PeopleData(name, uid, action);
-                        Log.d(getClass().getSimpleName(), Integer.toString(action));
                         switch (action) {
                             case PeopleData.ACTION_CONNECT:
                                 arrayAdapterPeople.add(peopleData);

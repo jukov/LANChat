@@ -11,21 +11,25 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by jukov on 07.02.2016.
  */
 public class ClientConnection extends Thread implements Closeable {
 
+    private final Lock lock;
+    private Server server;
     private Socket socket;
     private DataOutputStream dataOutputStream;
     private DataInputStream dataInputStream;
 
-    private Server server;
-
     private PeopleData peopleData;
 
+
     public ClientConnection(Socket socket, Server server) {
+        lock = new ReentrantLock();
         this.socket = socket;
         this.server = server;
         try {
@@ -55,11 +59,11 @@ public class ClientConnection extends Thread implements Closeable {
             }
         }
         Log.d(getClass().getSimpleName(), "Connection closed");
+        server.stopConnection(this);
     }
 
     @Override
     public void close() {
-        server.stopConnection(this);
         try {
             dataOutputStream.close();
             dataInputStream.close();
@@ -70,6 +74,7 @@ public class ClientConnection extends Thread implements Closeable {
     }
 
     public void sendMessage(String message) {
+        lock.lock();
         try {
             Log.d(getClass().getSimpleName(), "In sendMessage()");
             dataOutputStream.writeUTF(message);
@@ -77,6 +82,7 @@ public class ClientConnection extends Thread implements Closeable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        lock.unlock();
     }
 
     public PeopleData getPeopleData() {

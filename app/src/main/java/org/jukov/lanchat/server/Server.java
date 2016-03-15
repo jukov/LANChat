@@ -3,6 +3,7 @@ package org.jukov.lanchat.server;
 import android.content.Context;
 import android.util.Log;
 
+import org.jukov.lanchat.R;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.json.JSONConverter;
 import org.jukov.lanchat.service.ServiceHelper;
@@ -67,19 +68,22 @@ public class Server extends Thread implements Closeable {
     }
 
     public void close() {
-//        for (ClientConnection clientConnection: clientConnections) {
-//            clientConnection.close();
-//        }
+        for (ClientConnection clientConnection: clientConnections) {
+            clientConnection.close();
+        }
         stopBroadcastFlag = true;
         try {
             tcpListener.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        executorService.shutdown();
     }
 
     public void stopConnection(ClientConnection clientConnection) {
+        Log.i(getClass().getSimpleName(), clientConnection.getName() + " disconnected");
         clientConnections.remove(clientConnection);
+        updateStatus();
     }
 
     public Server getServer() {
@@ -108,6 +112,6 @@ public class Server extends Thread implements Closeable {
     }
 
     public void updateStatus() {
-        ServiceHelper.updateStatus(context, "Mode: server; clients - " + clientConnections.size());
+        ServiceHelper.updateStatus(context, context.getString(R.string.nav_header_people_around, clientConnections.size()));
     }
 }

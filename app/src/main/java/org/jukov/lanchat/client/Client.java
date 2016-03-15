@@ -1,9 +1,6 @@
 package org.jukov.lanchat.client;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import org.jukov.lanchat.db.DBHelper;
@@ -19,8 +16,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-
-import static org.jukov.lanchat.util.Constants.DatabaseConstants;
 
 /**
  * Created by jukov on 06.02.2016.
@@ -77,11 +72,11 @@ public class Client extends Thread implements Closeable {
                 String message = dataInputStream.readUTF();
                 Data data = JSONConverter.toJavaObject(message);
                 Log.d(getClass().getSimpleName(), "Receive message " + data.getClass().getName());
-                if (data.getClass().getName().equals(ChatData.class.getName())) {
+                if (data instanceof ChatData) {
                     ChatData chatData = (ChatData) data;
                     dbHelper.insertMessage(chatData);
                     ServiceHelper.receiveMessage(context, chatData.getMessageType(), chatData);
-                } else if (data.getClass().getName().equals(PeopleData.class.getName())) {
+                } else if (data instanceof PeopleData) {
                     PeopleData peopleData = (PeopleData) data;
                     dbHelper.insertOrRenamePeople(peopleData);
                     ServiceHelper.receivePeople(context, peopleData);
@@ -101,6 +96,7 @@ public class Client extends Thread implements Closeable {
             dataOutputStream.close();
             dataInputStream.close();
             socket.close();
+            dbHelper.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -73,4 +73,10 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         contentValues.clear();
     }
+
+    @Override
+    public synchronized void close() {
+        super.close();
+        sqLiteDatabase.close();
+    }
 }

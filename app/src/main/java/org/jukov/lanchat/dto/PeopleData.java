@@ -25,6 +25,7 @@ public class PeopleData extends Data {
 
     public PeopleData(String name, String uid, int action) {
         setName(name);
+        setUid(uid);
         this.action = action;
     }
 
@@ -43,9 +44,9 @@ public class PeopleData extends Data {
 
     @Override
     public boolean equals(Object o) {
-        if (o.getClass().getName().equals(PeopleData.class.getName()))
-            return getUid().equals(((PeopleData) o).getUid());
-        else
-            return super.equals(o);
+        if (o instanceof PeopleData) {
+                return getUid().equals(((PeopleData) o).getUid());
+        }
+        return super.equals(o);
     }
 }
