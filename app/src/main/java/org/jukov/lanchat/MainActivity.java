@@ -22,6 +22,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.fragment.BaseFragment;
 import org.jukov.lanchat.fragment.GroupChatFragment;
@@ -224,7 +225,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initAdapters() {
-        arrayAdapterMessages = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
+        DBHelper dbHelper = DBHelper.getInstance(this);
+
+        arrayAdapterMessages = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, dbHelper.getPublicMessages());
         arrayAdapterPeople = new ArrayAdapter<>(this, R.layout.listview_people, R.id.listviewPeoplesName);
     }
 

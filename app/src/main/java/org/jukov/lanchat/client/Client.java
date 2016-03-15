@@ -50,7 +50,7 @@ public class Client extends Thread implements Closeable {
                 e.printStackTrace();
             }
         }
-        dbHelper = new DBHelper(context, DBHelper.DATABASE_NAME, null, DBHelper.DATABASE_VERSION);
+        dbHelper = DBHelper.getInstance(context);
     }
 
     public void changeName(String name) {

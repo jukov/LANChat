@@ -10,21 +10,52 @@ import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.util.Constants;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 /**
  * Created by jukov on 13.03.2016.
  */
 public class DBHelper extends SQLiteOpenHelper {
+    private static volatile DBHelper instance;
+
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "LANChatDatabase";
 
     private SQLiteDatabase sqLiteDatabase;
     private ContentValues contentValues;
-    private Cursor cursor;
 
-    public DBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
+    private Lock databaseLock;
+
+    private int peopleRows;
+    private int privateMessagesRows;
+    private int publicMessagesRows;
+
+    public static DBHelper getInstance(Context context) {
+        DBHelper localInstance = instance;
+        if (localInstance == null) {
+            synchronized (DBHelper.class) {
+                localInstance = instance;
+                if (localInstance == null) {
+                    instance = localInstance = new DBHelper(context, DATABASE_NAME, null, DATABASE_VERSION);
+                }
+            }
+        }
+        return localInstance;
+    }
+
+    private DBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
         sqLiteDatabase = this.getReadableDatabase();
         contentValues = new ContentValues(1);
+        databaseLock = new ReentrantLock();
+
+//        peopleRows = (int) DatabaseUtils.queryNumEntries(sqLiteDatabase, Constants.DatabaseConstants.TABLE_PEOPLE);
+//        privateMessagesRows = (int) DatabaseUtils.queryNumEntries(sqLiteDatabase, Constants.DatabaseConstants.TABLE_PRIVATE_MESSAGES);
+//        publicMessagesRows = (int) DatabaseUtils.queryNumEntries(sqLiteDatabase, Constants.DatabaseConstants.TABLE_PUBLIC_MESSAGES);
     }
 
     @Override
@@ -40,7 +71,8 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public void insertMessage(ChatData chatData) {
-        cursor = sqLiteDatabase.query(
+        databaseLock.lock();
+        Cursor cursor = sqLiteDatabase.query(
                 Constants.DatabaseConstants.TABLE_PEOPLE,
                 new String[]{"_id"},
                 Constants.DatabaseConstants.KEY_MAC + " = ?",
@@ -60,9 +92,12 @@ public class DBHelper extends SQLiteOpenHelper {
                 sqLiteDatabase.insert(Constants.DatabaseConstants.TABLE_PRIVATE_MESSAGES, null, contentValues);
         }
         contentValues.clear();
+        cursor.close();
+        databaseLock.unlock();
     }
 
     public void insertOrRenamePeople(PeopleData peopleData) {
+        databaseLock.lock();
         contentValues.put(Constants.DatabaseConstants.KEY_NAME, peopleData.getName());
         contentValues.put(Constants.DatabaseConstants.KEY_MAC, peopleData.getUid());
         if (sqLiteDatabase.update(
@@ -73,13 +108,76 @@ public class DBHelper extends SQLiteOpenHelper {
             sqLiteDatabase.insert(Constants.DatabaseConstants.TABLE_PEOPLE, null, contentValues);
         }
         contentValues.clear();
+        databaseLock.unlock();
+    }
+
+    public List<String> getPublicMessages() {
+        databaseLock.lock();
+
+        Cursor messagesCursor = sqLiteDatabase.query(
+                Constants.DatabaseConstants.TABLE_PUBLIC_MESSAGES,
+                new String[] {Constants.DatabaseConstants.ID_PEOPLE , Constants.DatabaseConstants.KEY_MESSAGE},
+                null, null, null, null, null);
+
+        Cursor peopleCursor = sqLiteDatabase.query(
+                Constants.DatabaseConstants.TABLE_PEOPLE,
+                new String[] {"_id", Constants.DatabaseConstants.KEY_NAME},
+                null, null, null, null, null);
+
+        HashMap<Integer, String> peopleMap = new HashMap<>();
+        peopleCursor.moveToFirst();
+        while (peopleCursor.moveToNext()) {
+            peopleMap.put(peopleCursor.getInt(0), peopleCursor.getString(1));
+        }
+
+        List<String> messagesList = new ArrayList<>();
+        messagesCursor.moveToFirst();
+        while (messagesCursor.moveToNext()) {
+            messagesList.add(peopleMap.get(messagesCursor.getInt(0)) + ": " + messagesCursor.getString(1));
+        }
+
+        messagesCursor.close();
+        peopleCursor.close();
+        databaseLock.unlock();
+        return messagesList;
+    }
+
+    public List<String> getPrivateMessages() {
+        databaseLock.lock();
+
+        Cursor messagesCursor = sqLiteDatabase.query(
+                Constants.DatabaseConstants.TABLE_PUBLIC_MESSAGES,
+                new String[] {Constants.DatabaseConstants.ID_PEOPLE , Constants.DatabaseConstants.KEY_MESSAGE},
+                null, null, null, null, null);
+
+        Cursor peopleCursor = sqLiteDatabase.query(
+                Constants.DatabaseConstants.TABLE_PEOPLE,
+                new String[] {"_id", Constants.DatabaseConstants.KEY_NAME},
+                null, null, null, null, null);
+
+        HashMap<Integer, String> peopleMap = new HashMap<>();
+        peopleCursor.moveToFirst();
+        while (peopleCursor.moveToNext()) {
+            peopleMap.put(peopleCursor.getInt(0), peopleCursor.getString(1));
+        }
+
+        List<String> messagesList = new ArrayList<>();
+        messagesCursor.moveToFirst();
+        while (messagesCursor.moveToNext()) {
+            messagesList.add(peopleMap.get(messagesCursor.getInt(0)) + ": " + messagesCursor.getString(1));
+        }
+
+        messagesCursor.close();
+        peopleCursor.close();
+        databaseLock.unlock();
+        return messagesList;
     }
 
     @Override
     public synchronized void close() {
-        if (cursor != null)
-            cursor.close();
+        databaseLock.lock();
         sqLiteDatabase.close();
         super.close();
+        databaseLock.unlock();
     }
 }
