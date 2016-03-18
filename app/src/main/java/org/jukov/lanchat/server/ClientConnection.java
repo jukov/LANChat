@@ -11,15 +11,12 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by jukov on 07.02.2016.
  */
 public class ClientConnection extends Thread implements Closeable {
 
-    private final Lock lock;
     private Server server;
     private Socket socket;
     private DataOutputStream dataOutputStream;
@@ -27,9 +24,7 @@ public class ClientConnection extends Thread implements Closeable {
 
     private PeopleData peopleData;
 
-
     public ClientConnection(Socket socket, Server server) {
-        lock = new ReentrantLock();
         this.socket = socket;
         this.server = server;
         try {
@@ -54,8 +49,8 @@ public class ClientConnection extends Thread implements Closeable {
                 server.broadcastMessage(message);
                 peopleData.setAction(PeopleData.ACTION_NONE);
             } catch (IOException e) {
-                close();
                 e.printStackTrace();
+                close();
             }
         }
         Log.d(getClass().getSimpleName(), "Connection closed");
@@ -74,14 +69,12 @@ public class ClientConnection extends Thread implements Closeable {
     }
 
     public void sendMessage(String message) {
-        lock.lock();
         try {
             dataOutputStream.writeUTF(message);
             dataOutputStream.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        lock.unlock();
     }
 
     public PeopleData getPeopleData() {

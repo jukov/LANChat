@@ -18,8 +18,8 @@ public class ChatData extends Data {
     public ChatData() {
     }
 
-    public ChatData(Context context, String text, String uid, ServiceHelper.MessageType messageType) {
-        super(context, uid);
+    public ChatData(Context context, String text, ServiceHelper.MessageType messageType) {
+        super(context);
         this.text = text;
         this.messageType = messageType;
         sendDate = new Date().toString();

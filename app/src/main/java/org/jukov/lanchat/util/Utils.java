@@ -3,6 +3,7 @@ package org.jukov.lanchat.util;
 import android.content.Context;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
+import android.provider.Settings;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -10,7 +11,7 @@ import java.net.InetAddress;
 /**
  * Created by jukov on 05.02.2016.
  */
-public class NetworkUtils {
+public class Utils {
 
     public static InetAddress getBroadcastAddress(Context context) throws IOException {
         WifiManager wifi = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
@@ -24,8 +25,13 @@ public class NetworkUtils {
         return InetAddress.getByAddress(quads);
     }
 
+    @Deprecated
     public static String getMACAddress(Context context) {
         return ((WifiManager) context.getSystemService(Context.WIFI_SERVICE)).getConnectionInfo().getMacAddress();
+    }
+
+    public static String getAndroidID(Context context) {
+        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
 }

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import org.jukov.lanchat.R;
+import org.jukov.lanchat.util.Utils;
 
 /**
  * Created by jukov on 22.02.2016.
@@ -29,10 +30,10 @@ public abstract class Data {
     public Data() {
     }
 
-    public Data(Context context, String uid) {
+    public Data(Context context) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         name = sharedPreferences.getString("name", context.getString(R.string.default_name));
-        this.uid = uid;
+        uid = Utils.getAndroidID(context);
     }
 
     public String getUid() {

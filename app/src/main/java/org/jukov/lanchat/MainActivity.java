@@ -31,9 +31,18 @@ import org.jukov.lanchat.fragment.RoomFragment;
 import org.jukov.lanchat.fragment.SettingsFragment;
 import org.jukov.lanchat.service.LANChatService;
 import org.jukov.lanchat.service.ServiceHelper;
-import org.jukov.lanchat.util.Constants;
 
 import java.util.HashMap;
+
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.ACTIVITY_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.CLEAR_PEOPLE_LIST_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MODE;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_UID;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.GLOBAL_CHAT_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PEOPLE_ACTION;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -121,8 +130,9 @@ public class MainActivity extends AppCompatActivity
                     toolbar.setTitle(getString(R.string.settings));
                     break;
                 case R.id.drawerMenuExit:
+                    DBHelper.getInstance(this).close();
                     stopService(new Intent(getApplicationContext(), LANChatService.class));
-                    finish();
+                    finishAffinity();
                     break;
                 default:
                     BaseFragment baseFragment = (BaseFragment) fragments.get(id);
@@ -236,21 +246,21 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onReceive(Context context, final Intent intent) {
                 switch (intent.getAction()) {
-                    case Constants.IntentConstants.ACTIVITY_ACTION:
+                    case ACTIVITY_ACTION:
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                textViewMode.setText(intent.getStringExtra(Constants.IntentConstants.EXTRA_MODE));
+                                textViewMode.setText(intent.getStringExtra(EXTRA_MODE));
                             }
                         });
                         break;
-                    case Constants.IntentConstants.GLOBAL_CHAT_ACTION:
-                        arrayAdapterMessages.add(intent.getStringExtra(Constants.IntentConstants.EXTRA_NAME) + ": " + intent.getStringExtra(Constants.IntentConstants.EXTRA_MESSAGE));
+                    case GLOBAL_CHAT_ACTION:
+                        arrayAdapterMessages.add(intent.getStringExtra(EXTRA_NAME) + ": " + intent.getStringExtra(EXTRA_MESSAGE));
                         break;
-                    case Constants.IntentConstants.PEOPLE_ACTION:
-                        String name = intent.getStringExtra(Constants.IntentConstants.EXTRA_NAME);
-                        String uid = intent.getStringExtra(Constants.IntentConstants.EXTRA_UID);
-                        int action = intent.getIntExtra(Constants.IntentConstants.EXTRA_ACTION, -1);
+                    case PEOPLE_ACTION:
+                        String name = intent.getStringExtra(EXTRA_NAME);
+                        String uid = intent.getStringExtra(EXTRA_UID);
+                        int action = intent.getIntExtra(EXTRA_ACTION, -1);
                         PeopleData peopleData = new PeopleData(name, uid, action);
                         switch (action) {
                             case PeopleData.ACTION_CONNECT:
@@ -262,14 +272,21 @@ public class MainActivity extends AppCompatActivity
                             case PeopleData.ACTION_CHANGE_NAME:
                                 arrayAdapterPeople.remove(peopleData);
                                 arrayAdapterPeople.add(peopleData);
+                                break;
+                            default:
+                                Log.w(getClass().getSimpleName(), "Unexpected action type");
                         }
+                        break;
+                    case CLEAR_PEOPLE_LIST_ACTION:
+                        arrayAdapterPeople.clear();
                 }
             }
         };
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Constants.IntentConstants.ACTIVITY_ACTION);
-        intentFilter.addAction(Constants.IntentConstants.GLOBAL_CHAT_ACTION);
-        intentFilter.addAction(Constants.IntentConstants.PEOPLE_ACTION);
+        intentFilter.addAction(ACTIVITY_ACTION);
+        intentFilter.addAction(GLOBAL_CHAT_ACTION);
+        intentFilter.addAction(PEOPLE_ACTION);
+        intentFilter.addAction(CLEAR_PEOPLE_LIST_ACTION);
         registerReceiver(broadcastReceiver, intentFilter);
     }
 

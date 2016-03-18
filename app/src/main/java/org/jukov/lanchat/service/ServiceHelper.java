@@ -5,26 +5,43 @@ import android.content.Intent;
 
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.PeopleData;
-import org.jukov.lanchat.util.Constants;
 
 /**
  * Created by jukov on 22.02.2016.
  */
 public class ServiceHelper {
 
+    public class IntentConstants {
+
+        public static final String ACTIVITY_ACTION = "org.jukov.lanchat.ACTIVITY";
+        public static final String GLOBAL_CHAT_ACTION = "org.jukov.lanchat.GLOBAL_CHAT";
+        public static final String PRIVATE_CHAT_ACTION = "org.jukov.lanchat.PRIVATE_CHAT";
+        public static final String PEOPLE_ACTION = "org.jukov.lanchat.PEOPLE";
+        public static final String START_SERVICE_ACTION = "org.jukov.lanchat.CONNECT_TO_SERVICE";
+        public static final String NAME_CHANGE_ACTION = "org.jukov.lanchat.CHANGE_NAME";
+        public static final String SEARCH_SERVER_ACTION = "org.jukov.lanchat.SEARCH_SERVER";
+        public static final String CLEAR_PEOPLE_LIST_ACTION = "org.jukov.lanchat.CLEAR_PEOPLE_LIST";
+
+        public static final String EXTRA_NAME = "name";
+        public static final String EXTRA_MESSAGE = "message";
+        public static final String EXTRA_UID = "uid";
+        public static final String EXTRA_MODE = "mode";
+        public static final String EXTRA_ACTION = "action";
+    }
+
+
     public enum MessageType {
         PRIVATE, GLOBAL
     }
-
     public static void startService(Context context) {
         Intent intent = new Intent(context, LANChatService.class);
-        intent.setAction(Constants.IntentConstants.START_SERVICE_ACTION);
+        intent.setAction(IntentConstants.START_SERVICE_ACTION);
         context.startService(intent);
     }
 
     public static void searchServer(Context context) {
         Intent intent = new Intent(context, LANChatService.class);
-        intent.setAction(Constants.IntentConstants.SEARCH_SERVER_ACTION);
+        intent.setAction(IntentConstants.SEARCH_SERVER_ACTION);
         context.startService(intent);
     }
 
@@ -32,34 +49,33 @@ public class ServiceHelper {
         Intent intent = new Intent(context, LANChatService.class);
         switch (messageType) {
             case PRIVATE:
-                intent.setAction(Constants.IntentConstants.PRIVATE_CHAT_ACTION);
+                intent.setAction(IntentConstants.PRIVATE_CHAT_ACTION);
                 break;
             case GLOBAL:
-                intent.setAction(Constants.IntentConstants.GLOBAL_CHAT_ACTION);
+                intent.setAction(IntentConstants.GLOBAL_CHAT_ACTION);
         }
-        intent.putExtra(Constants.IntentConstants.EXTRA_MESSAGE, message);
+        intent.putExtra(IntentConstants.EXTRA_MESSAGE, message);
         context.startService(intent);
     }
 
     public static void changeName(Context context, String newName) {
         Intent intent = new Intent(context, LANChatService.class);
-        intent.setAction(Constants.IntentConstants.NAME_CHANGE_ACTION);
-        intent.putExtra(Constants.IntentConstants.EXTRA_NAME, newName);
+        intent.setAction(IntentConstants.NAME_CHANGE_ACTION);
+        intent.putExtra(IntentConstants.EXTRA_NAME, newName);
         context.startService(intent);
     }
 
     public static void updateStatus(Context context, String status) {
-        Intent intent = new Intent(Constants.IntentConstants.ACTIVITY_ACTION);
-        intent.putExtra(Constants.IntentConstants.EXTRA_MODE, status);
+        Intent intent = new Intent(IntentConstants.ACTIVITY_ACTION);
+        intent.putExtra(IntentConstants.EXTRA_MODE, status);
         context.sendBroadcast(intent);
     }
 
-
     public static void receivePeople(Context context, PeopleData peopleData) {
-        Intent intent = new Intent(Constants.IntentConstants.PEOPLE_ACTION);
-        intent.putExtra(Constants.IntentConstants.EXTRA_NAME, peopleData.getName());
-        intent.putExtra(Constants.IntentConstants.EXTRA_UID, peopleData.getUid());
-        intent.putExtra(Constants.IntentConstants.EXTRA_MODE, peopleData.getAction());
+        Intent intent = new Intent(IntentConstants.PEOPLE_ACTION);
+        intent.putExtra(IntentConstants.EXTRA_NAME, peopleData.getName());
+        intent.putExtra(IntentConstants.EXTRA_UID, peopleData.getUid());
+        intent.putExtra(IntentConstants.EXTRA_ACTION, peopleData.getAction());
         context.sendBroadcast(intent);
     }
 
@@ -67,13 +83,18 @@ public class ServiceHelper {
         Intent intent = new Intent();
         switch (messageType) {
             case PRIVATE:
-                intent.setAction(Constants.IntentConstants.PRIVATE_CHAT_ACTION);
+                intent.setAction(IntentConstants.PRIVATE_CHAT_ACTION);
                 break;
             case GLOBAL:
-                intent.setAction(Constants.IntentConstants.GLOBAL_CHAT_ACTION);
+                intent.setAction(IntentConstants.GLOBAL_CHAT_ACTION);
         }
-        intent.putExtra(Constants.IntentConstants.EXTRA_NAME, chatData.getName());
-        intent.putExtra(Constants.IntentConstants.EXTRA_MESSAGE, chatData.getText());
+        intent.putExtra(IntentConstants.EXTRA_NAME, chatData.getName());
+        intent.putExtra(IntentConstants.EXTRA_MESSAGE, chatData.getText());
+        context.sendBroadcast(intent);
+    }
+
+    public static void clearPeopleList(Context context) {
+        Intent intent = new Intent(IntentConstants.CLEAR_PEOPLE_LIST_ACTION);
         context.sendBroadcast(intent);
     }
 }

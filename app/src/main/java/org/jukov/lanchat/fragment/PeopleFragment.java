@@ -16,7 +16,7 @@ import org.jukov.lanchat.MainActivity;
 import org.jukov.lanchat.MessagingActivity;
 import org.jukov.lanchat.R;
 import org.jukov.lanchat.dto.PeopleData;
-import org.jukov.lanchat.util.Constants;
+import org.jukov.lanchat.service.ServiceHelper;
 
 /**
  * Created by jukov on 16.02.2016.
@@ -56,7 +56,9 @@ public class PeopleFragment extends BaseFragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getContext(), MessagingActivity.class);
-                intent.putExtra(Constants.IntentConstants.EXTRA_NAME, arrayAdapterPeople.getItem(position).getName());
+                PeopleData peopleData = arrayAdapterPeople.getItem(position);
+                intent.putExtra(ServiceHelper.IntentConstants.EXTRA_NAME, peopleData.getName());
+                intent.putExtra(ServiceHelper.IntentConstants.EXTRA_UID, peopleData.getUid());
                 startActivity(intent);
             }
         });

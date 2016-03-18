@@ -7,7 +7,7 @@ import android.view.View;
 /**
  * Created by jukov on 15.02.2016.
  */
-public class BaseFragment extends Fragment {
+public abstract class BaseFragment extends Fragment {
 
     private String title;
     protected Context context;

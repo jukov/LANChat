@@ -10,8 +10,6 @@ import org.jukov.lanchat.client.Client;
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.json.JSONConverter;
 import org.jukov.lanchat.server.Server;
-import org.jukov.lanchat.util.Constants;
-import org.jukov.lanchat.util.NetworkUtils;
 import org.jukov.lanchat.util.UDP;
 
 import java.io.IOException;
@@ -19,6 +17,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.GLOBAL_CHAT_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.NAME_CHANGE_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PRIVATE_CHAT_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.SEARCH_SERVER_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.START_SERVICE_ACTION;
 
 /**
  * Created by jukov on 16.01.2016.
@@ -52,7 +58,7 @@ public class LANChatService extends Service {
         if (intent != null) {
             Log.d(getClass().getSimpleName(), intent.getAction());
             switch (intent.getAction()) {
-                case Constants.IntentConstants.START_SERVICE_ACTION:
+                case START_SERVICE_ACTION:
                     switch (mode) {
                         case MODE_NONE:
                             ServerSearch serverSearch = new ServerSearch(UDP_PORT);
@@ -66,17 +72,16 @@ public class LANChatService extends Service {
                             break;
                     }
                     break;
-                case Constants.IntentConstants.SEARCH_SERVER_ACTION:
+                case SEARCH_SERVER_ACTION:
                     ServerSearch serverSearch = new ServerSearch(UDP_PORT);
                     executorService.execute(serverSearch);
                     break;
-                case Constants.IntentConstants.GLOBAL_CHAT_ACTION:
+                case GLOBAL_CHAT_ACTION:
                     if (client != null) {
                         try {
                             String message = JSONConverter.toJSON(new ChatData(
                                     getApplicationContext(),
-                                    intent.getStringExtra(Constants.IntentConstants.EXTRA_MESSAGE),
-                                    NetworkUtils.getMACAddress(getApplicationContext()),
+                                    intent.getStringExtra(EXTRA_MESSAGE),
                                     ServiceHelper.MessageType.GLOBAL));
                             Log.d(getClass().getSimpleName(), message);
                             client.sendMessage(message);
@@ -85,13 +90,12 @@ public class LANChatService extends Service {
                         }
                     }
                     break;
-                case Constants.IntentConstants.PRIVATE_CHAT_ACTION:
+                case PRIVATE_CHAT_ACTION:
                     if (client != null) {
                         try {
                             String message = JSONConverter.toJSON(new ChatData(
                                     getApplicationContext(),
-                                    intent.getStringExtra(Constants.IntentConstants.EXTRA_MESSAGE),
-                                    NetworkUtils.getMACAddress(getApplicationContext()),
+                                    intent.getStringExtra(EXTRA_MESSAGE),
                                     ServiceHelper.MessageType.PRIVATE));
                             Log.d(getClass().getSimpleName(), message);
                             client.sendMessage(message);
@@ -100,19 +104,19 @@ public class LANChatService extends Service {
                         }
                     }
                     break;
-                case Constants.IntentConstants.NAME_CHANGE_ACTION:
+                case NAME_CHANGE_ACTION:
                     if (client != null) {
-                        client.changeName(intent.getStringExtra(Constants.IntentConstants.EXTRA_NAME));
+                        client.changeName(intent.getStringExtra(EXTRA_NAME));
                     }
                     break;
                 default:
-                    Log.i(getClass().getSimpleName(), "Unexpected intent action type");
+                    Log.w(getClass().getSimpleName(), "Unexpected intent action type");
             }
         } else {
             Log.i(getClass().getSimpleName(), "Service stopped");
             stopSelf();
         }
-        return Service.START_STICKY;
+        return Service.START_NOT_STICKY;
     }
 
     @Override

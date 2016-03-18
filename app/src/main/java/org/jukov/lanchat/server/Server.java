@@ -7,8 +7,8 @@ import org.jukov.lanchat.R;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.json.JSONConverter;
 import org.jukov.lanchat.service.ServiceHelper;
-import org.jukov.lanchat.util.NetworkUtils;
 import org.jukov.lanchat.util.UDP;
+import org.jukov.lanchat.util.Utils;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -20,11 +20,15 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by jukov on 05.02.2016.
  */
 public class Server extends Thread implements Closeable {
+
+    private Lock lock;
 
     private Context context;
     private int port;
@@ -35,6 +39,7 @@ public class Server extends Thread implements Closeable {
     private boolean stopBroadcastFlag;
 
     public Server(int port, final Context context) {
+        lock = new ReentrantLock();
         this.context = context;
         this.port = port;
         stopBroadcastFlag = false;
@@ -57,7 +62,7 @@ public class Server extends Thread implements Closeable {
     @Override
     public void run() {
         try {
-            InetAddress broadcastAddress = NetworkUtils.getBroadcastAddress(context);
+            InetAddress broadcastAddress = Utils.getBroadcastAddress(context);
             while (!stopBroadcastFlag) {
                 UDP.send(port, broadcastAddress, UDP.SERVER_BROADCAST);
                 TimeUnit.MILLISECONDS.sleep(500);
@@ -68,9 +73,11 @@ public class Server extends Thread implements Closeable {
     }
 
     public void close() {
+        lock.lock();
         for (ClientConnection clientConnection: clientConnections) {
             clientConnection.close();
         }
+        lock.unlock();
         stopBroadcastFlag = true;
         try {
             tcpListener.close();
@@ -82,7 +89,9 @@ public class Server extends Thread implements Closeable {
 
     public void stopConnection(ClientConnection clientConnection) {
         Log.i(getClass().getSimpleName(), clientConnection.getName() + " disconnected");
+        lock.lock();
         clientConnections.remove(clientConnection);
+        lock.unlock();
         updateStatus();
     }
 
@@ -91,9 +100,11 @@ public class Server extends Thread implements Closeable {
     }
 
     public void broadcastMessage(String message) {
+        lock.lock();
         for (ClientConnection clientConnection : clientConnections) {
             clientConnection.sendMessage(message);
         }
+        lock.unlock();
     }
 
     public void broadcastPeoples(ClientConnection targetClientConnection) {

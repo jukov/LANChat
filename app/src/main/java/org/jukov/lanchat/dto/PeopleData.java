@@ -18,8 +18,8 @@ public class PeopleData extends Data {
     public PeopleData() {
     }
 
-    public PeopleData(Context context, String uid, int action) {
-        super(context, uid);
+    public PeopleData(Context context, int action) {
+        super(context);
         this.action = action;
     }
 

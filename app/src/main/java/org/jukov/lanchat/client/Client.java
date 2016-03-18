@@ -9,7 +9,6 @@ import org.jukov.lanchat.dto.Data;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.json.JSONConverter;
 import org.jukov.lanchat.service.ServiceHelper;
-import org.jukov.lanchat.util.NetworkUtils;
 
 import java.io.Closeable;
 import java.io.DataInputStream;
@@ -37,7 +36,7 @@ public class Client extends Thread implements Closeable {
         this.context = context;
         this.port = port;
         this.ip = ip;
-        peopleData = new PeopleData(context, NetworkUtils.getMACAddress(context), PeopleData.ACTION_NONE);
+        peopleData = new PeopleData(context, PeopleData.ACTION_NONE);
         while (socket == null) {
             try {
                 socket = new Socket(ip, port);
@@ -83,10 +82,10 @@ public class Client extends Thread implements Closeable {
             }
         }
         catch (IOException e) {
-            if (!e.getMessage().equals("Socket closed"))
-                e.printStackTrace();
+            e.printStackTrace();
         }
         if (peopleData.getAction() != PeopleData.ACTION_DISCONNECT) {
+            ServiceHelper.clearPeopleList(context);
             ServiceHelper.searchServer(context);
         }
     }
@@ -99,7 +98,6 @@ public class Client extends Thread implements Closeable {
             dataOutputStream.close();
             dataInputStream.close();
             socket.close();
-            dbHelper.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
