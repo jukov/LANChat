@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
@@ -23,6 +24,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import org.jukov.lanchat.db.DBHelper;
+import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.fragment.BaseFragment;
 import org.jukov.lanchat.fragment.GroupChatFragment;
@@ -31,13 +33,16 @@ import org.jukov.lanchat.fragment.RoomFragment;
 import org.jukov.lanchat.fragment.SettingsFragment;
 import org.jukov.lanchat.service.LANChatService;
 import org.jukov.lanchat.service.ServiceHelper;
+import org.jukov.lanchat.util.Utils;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.ACTIVITY_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.CLEAR_PEOPLE_LIST_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE_BUNDLE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MODE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_UID;
@@ -255,27 +260,36 @@ public class MainActivity extends AppCompatActivity
                         });
                         break;
                     case GLOBAL_CHAT_ACTION:
-                        arrayAdapterMessages.add(intent.getStringExtra(EXTRA_NAME) + ": " + intent.getStringExtra(EXTRA_MESSAGE));
+                        if (intent.hasExtra(EXTRA_NAME))
+                            arrayAdapterMessages.add(intent.getStringExtra(EXTRA_NAME) + ": " + intent.getStringExtra(EXTRA_MESSAGE));
+                        else if (intent.hasExtra(EXTRA_MESSAGE_BUNDLE)) {
+                            Parcelable[] parcelables = intent.getParcelableArrayExtra(EXTRA_MESSAGE_BUNDLE);
+                            ChatData[] messages = Arrays.copyOf(parcelables, parcelables.length, ChatData[].class);
+                            for (ChatData chatData : messages) {
+                                arrayAdapterMessages.add(chatData.toString());
+                            }
+                        }
                         break;
                     case PEOPLE_ACTION:
                         String name = intent.getStringExtra(EXTRA_NAME);
                         String uid = intent.getStringExtra(EXTRA_UID);
                         int action = intent.getIntExtra(EXTRA_ACTION, -1);
                         PeopleData peopleData = new PeopleData(name, uid, action);
-                        switch (action) {
-                            case PeopleData.ACTION_CONNECT:
-                                arrayAdapterPeople.add(peopleData);
-                                break;
-                            case PeopleData.ACTION_DISCONNECT:
-                                arrayAdapterPeople.remove(peopleData);
-                                break;
-                            case PeopleData.ACTION_CHANGE_NAME:
-                                arrayAdapterPeople.remove(peopleData);
-                                arrayAdapterPeople.add(peopleData);
-                                break;
-                            default:
-                                Log.w(getClass().getSimpleName(), "Unexpected action type");
-                        }
+                        if (!uid.equals(Utils.getAndroidID(getApplicationContext())))
+                            switch (action) {
+                                case PeopleData.ACTION_CONNECT:
+                                    arrayAdapterPeople.add(peopleData);
+                                    break;
+                                case PeopleData.ACTION_DISCONNECT:
+                                    arrayAdapterPeople.remove(peopleData);
+                                    break;
+                                case PeopleData.ACTION_CHANGE_NAME:
+                                    arrayAdapterPeople.remove(peopleData);
+                                    arrayAdapterPeople.add(peopleData);
+                                    break;
+                                default:
+                                    Log.w(getClass().getSimpleName(), "Unexpected action type");
+                            }
                         break;
                     case CLEAR_PEOPLE_LIST_ACTION:
                         arrayAdapterPeople.clear();

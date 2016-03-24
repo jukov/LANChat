@@ -2,9 +2,10 @@ package org.jukov.lanchat.server;
 
 import android.util.Log;
 
-import org.jukov.lanchat.dto.Data;
+import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.json.JSONConverter;
+import org.jukov.lanchat.service.ServiceHelper;
 
 import java.io.Closeable;
 import java.io.DataInputStream;
@@ -31,6 +32,7 @@ public class ClientConnection extends Thread implements Closeable {
             dataOutputStream = new DataOutputStream(socket.getOutputStream());
             dataInputStream = new DataInputStream(socket.getInputStream());
             server.broadcastPeoples(this);
+            server.sendMessages(this);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -42,9 +44,12 @@ public class ClientConnection extends Thread implements Closeable {
         while (!socket.isClosed()) {
             try {
                 String message = dataInputStream.readUTF();
-                Data data = JSONConverter.toJavaObject(message);
-                if (data.getClass().getName().equals(PeopleData.class.getName())) {
+                Object data = JSONConverter.toPOJO(message);
+                if (data instanceof PeopleData) {
                     peopleData = (PeopleData) data;
+                } else if (data instanceof ChatData) {
+                    if (((ChatData) data).getMessageType() == ServiceHelper.MessageType.GLOBAL)
+                        server.addMessage((ChatData) data);
                 }
                 server.broadcastMessage(message);
                 peopleData.setAction(PeopleData.ACTION_NONE);

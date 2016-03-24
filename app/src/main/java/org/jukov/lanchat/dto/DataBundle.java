@@ -1,29 +1,34 @@
 package org.jukov.lanchat.dto;
 
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Collection;
 
 /**
- * Created by jukov on 24.02.2016.
+ * Created by jukov on 22.03.2016.
  */
-public abstract class DataBundle<T> {
+public class DataBundle<E extends Data> extends ArrayDeque<E> {
 
-    protected List<T> bundle;
+    private int maxCapacity;
 
-    public DataBundle() {
+    public DataBundle(int maxCapacity) {
+        this.maxCapacity = maxCapacity;
     }
 
-    public DataBundle(List<T> bundle) {
-        this.bundle = bundle;
+    public DataBundle(Collection<? extends E> c, int maxCapacity) {
+        super(c);
+        this.maxCapacity = maxCapacity;
     }
 
-    public List<T> getBundle() {
-        return bundle;
+    public DataBundle(int numElements, int maxCapacity) {
+        super(numElements);
+        this.maxCapacity = maxCapacity;
     }
 
-    public void setBundle(List<T> bundle) {
-        this.bundle = bundle;
+    @Override
+    public boolean add(E object) {
+        if (size() >= maxCapacity) {
+            removeFirst();
+        }
+        return super.add(object);
     }
-
-    public abstract void addMessage(T data);
-
 }

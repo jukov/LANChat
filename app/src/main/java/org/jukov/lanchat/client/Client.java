@@ -5,7 +5,6 @@ import android.util.Log;
 
 import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.ChatData;
-import org.jukov.lanchat.dto.Data;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.json.JSONConverter;
 import org.jukov.lanchat.service.ServiceHelper;
@@ -15,6 +14,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.AbstractCollection;
 
 /**
  * Created by jukov on 06.02.2016.
@@ -22,8 +22,8 @@ import java.net.Socket;
 public class Client extends Thread implements Closeable {
 
     private Context context;
-    private int port;
-    private String ip;
+//    private int port;
+//    private String ip;
     private PeopleData peopleData;
 
     private Socket socket;
@@ -34,8 +34,8 @@ public class Client extends Thread implements Closeable {
 
     public Client(Context context, String ip, int port) {
         this.context = context;
-        this.port = port;
-        this.ip = ip;
+//        this.port = port;
+//        this.ip = ip;
         peopleData = new PeopleData(context, PeopleData.ACTION_NONE);
         while (socket == null) {
             try {
@@ -69,7 +69,7 @@ public class Client extends Thread implements Closeable {
         try {
             while (!socket.isClosed()) {
                 String message = dataInputStream.readUTF();
-                Data data = JSONConverter.toJavaObject(message);
+                Object data = JSONConverter.toPOJO(message);
                 if (data instanceof ChatData) {
                     ChatData chatData = (ChatData) data;
                     dbHelper.insertMessage(chatData);
@@ -78,6 +78,10 @@ public class Client extends Thread implements Closeable {
                     PeopleData peopleData = (PeopleData) data;
                     dbHelper.insertOrRenamePeople(peopleData);
                     ServiceHelper.receivePeople(context, peopleData);
+                } else if (data instanceof AbstractCollection) {
+                    AbstractCollection dataBundle = (AbstractCollection) data;
+                    dbHelper.insertMessages((AbstractCollection) data);
+                    ServiceHelper.receivePublicMessages(context, dataBundle);
                 }
             }
         }

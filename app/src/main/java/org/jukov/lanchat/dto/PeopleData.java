@@ -1,6 +1,8 @@
 package org.jukov.lanchat.dto;
 
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
  * Created by jukov on 22.02.2016.
@@ -48,5 +50,26 @@ public class PeopleData extends Data {
                 return getUid().equals(((PeopleData) o).getUid());
         }
         return super.equals(o);
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
+    }
+
+    public static Parcelable.Creator<? extends Data> CREATOR = new Parcelable.Creator<PeopleData>() {
+        @Override
+        public PeopleData createFromParcel(Parcel source) {
+            return new PeopleData(source);
+        }
+
+        @Override
+        public PeopleData[] newArray(int size) {
+            return new PeopleData[0];
+        }
+    };
+
+    private PeopleData(Parcel parcel) {
+        super(parcel);
     }
 }

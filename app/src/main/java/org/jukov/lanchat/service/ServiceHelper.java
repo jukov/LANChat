@@ -2,9 +2,13 @@ package org.jukov.lanchat.service;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.PeopleData;
+
+import java.util.AbstractCollection;
+import java.util.Arrays;
 
 /**
  * Created by jukov on 22.02.2016.
@@ -24,15 +28,25 @@ public class ServiceHelper {
 
         public static final String EXTRA_NAME = "name";
         public static final String EXTRA_MESSAGE = "message";
+        public static final String EXTRA_MESSAGE_BUNDLE = "message_bundle";
         public static final String EXTRA_UID = "uid";
         public static final String EXTRA_MODE = "mode";
         public static final String EXTRA_ACTION = "action";
     }
 
-
     public enum MessageType {
-        PRIVATE, GLOBAL
+        PRIVATE(0), GLOBAL(1);
+
+        private int value;
+        MessageType(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
     }
+
     public static void startService(Context context) {
         Intent intent = new Intent(context, LANChatService.class);
         intent.setAction(IntentConstants.START_SERVICE_ACTION);
@@ -90,6 +104,16 @@ public class ServiceHelper {
         }
         intent.putExtra(IntentConstants.EXTRA_NAME, chatData.getName());
         intent.putExtra(IntentConstants.EXTRA_MESSAGE, chatData.getText());
+        context.sendBroadcast(intent);
+    }
+
+    public static void receivePublicMessages(Context context, AbstractCollection messagesBundle) {
+        Log.d(ServiceHelper.class.getSimpleName(), Integer.toString(messagesBundle.size()));
+        Object[] objectArray = messagesBundle.toArray();
+        ChatData[] messagesArray = Arrays.copyOf(objectArray, objectArray.length, ChatData[].class);
+        Log.d(ServiceHelper.class.getSimpleName(), messagesArray[1].getText());
+        Intent intent = new Intent(IntentConstants.GLOBAL_CHAT_ACTION);
+        intent.putExtra(IntentConstants.EXTRA_MESSAGE_BUNDLE, messagesArray);
         context.sendBroadcast(intent);
     }
 

@@ -2,6 +2,8 @@ package org.jukov.lanchat.dto;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v7.preference.PreferenceManager;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -22,7 +24,7 @@ import org.jukov.lanchat.util.Utils;
     @JsonSubTypes.Type(value = PeopleData.class, name = "PeopleData"),
     @JsonSubTypes.Type(value = ChatData.class, name = "ChatData")
 })
-public abstract class Data {
+public abstract class Data implements Parcelable {
 
     private String name;
     private String uid;
@@ -51,4 +53,21 @@ public abstract class Data {
     public void setName(String name) {
         this.name = name;
     }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(name);
+        dest.writeString(uid);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    protected Data(Parcel parcel) {
+        name = parcel.readString();
+        uid = parcel.readString();
+    }
+
 }

@@ -1,6 +1,8 @@
 package org.jukov.lanchat.dto;
 
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import org.jukov.lanchat.service.ServiceHelper;
 
@@ -49,4 +51,35 @@ public class ChatData extends Data {
         this.sendDate = sendDate;
     }
 
+    @Override
+    public String toString() {
+        return getName() + ": " + text;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
+        dest.writeString(text);
+        dest.writeString(sendDate);
+        dest.writeInt(messageType.getValue());
+    }
+
+    public static Parcelable.Creator<? extends Data> CREATOR = new Parcelable.Creator<ChatData>() {
+        @Override
+        public ChatData createFromParcel(Parcel source) {
+            return new ChatData(source);
+        }
+
+        @Override
+        public ChatData[] newArray(int size) {
+            return new ChatData[0];
+        }
+    };
+
+    private ChatData(Parcel parcel) {
+        super(parcel);
+        text = parcel.readString();
+        sendDate = parcel.readString();
+        messageType = ServiceHelper.MessageType.values()[parcel.readInt()];
+    }
 }
