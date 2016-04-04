@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.PeopleData;
@@ -23,7 +24,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class DBHelper extends SQLiteOpenHelper {
     private static volatile DBHelper instance;
 
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 4;
     public static final String DATABASE_NAME = "LANChatDatabase";
 
     private SQLiteDatabase sqLiteDatabase;
@@ -36,29 +37,37 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String KEY_UID = "key_uid";
     public static final String KEY_MESSAGE = "key_message";
     public static final String KEY_DATE = "key_date";
-    public static final String ID_PEOPLE = "id_people";
+    public static final String KEY_ID_PEOPLE = "id_people";
+    public static final String KEY_ID_RECEIVER = "id_receiver";
     public static final String TABLE_PEOPLE = "people";
     public static final String TABLE_PRIVATE_MESSAGES = "private_messages";
     public static final String TABLE_PUBLIC_MESSAGES = "public_messages";
 
     public static final String QUERY_CREATE_PEOPLE = "CREATE TABLE " + TABLE_PEOPLE +
-            "(" + KEY_ID +" INTEGER PRIMARY KEY AUTOINCREMENT," +
-            KEY_NAME + " TEXT, " +
-            KEY_UID + " TEXT);";
+            "(" + KEY_ID +" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
+            KEY_NAME + " TEXT NOT NULL," +
+            KEY_UID + " TEXT NOT NULL);";
 
     public static final String QUERY_CREATE_PRIVATE_MESSAGES = "CREATE TABLE " + TABLE_PRIVATE_MESSAGES +
-            "(" + KEY_ID +" INTEGER PRIMARY KEY AUTOINCREMENT, " +
-            ID_PEOPLE + " INTEGER, " +
-            KEY_MESSAGE + " TEXT, " +
-            KEY_DATE + " TEXT);";
+            "(" + KEY_ID +" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
+            KEY_ID_PEOPLE + " INTEGER NOT NULL," +
+            KEY_ID_RECEIVER + " INTEGER NOT NULL," +
+            KEY_MESSAGE + " TEXT NOT NULL," +
+            KEY_DATE + " TEXT NOT NULL," +
+            "FOREIGN KEY(" + KEY_ID_PEOPLE + ") REFERENCES " + TABLE_PEOPLE + "(" + KEY_ID + ")," +
+            "FOREIGN KEY(" + KEY_ID_RECEIVER + ") REFERENCES " + TABLE_PEOPLE + "(" + KEY_ID + ")" +
+            ");";
 
     public static final String QUERY_CREATE_PUBLIC_MESSAGES = "CREATE TABLE " + TABLE_PUBLIC_MESSAGES +
-            "(" + KEY_ID +" INTEGER PRIMARY KEY AUTOINCREMENT, " +
-            ID_PEOPLE + " INTEGER, " +
-            KEY_MESSAGE + " TEXT, " +
-            KEY_DATE + " TEXT);";
+            "(" + KEY_ID +" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
+            KEY_ID_PEOPLE + " INTEGER NOT NULL," +
+            KEY_MESSAGE + " TEXT NOT NULL," +
+            KEY_DATE + " TEXT NOT NULL," +
+            "FOREIGN KEY(" + KEY_ID_PEOPLE + ") REFERENCES " + TABLE_PEOPLE + "(" + KEY_ID + ")" +
+            ");";
 
     public static DBHelper getInstance(Context context) {
+        Log.d(DBHelper.class.getSimpleName(), QUERY_CREATE_PUBLIC_MESSAGES);
         DBHelper localInstance = instance;
         if (localInstance == null) {
             synchronized (DBHelper.class) {
@@ -87,20 +96,24 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE " + TABLE_PEOPLE);
+        db.execSQL("DROP TABLE " + TABLE_PRIVATE_MESSAGES);
+        db.execSQL("DROP TABLE " + TABLE_PUBLIC_MESSAGES);
 
+        onCreate(db);
     }
 
     public void insertMessage(ChatData chatData) {
         databaseLock.lock();
-        Cursor cursor = sqLiteDatabase.query(
+        Cursor cursorSender = sqLiteDatabase.query(
                 TABLE_PEOPLE,
                 new String[]{KEY_ID},
                 KEY_UID + " = ?",
                 new String[]{chatData.getUid()},
                 null, null, null);
 
-        cursor.moveToFirst();
-        contentValues.put(ID_PEOPLE, cursor.getInt(0));
+        cursorSender.moveToFirst();
+        contentValues.put(KEY_ID_PEOPLE, cursorSender.getInt(0));
         contentValues.put(KEY_DATE, chatData.getSendDate());
         contentValues.put(KEY_MESSAGE, chatData.getText());
 
@@ -109,10 +122,19 @@ public class DBHelper extends SQLiteOpenHelper {
                 sqLiteDatabase.insert(TABLE_PUBLIC_MESSAGES, null, contentValues);
                 break;
             case PRIVATE:
+                Cursor cursorReceiver = sqLiteDatabase.query(
+                        TABLE_PEOPLE,
+                        new String[]{KEY_ID},
+                        KEY_UID + " = ?",
+                        new String[]{chatData.getReceiverUID()},
+                        null, null, null);
+                cursorReceiver.moveToFirst();
+                contentValues.put(KEY_ID_RECEIVER, cursorReceiver.getInt(0));
                 sqLiteDatabase.insert(TABLE_PRIVATE_MESSAGES, null, contentValues);
+                cursorReceiver.close();
         }
         contentValues.clear();
-        cursor.close();
+        cursorSender.close();
         databaseLock.unlock();
     }
 
@@ -133,7 +155,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.close();
 
         for (ChatData chatData : messages) {
-            contentValues.put(ID_PEOPLE, peopleIDs.get(chatData.getUid()));
+            contentValues.put(KEY_ID_PEOPLE, peopleIDs.get(chatData.getUid()));
             contentValues.put(KEY_MESSAGE, chatData.getText());
             contentValues.put(KEY_DATE, chatData.getSendDate());
             sqLiteDatabase.insert(TABLE_PUBLIC_MESSAGES, null, contentValues);
@@ -176,7 +198,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         Cursor messagesCursor = sqLiteDatabase.query(
                 TABLE_PUBLIC_MESSAGES,
-                new String[] {ID_PEOPLE , KEY_MESSAGE},
+                new String[] {KEY_ID_PEOPLE, KEY_MESSAGE},
                 null, null, null, null, null);
 
         List<String> messagesList = new ArrayList<>();
@@ -197,7 +219,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         Cursor peopleCursor = sqLiteDatabase.query(
                 TABLE_PEOPLE,
-                new String[] {KEY_ID + KEY_NAME},
+                new String[] {KEY_ID, KEY_NAME},
                 KEY_UID + " = ? OR " + KEY_UID + " = ?",
                 new String[] {myUID, companionUID},
                 null, null, null);
@@ -216,8 +238,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
         Cursor messagesCursor = sqLiteDatabase.query(
                 TABLE_PRIVATE_MESSAGES,
-                new String[] {ID_PEOPLE , KEY_MESSAGE},
-                ID_PEOPLE + " = ? OR " + ID_PEOPLE + " = ?",
+                new String[] {KEY_ID_PEOPLE, KEY_MESSAGE},
+                KEY_ID_PEOPLE + " = ? OR " + KEY_ID_PEOPLE + " = ?",
                 new String[] {ids[0].toString(), ids[1].toString()},
                 null, null, null);
 
@@ -228,6 +250,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 messagesList.add(peopleMap.get(messagesCursor.getInt(0)) + ": " + messagesCursor.getString(1));
             } while (messagesCursor.moveToNext());
         }
+        messagesCursor.close();
 
         databaseLock.unlock();
         return messagesList;

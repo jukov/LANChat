@@ -8,7 +8,7 @@ import android.util.Log;
 
 import org.jukov.lanchat.client.Client;
 import org.jukov.lanchat.dto.ChatData;
-import org.jukov.lanchat.json.JSONConverter;
+import org.jukov.lanchat.util.JSONConverter;
 import org.jukov.lanchat.server.Server;
 import org.jukov.lanchat.util.UDP;
 
@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_RECEIVER_UID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.GLOBAL_CHAT_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.NAME_CHANGE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PRIVATE_CHAT_ACTION;
@@ -81,8 +82,8 @@ public class LANChatService extends Service {
                         try {
                             String message = JSONConverter.toJSON(new ChatData(
                                     getApplicationContext(),
-                                    intent.getStringExtra(EXTRA_MESSAGE),
-                                    ServiceHelper.MessageType.GLOBAL));
+                                    ServiceHelper.MessageType.GLOBAL, intent.getStringExtra(EXTRA_MESSAGE)
+                            ));
                             Log.d(getClass().getSimpleName(), message);
                             client.sendMessage(message);
                         } catch (IOException e) {
@@ -95,8 +96,10 @@ public class LANChatService extends Service {
                         try {
                             String message = JSONConverter.toJSON(new ChatData(
                                     getApplicationContext(),
+                                    ServiceHelper.MessageType.PRIVATE,
                                     intent.getStringExtra(EXTRA_MESSAGE),
-                                    ServiceHelper.MessageType.PRIVATE));
+                                    intent.getStringExtra(EXTRA_RECEIVER_UID)
+                            ));
                             Log.d(getClass().getSimpleName(), message);
                             client.sendMessage(message);
                         } catch (IOException e) {

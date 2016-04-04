@@ -4,7 +4,7 @@ import android.util.Log;
 
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.PeopleData;
-import org.jukov.lanchat.json.JSONConverter;
+import org.jukov.lanchat.util.JSONConverter;
 import org.jukov.lanchat.service.ServiceHelper;
 
 import java.io.Closeable;

@@ -10,7 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import org.jukov.lanchat.MessagingActivity;
+import org.jukov.lanchat.PrivateMessagingActivity;
 import org.jukov.lanchat.R;
 import org.jukov.lanchat.service.ServiceHelper;
 
@@ -19,7 +19,7 @@ import org.jukov.lanchat.service.ServiceHelper;
  */
 public class ChatFragment extends BaseFragment {
 
-    private MessagingActivity messagingActivity;
+    private PrivateMessagingActivity privateMessagingActivity;
 
     private ListView listViewMessages;
     private Button buttonSend;
@@ -27,20 +27,14 @@ public class ChatFragment extends BaseFragment {
 
     private ArrayAdapter<String> arrayAdapterMessages;
 
-    public static ChatFragment newInstance(String companionName) {
-        
-        Bundle args = new Bundle();
-        args.putCharSequence(ServiceHelper.IntentConstants.EXTRA_NAME, companionName);
-
-        ChatFragment fragment = new ChatFragment();
-        fragment.setArguments(args);
-        return fragment;
+    public static ChatFragment newInstance() {
+        return new ChatFragment();
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        messagingActivity = (MessagingActivity) getActivity();
+        privateMessagingActivity = (PrivateMessagingActivity) getActivity();
 
         initAdapter();
     }
@@ -56,7 +50,7 @@ public class ChatFragment extends BaseFragment {
     }
 
     private void initAdapter() {
-        arrayAdapterMessages = messagingActivity.getArrayAdapterMessages();
+        arrayAdapterMessages = privateMessagingActivity.getArrayAdapterMessages();
     }
 
     private void initViews() {
@@ -70,7 +64,11 @@ public class ChatFragment extends BaseFragment {
             @Override
             public void onClick(View v) {
                 if (editTextMessage.getText().length() > 0)
-                    ServiceHelper.sendMessage(getActivity(), ServiceHelper.MessageType.PRIVATE, editTextMessage.getText().toString());
+                    ServiceHelper.sendMessage(
+                            privateMessagingActivity,
+                            ServiceHelper.MessageType.PRIVATE,
+                            editTextMessage.getText().toString(),
+                            privateMessagingActivity.getCompanionUID());
                 editTextMessage.setText("");
             }
         });

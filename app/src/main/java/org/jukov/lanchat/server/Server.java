@@ -7,7 +7,7 @@ import org.jukov.lanchat.R;
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.DataBundle;
 import org.jukov.lanchat.dto.PeopleData;
-import org.jukov.lanchat.json.JSONConverter;
+import org.jukov.lanchat.util.JSONConverter;
 import org.jukov.lanchat.service.ServiceHelper;
 import org.jukov.lanchat.util.UDP;
 import org.jukov.lanchat.util.Utils;

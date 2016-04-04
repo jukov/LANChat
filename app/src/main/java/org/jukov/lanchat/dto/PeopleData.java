@@ -52,11 +52,6 @@ public class PeopleData extends Data {
         return super.equals(o);
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest, flags);
-    }
-
     public static Parcelable.Creator<? extends Data> CREATOR = new Parcelable.Creator<PeopleData>() {
         @Override
         public PeopleData createFromParcel(Parcel source) {

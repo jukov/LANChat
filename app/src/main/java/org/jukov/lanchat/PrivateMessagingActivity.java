@@ -19,18 +19,20 @@ import org.jukov.lanchat.util.Utils;
 
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_RECEIVER_UID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_UID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PRIVATE_CHAT_ACTION;
 
 /**
  * Created by jukov on 10.03.2016.
  */
-public class MessagingActivity extends AppCompatActivity {
+public class PrivateMessagingActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
 
     private String companionName;
     private String companionUID;
+    private String myUID;
 
     private BroadcastReceiver broadcastReceiver;
 
@@ -46,6 +48,7 @@ public class MessagingActivity extends AppCompatActivity {
         Intent intent = getIntent();
         companionName = intent.getStringExtra(EXTRA_NAME);
         companionUID = intent.getStringExtra(EXTRA_UID);
+        myUID = Utils.getAndroidID(this);
 
         initValues();
         initViews();
@@ -75,6 +78,10 @@ public class MessagingActivity extends AppCompatActivity {
         return arrayAdapterMessages;
     }
 
+    public String getCompanionUID() {
+        return companionUID;
+    }
+
     private void initViews() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -90,7 +97,7 @@ public class MessagingActivity extends AppCompatActivity {
     }
 
     private void initFragment() {
-        ChatFragment chatFragment = ChatFragment.newInstance(companionName);
+        ChatFragment chatFragment = ChatFragment.newInstance();
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragmentContainer, chatFragment)
@@ -101,9 +108,8 @@ public class MessagingActivity extends AppCompatActivity {
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, final Intent intent) {
-                String senderName = intent.getStringExtra(EXTRA_NAME);
-                if (senderName.equals(sharedPreferences.getString("name", context.getString(R.string.default_name)))
-                        || senderName.equals(companionName))
+                String receiverUID = intent.getStringExtra(EXTRA_RECEIVER_UID);
+                if (receiverUID.equals(myUID) || receiverUID.equals(companionUID))
                     arrayAdapterMessages.add(intent.getStringExtra(EXTRA_NAME) + ": " + intent.getStringExtra(EXTRA_MESSAGE));
             }
         };

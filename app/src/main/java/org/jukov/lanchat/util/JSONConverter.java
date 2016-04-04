@@ -1,4 +1,4 @@
-package org.jukov.lanchat.json;
+package org.jukov.lanchat.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;

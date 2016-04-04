@@ -32,6 +32,7 @@ public class ServiceHelper {
         public static final String EXTRA_UID = "uid";
         public static final String EXTRA_MODE = "mode";
         public static final String EXTRA_ACTION = "action";
+        public static final String EXTRA_RECEIVER_UID = "receiver_uid";
     }
 
     public enum MessageType {
@@ -60,10 +61,15 @@ public class ServiceHelper {
     }
 
     public static void sendMessage(Context context, MessageType messageType, String message) {
+        sendMessage(context, messageType, message, null);
+    }
+
+    public static void sendMessage(Context context, MessageType messageType, String message, String receiverUID) {
         Intent intent = new Intent(context, LANChatService.class);
         switch (messageType) {
             case PRIVATE:
                 intent.setAction(IntentConstants.PRIVATE_CHAT_ACTION);
+                intent.putExtra(IntentConstants.EXTRA_RECEIVER_UID, receiverUID);
                 break;
             case GLOBAL:
                 intent.setAction(IntentConstants.GLOBAL_CHAT_ACTION);
@@ -98,6 +104,7 @@ public class ServiceHelper {
         switch (messageType) {
             case PRIVATE:
                 intent.setAction(IntentConstants.PRIVATE_CHAT_ACTION);
+                intent.putExtra(IntentConstants.EXTRA_RECEIVER_UID, chatData.getReceiverUID());
                 break;
             case GLOBAL:
                 intent.setAction(IntentConstants.GLOBAL_CHAT_ACTION);
@@ -108,10 +115,8 @@ public class ServiceHelper {
     }
 
     public static void receivePublicMessages(Context context, AbstractCollection messagesBundle) {
-        Log.d(ServiceHelper.class.getSimpleName(), Integer.toString(messagesBundle.size()));
         Object[] objectArray = messagesBundle.toArray();
         ChatData[] messagesArray = Arrays.copyOf(objectArray, objectArray.length, ChatData[].class);
-        Log.d(ServiceHelper.class.getSimpleName(), messagesArray[1].getText());
         Intent intent = new Intent(IntentConstants.GLOBAL_CHAT_ACTION);
         intent.putExtra(IntentConstants.EXTRA_MESSAGE_BUNDLE, messagesArray);
         context.sendBroadcast(intent);

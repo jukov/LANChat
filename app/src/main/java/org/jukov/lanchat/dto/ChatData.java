@@ -15,16 +15,25 @@ public class ChatData extends Data {
 
     private String text;
     private String sendDate;
+    private String receiverUID;
     private ServiceHelper.MessageType messageType;
 
     public ChatData() {
     }
 
-    public ChatData(Context context, String text, ServiceHelper.MessageType messageType) {
+    public ChatData(Context context, ServiceHelper.MessageType messageType, String text) {
         super(context);
-        this.text = text;
         this.messageType = messageType;
+        this.text = text;
         sendDate = new Date().toString();
+    }
+
+    public ChatData(Context context, ServiceHelper.MessageType messageType, String text, String receiverUID) {
+        super(context);
+        this.messageType = messageType;
+        this.text = text;
+        this.receiverUID = receiverUID;
+        this.sendDate = new Date().toString();
     }
 
     public ServiceHelper.MessageType getMessageType() {
@@ -49,6 +58,14 @@ public class ChatData extends Data {
 
     public void setSendDate(String sendDate) {
         this.sendDate = sendDate;
+    }
+
+    public String getReceiverUID() {
+        return receiverUID;
+    }
+
+    public void setReceiverUID(String receiverUID) {
+        this.receiverUID = receiverUID;
     }
 
     @Override

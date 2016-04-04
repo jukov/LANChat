@@ -22,7 +22,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MessagingActivity"
+            android:name=".PrivateMessagingActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:configChanges="keyboardHidden|orientation|screenSize">
         </activity>

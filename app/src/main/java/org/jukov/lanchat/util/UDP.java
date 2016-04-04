@@ -22,7 +22,7 @@ public class UDP extends Thread implements Closeable {
     private DatagramSocket receiveSocket;
     private int port;
 
-    public static DatagramSocket sendSocket;
+    private static DatagramSocket sendSocket;
 
     public UDP(int port, BroadcastListener broadcastListener) {
         this.port = port;
