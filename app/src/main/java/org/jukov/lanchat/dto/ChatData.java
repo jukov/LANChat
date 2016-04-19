@@ -11,7 +11,7 @@ import java.util.Date;
 /**
  * Created by jukov on 09.02.2016.
  */
-public class ChatData extends Data {
+public class ChatData extends MessagingData {
 
     private String text;
     private String sendDate;
@@ -81,7 +81,7 @@ public class ChatData extends Data {
         dest.writeInt(messageType.getValue());
     }
 
-    public static Parcelable.Creator<? extends Data> CREATOR = new Parcelable.Creator<ChatData>() {
+    public static Parcelable.Creator<? extends MessagingData> CREATOR = new Parcelable.Creator<ChatData>() {
         @Override
         public ChatData createFromParcel(Parcel source) {
             return new ChatData(source);

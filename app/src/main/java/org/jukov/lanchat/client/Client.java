@@ -6,8 +6,9 @@ import android.util.Log;
 import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.PeopleData;
-import org.jukov.lanchat.util.JSONConverter;
+import org.jukov.lanchat.dto.ServiceData;
 import org.jukov.lanchat.service.ServiceHelper;
+import org.jukov.lanchat.util.JSONConverter;
 
 import java.io.Closeable;
 import java.io.DataInputStream;
@@ -16,6 +17,8 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.AbstractCollection;
 
+import static org.jukov.lanchat.dto.ServiceData.MessageType;
+
 /**
  * Created by jukov on 06.02.2016.
  */
@@ -23,7 +26,7 @@ public class Client extends Thread implements Closeable {
 
     private Context context;
 //    private int port;
-//    private String ip;
+//    private String remoteIp;
     private PeopleData peopleData;
 
     private Socket socket;
@@ -35,7 +38,7 @@ public class Client extends Thread implements Closeable {
     public Client(Context context, String ip, int port) {
         this.context = context;
 //        this.port = port;
-//        this.ip = ip;
+//        this.remoteIp = remoteIp;
         peopleData = new PeopleData(context, PeopleData.ACTION_NONE);
         while (socket == null) {
             try {
@@ -70,6 +73,7 @@ public class Client extends Thread implements Closeable {
         try {
             while (!socket.isClosed()) {
                 String message = dataInputStream.readUTF();
+                Log.d(getClass().getSimpleName(), message);
                 Object data = JSONConverter.toPOJO(message);
                 if (data instanceof ChatData) {
                     ChatData chatData = (ChatData) data;
@@ -83,16 +87,27 @@ public class Client extends Thread implements Closeable {
                     AbstractCollection dataBundle = (AbstractCollection) data;
                     dbHelper.insertMessages((AbstractCollection) data);
                     ServiceHelper.receivePublicMessages(context, dataBundle);
+                } else if (data instanceof ServiceData) {
+                    Log.d(getClass().getSimpleName(), "Receive ServiceData");
+                    ServiceData serviceData = (ServiceData) data;
+                    if (serviceData.getMessageType() == MessageType.DELEGATION_SERVER_STATUS) {
+                        ServiceHelper.clearPeopleList(context);
+                        ServiceHelper.startServer(context);
+                        break;
+                    }
                 }
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
+        /*
+        * If action = ACTION_DISCONNECT, app closed
+        * */
         if (peopleData.getAction() != PeopleData.ACTION_DISCONNECT) {
             ServiceHelper.clearPeopleList(context);
             ServiceHelper.searchServer(context);
         }
+        close();
     }
 
     @Override

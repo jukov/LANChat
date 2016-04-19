@@ -2,7 +2,6 @@ package org.jukov.lanchat.service;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.PeopleData;
@@ -17,6 +16,7 @@ public class ServiceHelper {
 
     public class IntentConstants {
 
+        //TODO: Rename actions
         public static final String ACTIVITY_ACTION = "org.jukov.lanchat.ACTIVITY";
         public static final String GLOBAL_CHAT_ACTION = "org.jukov.lanchat.GLOBAL_CHAT";
         public static final String PRIVATE_CHAT_ACTION = "org.jukov.lanchat.PRIVATE_CHAT";
@@ -24,6 +24,7 @@ public class ServiceHelper {
         public static final String START_SERVICE_ACTION = "org.jukov.lanchat.CONNECT_TO_SERVICE";
         public static final String NAME_CHANGE_ACTION = "org.jukov.lanchat.CHANGE_NAME";
         public static final String SEARCH_SERVER_ACTION = "org.jukov.lanchat.SEARCH_SERVER";
+        public static final String START_SERVER_ACTION = "org.jukov.lanchat.START_SERVER";
         public static final String CLEAR_PEOPLE_LIST_ACTION = "org.jukov.lanchat.CLEAR_PEOPLE_LIST";
 
         public static final String EXTRA_NAME = "name";
@@ -34,20 +35,19 @@ public class ServiceHelper {
         public static final String EXTRA_ACTION = "action";
         public static final String EXTRA_RECEIVER_UID = "receiver_uid";
     }
-
     public enum MessageType {
         PRIVATE(0), GLOBAL(1);
 
         private int value;
+
         MessageType(int value) {
             this.value = value;
         }
-
         public int getValue() {
             return value;
         }
-    }
 
+    }
     public static void startService(Context context) {
         Intent intent = new Intent(context, LANChatService.class);
         intent.setAction(IntentConstants.START_SERVICE_ACTION);
@@ -57,6 +57,12 @@ public class ServiceHelper {
     public static void searchServer(Context context) {
         Intent intent = new Intent(context, LANChatService.class);
         intent.setAction(IntentConstants.SEARCH_SERVER_ACTION);
+        context.startService(intent);
+    }
+
+    public static void startServer(Context context) {
+        Intent intent = new Intent(context, LANChatService.class);
+        intent.setAction(IntentConstants.START_SERVER_ACTION);
         context.startService(intent);
     }
 

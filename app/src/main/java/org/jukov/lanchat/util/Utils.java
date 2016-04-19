@@ -2,6 +2,7 @@ package org.jukov.lanchat.util;
 
 import android.content.Context;
 import android.net.DhcpInfo;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
 
@@ -23,6 +24,12 @@ public class Utils {
         for (int k = 0; k < 4; k++)
             quads[k] = (byte) ((broadcast >> k * 8) & 0xFF);
         return InetAddress.getByAddress(quads);
+    }
+
+    public static String getWifiAddress(Context context) {
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        return android.text.format.Formatter.formatIpAddress(wifiInfo.getIpAddress());
     }
 
     @Deprecated

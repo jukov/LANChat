@@ -15,7 +15,8 @@ import java.net.SocketException;
  */
 public class UDP extends Thread implements Closeable {
 
-    public static final String SERVER_BROADCAST = "org.jukov.lanchat.SERVER";
+    public static final String CLIENT_BROADCAST = "org.jukov.lanchat.BROADCAST_TO_CLIENTS";
+    public static final String SERVER_BROADCAST = "org.jukov.lanchat.BROADCAST_TO_SERVERS";
 
     private BroadcastListener broadcastListener;
     private Context context;
@@ -52,19 +53,21 @@ public class UDP extends Thread implements Closeable {
         } catch (SocketException e) {
             e.printStackTrace();
         }
-        while (!receiveSocket.isClosed()) {
-            try {
-                byte[] buf = new byte[1024];
-                DatagramPacket packet = new DatagramPacket(buf, buf.length);
-                receiveSocket.receive(packet);
-                broadcastListener.onReceive(
-                        new String(packet.getData(), 0, packet.getLength()),
-                        packet.getAddress().getHostAddress());
-            } catch (IOException e) {
-                Log.d(getClass().getSimpleName(), "Stop broadcast catching");
+        if (receiveSocket != null) {
+            while (!receiveSocket.isClosed()) {
+                try {
+                    byte[] buf = new byte[1024];
+                    DatagramPacket packet = new DatagramPacket(buf, buf.length);
+                    receiveSocket.receive(packet);
+                    broadcastListener.onReceive(
+                            new String(packet.getData(), 0, packet.getLength()),
+                            packet.getAddress().getHostAddress());
+                } catch (IOException e) {
+                    Log.d(getClass().getSimpleName(), "Stop broadcast catching");
+                }
             }
+            receiveSocket.close();
         }
-        receiveSocket.close();
     }
 
     public void close() {

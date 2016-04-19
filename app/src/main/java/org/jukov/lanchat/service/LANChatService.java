@@ -8,11 +8,12 @@ import android.util.Log;
 
 import org.jukov.lanchat.client.Client;
 import org.jukov.lanchat.dto.ChatData;
-import org.jukov.lanchat.util.JSONConverter;
 import org.jukov.lanchat.server.Server;
+import org.jukov.lanchat.util.JSONConverter;
 import org.jukov.lanchat.util.UDP;
 
 import java.io.IOException;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -25,6 +26,7 @@ import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.GLOBAL_CHA
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.NAME_CHANGE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PRIVATE_CHAT_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.SEARCH_SERVER_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.START_SERVER_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.START_SERVICE_ACTION;
 
 /**
@@ -77,6 +79,8 @@ public class LANChatService extends Service {
                     ServerSearch serverSearch = new ServerSearch(UDP_PORT);
                     executorService.execute(serverSearch);
                     break;
+                case START_SERVER_ACTION:
+                    startServer(TCP_PORT);
                 case GLOBAL_CHAT_ACTION:
                     if (client != null) {
                         try {
@@ -128,11 +132,14 @@ public class LANChatService extends Service {
         super.onDestroy();
         if (client != null) {
             client.close();
+            client = null;
         }
         if (server != null) {
             server.close();
+            server = null;
         }
         executorService.shutdown();
+//        System.exit(0);
     }
 
     @Nullable
@@ -160,7 +167,7 @@ public class LANChatService extends Service {
                 UDP udp = new UDP(port, new UDP.BroadcastListener() {
                     @Override
                     public void onReceive(String message, String ip) {
-                        if (message.equals(UDP.SERVER_BROADCAST)) {
+                        if (message.equals(UDP.CLIENT_BROADCAST)) {
                             receive[0] = true;
                             broadcastIP.delete(0, broadcastIP.length());
                             broadcastIP.append(ip);
@@ -171,19 +178,18 @@ public class LANChatService extends Service {
                 });
                 executorService.execute(udp);
                 semaphore.acquire();
-                semaphore.tryAcquire(2, TimeUnit.SECONDS);
+                Random random = new Random();
+                int r = random.nextInt(4000 - 1000) + 1000;
+                semaphore.tryAcquire(r, TimeUnit.MILLISECONDS);
+                Log.d(getClass().getSimpleName(), Integer.toString(r));
 
                 udp.close();
                 Log.d(getClass().getSimpleName(), receive[0] ? "Broadcast received" : "Broadcast not received");
 
                 if (receive[0]) {
-                    mode = MODE_CLIENT;
                     startClient(broadcastIP.toString(), TCP_PORT);
-                    client.updateStatus();
                 } else {
-                    mode = MODE_SERVER;
                     startServer(TCP_PORT);
-                    startClient("127.0.0.1", TCP_PORT);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -192,12 +198,17 @@ public class LANChatService extends Service {
     }
 
     private void startServer(int port) {
-        server = new Server(port, getApplicationContext());
+        mode = MODE_SERVER;
+        server = new Server(getApplicationContext(), port);
         executorService.execute(server);
+        client = new Client(getApplicationContext(), "127.0.0.1", port);
+        executorService.execute(client);
     }
 
     private void startClient(String ip, int port) {
+        mode = MODE_CLIENT;
         client = new Client(getApplicationContext(), ip, port);
         executorService.execute(client);
+        client.updateStatus();
     }
 }

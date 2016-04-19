@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.PeopleData;
@@ -67,7 +66,6 @@ public class DBHelper extends SQLiteOpenHelper {
             ");";
 
     public static DBHelper getInstance(Context context) {
-        Log.d(DBHelper.class.getSimpleName(), QUERY_CREATE_PUBLIC_MESSAGES);
         DBHelper localInstance = instance;
         if (localInstance == null) {
             synchronized (DBHelper.class) {

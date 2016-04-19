@@ -27,18 +27,21 @@ public class TCPListener extends Thread implements Closeable {
     @Override
     public void run() {
         try {
-            while (!serverSocket.isClosed()) {
-                Socket socket = serverSocket.accept();
-                clientListener.onReceive(socket);
+            if (serverSocket != null) {
+                while (!serverSocket.isClosed()) {
+                    Socket socket = serverSocket.accept();
+                    clientListener.onReceive(socket);
+                }
+                serverSocket.close();
             }
-            serverSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void close() throws IOException {
-        serverSocket.close();
+        if (serverSocket != null)
+            serverSocket.close();
     }
 
     public interface ClientListener {

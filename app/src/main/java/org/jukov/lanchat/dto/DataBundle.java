@@ -6,7 +6,7 @@ import java.util.Collection;
 /**
  * Created by jukov on 22.03.2016.
  */
-public class DataBundle<E extends Data> extends ArrayDeque<E> {
+public class DataBundle<E extends MessagingData> extends ArrayDeque<E> {
 
     private int maxCapacity;
 

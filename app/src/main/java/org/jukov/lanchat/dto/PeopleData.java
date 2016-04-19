@@ -8,8 +8,9 @@ import android.os.Parcelable;
  * Created by jukov on 22.02.2016.
  */
 
-public class PeopleData extends Data {
+public class PeopleData extends MessagingData {
 
+    //TODO: transform constants to enum
     public static final int ACTION_NONE = 0;
     public static final int ACTION_CONNECT = 1;
     public static final int ACTION_DISCONNECT = 2;
@@ -52,7 +53,7 @@ public class PeopleData extends Data {
         return super.equals(o);
     }
 
-    public static Parcelable.Creator<? extends Data> CREATOR = new Parcelable.Creator<PeopleData>() {
+    public static Parcelable.Creator<? extends MessagingData> CREATOR = new Parcelable.Creator<PeopleData>() {
         @Override
         public PeopleData createFromParcel(Parcel source) {
             return new PeopleData(source);
