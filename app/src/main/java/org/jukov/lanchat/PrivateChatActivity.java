@@ -13,7 +13,7 @@ import android.util.Log;
 import android.widget.ArrayAdapter;
 
 import org.jukov.lanchat.db.DBHelper;
-import org.jukov.lanchat.fragment.ChatFragment;
+import org.jukov.lanchat.fragment.PrivateChatFragment;
 import org.jukov.lanchat.service.ServiceHelper;
 import org.jukov.lanchat.util.Utils;
 
@@ -26,7 +26,7 @@ import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PRIVATE_CH
 /**
  * Created by jukov on 10.03.2016.
  */
-public class PrivateMessagingActivity extends AppCompatActivity {
+public class PrivateChatActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
 
@@ -97,10 +97,10 @@ public class PrivateMessagingActivity extends AppCompatActivity {
     }
 
     private void initFragment() {
-        ChatFragment chatFragment = ChatFragment.newInstance();
+        PrivateChatFragment privateChatFragment = PrivateChatFragment.newInstance();
 
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragmentContainer, chatFragment)
+                .replace(R.id.fragmentContainer, privateChatFragment)
                 .commit();
     }
 

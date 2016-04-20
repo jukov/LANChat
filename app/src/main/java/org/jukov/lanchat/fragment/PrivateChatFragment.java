@@ -1,33 +1,30 @@
 package org.jukov.lanchat.fragment;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
 
-import org.jukov.lanchat.MainActivity;
+import org.jukov.lanchat.PrivateChatActivity;
 import org.jukov.lanchat.R;
 import org.jukov.lanchat.service.ServiceHelper;
 
 /**
- * Created by jukov on 15.02.2016.
+ * Created by jukov on 26.02.2016.
  */
-public class GroupChatFragment extends ChatFragment {
+public class PrivateChatFragment extends ChatFragment {
 
-    public static GroupChatFragment newInstance(Context context) {
-        Bundle args = new Bundle();
+    private PrivateChatActivity privateMessagingActivity;
 
-        GroupChatFragment fragment = new GroupChatFragment();
-        fragment.setTitle(context.getString(R.string.global_chat));
-        fragment.setArguments(args);
-        return fragment;
+    public static PrivateChatFragment newInstance() {
+        return new PrivateChatFragment();
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        privateMessagingActivity = (PrivateChatActivity) getActivity();
     }
 
     @Nullable
@@ -48,7 +45,11 @@ public class GroupChatFragment extends ChatFragment {
             @Override
             public void onClick(View v) {
                 if (editTextMessage.getText().length() > 0)
-                    ServiceHelper.sendMessage(getActivity(), ServiceHelper.MessageType.GLOBAL, editTextMessage.getText().toString());
+                    ServiceHelper.sendMessage(
+                            privateMessagingActivity,
+                            ServiceHelper.MessageType.PRIVATE,
+                            editTextMessage.getText().toString(),
+                            privateMessagingActivity.getCompanionUID());
                 editTextMessage.setText("");
             }
         });

@@ -13,7 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import org.jukov.lanchat.MainActivity;
-import org.jukov.lanchat.PrivateMessagingActivity;
+import org.jukov.lanchat.PrivateChatActivity;
 import org.jukov.lanchat.R;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.service.ServiceHelper;
@@ -55,7 +55,7 @@ public class PeopleFragment extends BaseFragment {
         listViewPeoples.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getContext(), PrivateMessagingActivity.class);
+                Intent intent = new Intent(getContext(), PrivateChatActivity.class);
                 PeopleData peopleData = arrayAdapterPeople.getItem(position);
                 intent.putExtra(ServiceHelper.IntentConstants.EXTRA_NAME, peopleData.getName());
                 intent.putExtra(ServiceHelper.IntentConstants.EXTRA_UID, peopleData.getUid());
