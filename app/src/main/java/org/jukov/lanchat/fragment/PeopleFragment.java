@@ -61,7 +61,7 @@ public class PeopleFragment extends ListFragment {
                 PeopleData peopleData = arrayAdapter.getItem(position);
                 intent.putExtra(ServiceHelper.IntentConstants.EXTRA_NAME, peopleData.getName());
                 intent.putExtra(ServiceHelper.IntentConstants.EXTRA_UID, peopleData.getUid());
-                startActivity(intent);
+                startActivityForResult(intent, 1);
             }
         });
     }

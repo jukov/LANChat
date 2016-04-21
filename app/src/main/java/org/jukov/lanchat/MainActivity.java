@@ -1,28 +1,19 @@
 package org.jukov.lanchat;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.PreferenceManager;
-import android.support.v7.widget.Toolbar;
+import android.support.v7.preference.PreferenceFragmentCompat;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
 
 import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.ChatData;
@@ -50,20 +41,9 @@ import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_UID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.GLOBAL_CHAT_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PEOPLE_ACTION;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,
-        SharedPreferences.OnSharedPreferenceChangeListener {
-
-    private Toolbar toolbar;
-    private DrawerLayout drawerLayout;
-    private NavigationView navigationView;
-    private ActionBarDrawerToggle actionBarDrawerToggle;
-    private View navigationDrawerHeaderView;
-    private TextView textViewMode;
+public class MainActivity extends BaseActivity {
 
     private HashMap<Integer, Fragment> fragments;
-
-    private int currentNavigationId;
 
     private BroadcastReceiver broadcastReceiver;
 
@@ -72,11 +52,11 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        super.onCreate(savedInstanceState);
 
-        initValues();
         initViews();
+        initValues();
         initFragments();
         initAdapters();
         initBroadcastReceiver();
@@ -87,18 +67,6 @@ public class MainActivity extends AppCompatActivity
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(broadcastReceiver);
-    }
-
-    @Override
-    public void onBackPressed() {
-        Log.d(getClass().getSimpleName(), "onBackPressed");
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer != null)
-            if (drawer.isDrawerOpen(GravityCompat.START)) {
-                drawer.closeDrawer(GravityCompat.START);
-                return;
-            }
-        super.onBackPressed();
     }
 
 //    @Override
@@ -123,7 +91,6 @@ public class MainActivity extends AppCompatActivity
 //        return super.onOptionsItemSelected(item);
 //    }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -156,15 +123,22 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        Log.d(getClass().getSimpleName(), "onSharedPreferenceChanged() " + key);
-        switch (key) {
-            case "name":
-                String name = sharedPreferences.getString("name", getString(R.string.default_name));
-                TextView textView = (TextView) navigationDrawerHeaderView.findViewById(R.id.navTextViewName);
-                ServiceHelper.changeName(this, name);
-                textView.setText(getString(R.string.nav_header_hello, name));
-                break;
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (data.hasExtra("id")) {
+            int id = data.getIntExtra("id", 0);
+            Fragment fragment = fragments.get(id);
+            if (fragment instanceof PreferenceFragmentCompat)
+                toolbar.setTitle(R.string.settings);
+            else {
+                toolbar.setTitle(((BaseFragment) fragment).getTitle());
+            }
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainer, fragments.get(id))
+                    .addToBackStack(null)
+                    .commit();
+            currentNavigationId = id;
         }
     }
 
@@ -172,66 +146,24 @@ public class MainActivity extends AppCompatActivity
         return arrayAdapterPeople;
     }
 
-    public ArrayAdapter<String> getArrayAdapterMessages() {
-        return arrayAdapterMessages;
+    @Override
+    protected void initViews() {
+        super.initViews();
+
+        actionBarDrawerToggle = new ActionBarDrawerToggle (
+                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        actionBarDrawerToggle.syncState();
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null)
+            actionBar.setTitle(getString(R.string.global_chat));
     }
 
     private void initValues() {
         currentNavigationId = R.id.drawerMenuGlobalChat;
     }
 
-    private void initViews() {
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null)
-            actionBar.setTitle(getString(R.string.global_chat));
-
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-
-        actionBarDrawerToggle = new ActionBarDrawerToggle (
-                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
-            @Override
-            public void onDrawerSlide(View drawerView, float slideOffset) {
-
-            }
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                InputMethodManager inputMethodManager = (InputMethodManager) MainActivity.
-                        this.getSystemService(Activity.INPUT_METHOD_SERVICE);
-                if (MainActivity.this.getCurrentFocus().getWindowToken() != null)
-                    inputMethodManager.hideSoftInputFromWindow(MainActivity.this
-                            .getCurrentFocus().getWindowToken(), 0);
-            }
-
-            @Override
-            public void onDrawerClosed(View drawerView) {
-
-            }
-
-            @Override
-            public void onDrawerStateChanged(int newState) {
-
-            }
-        });
-        actionBarDrawerToggle.syncState();
-
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
-        if (navigationView != null) {
-            navigationView.setNavigationItemSelectedListener(this);
-            navigationDrawerHeaderView = navigationView.getHeaderView(0);
-        }
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        TextView textView = (TextView) navigationDrawerHeaderView.findViewById(R.id.navTextViewName);
-        textView.setText(getString(R.string.nav_header_hello, sharedPreferences.getString("name", getString(R.string.default_name))));
-
-        textViewMode = (TextView) navigationDrawerHeaderView.findViewById(R.id.naeTextViewPeoplesAround);
-    }
-
     private void initFragments() {
-
         fragments = new HashMap<>();
 
         fragments.put(R.id.drawerMenuGlobalChat, GroupChatFragment.newInstance(this));

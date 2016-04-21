@@ -2,8 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group
-        android:id="@+id/drawerMenuMessagingGroup"
-        android:checkableBehavior="single">
+        android:id="@+id/drawerMenuMessagingGroup">
         <item
             android:id="@+id/drawerMenuGlobalChat"
             android:icon="@drawable/ic_message_text"

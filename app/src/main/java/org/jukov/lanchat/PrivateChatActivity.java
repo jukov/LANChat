@@ -6,14 +6,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.ActionBar;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 
 import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.fragment.PrivateChatFragment;
+import org.jukov.lanchat.service.LANChatService;
 import org.jukov.lanchat.service.ServiceHelper;
 import org.jukov.lanchat.util.Utils;
 
@@ -26,7 +28,7 @@ import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PRIVATE_CH
 /**
  * Created by jukov on 10.03.2016.
  */
-public class PrivateChatActivity extends AppCompatActivity {
+public class PrivateChatActivity extends BaseActivity {
 
     private Toolbar toolbar;
 
@@ -36,14 +38,12 @@ public class PrivateChatActivity extends AppCompatActivity {
 
     private BroadcastReceiver broadcastReceiver;
 
-    private ArrayAdapter<String> arrayAdapterMessages;
-
     SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_messaging);
+        setContentView(R.layout.activity_main);
 
         Intent intent = getIntent();
         companionName = intent.getStringExtra(EXTRA_NAME);
@@ -69,8 +69,29 @@ public class PrivateChatActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.drawerMenuExit:
+                DBHelper.getInstance(this).close();
+                stopService(new Intent(getApplicationContext(), LANChatService.class));
+                finishAffinity();
+                break;
+            default:
+                Intent intent = new Intent();
+                intent.putExtra("id", item.getItemId());
+                setResult(RESULT_OK, intent);
+                finish();
+        }
+//        currentNavigationId = item.getItemId();
+//        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    @Override
     public boolean onSupportNavigateUp() {
-        onBackPressed();
+        Intent intent = new Intent();
+        setResult(RESULT_OK, intent);
+        finish();
         return true;
     }
 
@@ -82,11 +103,14 @@ public class PrivateChatActivity extends AppCompatActivity {
         return companionUID;
     }
 
-    private void initViews() {
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(companionName);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    protected void initViews() {
+        super.initViews();
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            getSupportActionBar().setTitle(companionName);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     private void initAdapter() {
