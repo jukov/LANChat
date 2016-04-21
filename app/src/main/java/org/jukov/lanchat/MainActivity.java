@@ -12,6 +12,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
@@ -29,7 +30,7 @@ import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.fragment.BaseFragment;
 import org.jukov.lanchat.fragment.GroupChatFragment;
 import org.jukov.lanchat.fragment.PeopleFragment;
-import org.jukov.lanchat.fragment.RoomFragment;
+import org.jukov.lanchat.fragment.RoomsFragment;
 import org.jukov.lanchat.fragment.SettingsFragment;
 import org.jukov.lanchat.service.LANChatService;
 import org.jukov.lanchat.service.ServiceHelper;
@@ -92,11 +93,12 @@ public class MainActivity extends AppCompatActivity
     public void onBackPressed() {
         Log.d(getClass().getSimpleName(), "onBackPressed");
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
+        if (drawer != null)
+            if (drawer.isDrawerOpen(GravityCompat.START)) {
+                drawer.closeDrawer(GravityCompat.START);
+                return;
+            }
+        super.onBackPressed();
     }
 
 //    @Override
@@ -181,13 +183,15 @@ public class MainActivity extends AppCompatActivity
     private void initViews() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(getString(R.string.global_chat));
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null)
+            actionBar.setTitle(getString(R.string.global_chat));
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         actionBarDrawerToggle = new ActionBarDrawerToggle (
                 this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawerLayout.setDrawerListener(new DrawerLayout.DrawerListener() {
+        drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
 
@@ -215,9 +219,10 @@ public class MainActivity extends AppCompatActivity
         actionBarDrawerToggle.syncState();
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-        navigationDrawerHeaderView = navigationView.getHeaderView(0);
+        if (navigationView != null) {
+            navigationView.setNavigationItemSelectedListener(this);
+            navigationDrawerHeaderView = navigationView.getHeaderView(0);
+        }
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         TextView textView = (TextView) navigationDrawerHeaderView.findViewById(R.id.navTextViewName);
         textView.setText(getString(R.string.nav_header_hello, sharedPreferences.getString("name", getString(R.string.default_name))));
@@ -231,7 +236,7 @@ public class MainActivity extends AppCompatActivity
 
         fragments.put(R.id.drawerMenuGlobalChat, GroupChatFragment.newInstance(this));
         fragments.put(R.id.drawerMenuPeoples, PeopleFragment.newInstance(this));
-        fragments.put(R.id.drawerMenuRooms, RoomFragment.newInstance(this));
+        fragments.put(R.id.drawerMenuRooms, RoomsFragment.newInstance(this));
         fragments.put(R.id.drawerMenuSettings, new SettingsFragment());
 
         getSupportFragmentManager().beginTransaction()

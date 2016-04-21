@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import org.jukov.lanchat.MainActivity;
@@ -21,11 +20,9 @@ import org.jukov.lanchat.service.ServiceHelper;
 /**
  * Created by jukov on 16.02.2016.
  */
-public class PeopleFragment extends BaseFragment {
+public class PeopleFragment extends ListFragment {
 
     MainActivity mainActivity;
-
-    private ArrayAdapter<PeopleData> arrayAdapterPeople;
 
     public static PeopleFragment newInstance(Context context) {
 
@@ -48,26 +45,29 @@ public class PeopleFragment extends BaseFragment {
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         layout = inflater.inflate(R.layout.fragment_peoples, container, false);
-        ListView listViewPeoples = (ListView) layout.findViewById(R.id.frPeoplesPeoplesList);
+        initViews();
+        return layout;
+    }
 
-        listViewPeoples.setAdapter(arrayAdapterPeople);
+    private void initViews() {
+        listView = (ListView) layout.findViewById(R.id.frList);
 
-        listViewPeoples.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setAdapter(arrayAdapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getContext(), PrivateChatActivity.class);
-                PeopleData peopleData = arrayAdapterPeople.getItem(position);
+                PeopleData peopleData = arrayAdapter.getItem(position);
                 intent.putExtra(ServiceHelper.IntentConstants.EXTRA_NAME, peopleData.getName());
                 intent.putExtra(ServiceHelper.IntentConstants.EXTRA_UID, peopleData.getUid());
                 startActivity(intent);
             }
         });
-
-        return layout;
     }
 
     private void initAdapter() {
-        arrayAdapterPeople = ((MainActivity) getActivity()).getArrayAdapterPeople();
+        arrayAdapter = ((MainActivity) getActivity()).getArrayAdapterPeople();
     }
 
     @Override

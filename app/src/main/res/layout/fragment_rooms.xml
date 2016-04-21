@@ -15,4 +15,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/frList" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/frFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_plus"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/frList"
+        android:layout_alignEnd="@+id/frList"
+        android:layout_margin="10dp" />
+
 </RelativeLayout>
