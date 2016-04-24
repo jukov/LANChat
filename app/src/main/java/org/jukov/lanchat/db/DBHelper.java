@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.PeopleData;
+import org.jukov.lanchat.dto.RoomData;
 
 import java.util.AbstractCollection;
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class DBHelper extends SQLiteOpenHelper {
     private static volatile DBHelper instance;
 
-    public static final int DATABASE_VERSION = 4;
+    public static final int DATABASE_VERSION = 5;
     public static final String DATABASE_NAME = "LANChatDatabase";
 
     private SQLiteDatabase sqLiteDatabase;
@@ -38,14 +39,19 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String KEY_DATE = "key_date";
     public static final String KEY_ID_PEOPLE = "id_people";
     public static final String KEY_ID_RECEIVER = "id_receiver";
+    public static final String KEY_ID_ROOM = "id_room";
     public static final String TABLE_PEOPLE = "people";
     public static final String TABLE_PRIVATE_MESSAGES = "private_messages";
     public static final String TABLE_PUBLIC_MESSAGES = "public_messages";
+    public static final String TABLE_ROOMS = "rooms";
+    public static final String TABLE_ROOMS_MESSAGES = "rooms_messages";
+
 
     public static final String QUERY_CREATE_PEOPLE = "CREATE TABLE " + TABLE_PEOPLE +
             "(" + KEY_ID +" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
             KEY_NAME + " TEXT NOT NULL," +
-            KEY_UID + " TEXT NOT NULL);";
+            KEY_UID + " TEXT NOT NULL" +
+            ");";
 
     public static final String QUERY_CREATE_PRIVATE_MESSAGES = "CREATE TABLE " + TABLE_PRIVATE_MESSAGES +
             "(" + KEY_ID +" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
@@ -63,6 +69,21 @@ public class DBHelper extends SQLiteOpenHelper {
             KEY_MESSAGE + " TEXT NOT NULL," +
             KEY_DATE + " TEXT NOT NULL," +
             "FOREIGN KEY(" + KEY_ID_PEOPLE + ") REFERENCES " + TABLE_PEOPLE + "(" + KEY_ID + ")" +
+            ");";
+
+    public static final String QUERY_CREATE_ROOMS = "CREATE TABLE " + TABLE_ROOMS +
+            "(" + KEY_ID +" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
+            KEY_NAME + " TEXT NOT NULL" +
+            ");";
+
+    public static final String QUERY_CREATE_ROOMS_MESSAGES = "CREATE TABLE " + TABLE_ROOMS_MESSAGES +
+            "(" + KEY_ID +" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
+            KEY_ID_ROOM + " INTEGER NOT NULL," +
+            KEY_ID_PEOPLE + " INTEGER NOT NULL," +
+            KEY_MESSAGE + " TEXT NOT NULL," +
+            KEY_DATE + " TEXT NOT NULL," +
+            "FOREIGN KEY(" + KEY_ID_PEOPLE + ") REFERENCES " + TABLE_PEOPLE + "(" + KEY_ID + ")," +
+            "FOREIGN KEY(" + KEY_ID_ROOM + ") REFERENCES " + TABLE_ROOMS + "(" + KEY_ID + ")" +
             ");";
 
     public static DBHelper getInstance(Context context) {
@@ -94,11 +115,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE " + TABLE_PEOPLE);
-        db.execSQL("DROP TABLE " + TABLE_PRIVATE_MESSAGES);
-        db.execSQL("DROP TABLE " + TABLE_PUBLIC_MESSAGES);
-
-        onCreate(db);
+        db.execSQL(QUERY_CREATE_ROOMS);
+        db.execSQL(QUERY_CREATE_ROOMS_MESSAGES);
     }
 
     public void insertMessage(ChatData chatData) {
@@ -162,6 +180,14 @@ public class DBHelper extends SQLiteOpenHelper {
         databaseLock.unlock();
     }
 
+    public int insertRoom(String roomName) {
+        databaseLock.lock();
+        contentValues.put(KEY_NAME, roomName);
+        int id = (int) sqLiteDatabase.insert(TABLE_ROOMS, null, contentValues);
+        databaseLock.unlock();
+        return id;
+    }
+
     public void insertOrRenamePeople(PeopleData peopleData) {
         databaseLock.lock();
         contentValues.put(KEY_NAME, peopleData.getName());
@@ -175,6 +201,27 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         contentValues.clear();
         databaseLock.unlock();
+    }
+
+    public List<RoomData> getRooms() {
+        databaseLock.lock();
+
+        Cursor roomsCursor = sqLiteDatabase.query(
+                TABLE_ROOMS,
+                new String[] {KEY_ID, KEY_NAME},
+                null, null, null, null, null);
+
+        List<RoomData> rooms = new ArrayList<>();
+
+        roomsCursor.moveToFirst();
+        if (roomsCursor.getCount() > 0 ) {
+            do {
+                rooms.add(new RoomData(roomsCursor.getString(1), roomsCursor.getInt(0)));
+            } while (roomsCursor.moveToNext());
+        }
+        roomsCursor.close();
+        databaseLock.unlock();
+        return rooms;
     }
 
     public List<String> getPublicMessages() {

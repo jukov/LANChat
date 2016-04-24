@@ -31,6 +31,7 @@ public class ServiceHelper {
         public static final String EXTRA_MESSAGE = "message";
         public static final String EXTRA_MESSAGE_BUNDLE = "message_bundle";
         public static final String EXTRA_UID = "uid";
+        public static final String EXTRA_ID = "id";
         public static final String EXTRA_MODE = "mode";
         public static final String EXTRA_ACTION = "action";
         public static final String EXTRA_RECEIVER_UID = "receiver_uid";

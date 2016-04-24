@@ -1,6 +1,7 @@
 package org.jukov.lanchat.fragment;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -8,14 +9,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import org.jukov.lanchat.BaseActivity;
+import org.jukov.lanchat.MainActivity;
 import org.jukov.lanchat.R;
+import org.jukov.lanchat.RoomCreatingActivity;
+import org.jukov.lanchat.dto.RoomData;
 
 /**
  * Created by jukov on 16.02.2016.
  */
 public class RoomsFragment extends ListFragment {
+
+    MainActivity mainActivity;
+    private ArrayAdapter<RoomData> arrayAdapter;
 
     public static RoomsFragment newInstance(Context context) {
 
@@ -30,6 +39,8 @@ public class RoomsFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mainActivity = (MainActivity) getActivity();
+        initAdapter();
     }
 
     @Nullable
@@ -38,6 +49,10 @@ public class RoomsFragment extends ListFragment {
         layout = inflater.inflate(R.layout.fragment_rooms, container, false);
         initViews();
         return layout;
+    }
+
+    private void initAdapter() {
+        arrayAdapter = ((MainActivity) getActivity()).getArrayAdapterRooms();
     }
 
     private void initViews() {
@@ -56,7 +71,8 @@ public class RoomsFragment extends ListFragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Intent intent = new Intent(getContext(), PrivateChatActivity.class);
+                Intent intent = new Intent(getContext(), RoomCreatingActivity.class);
+                getActivity().startActivityForResult(intent, BaseActivity.REQUEST_CODE_ROOM_CREATING);
             }
         });
     }

@@ -7,7 +7,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import org.jukov.lanchat.BaseActivity;
+import org.jukov.lanchat.NavigationDrawerActivity;
 import org.jukov.lanchat.R;
 
 /**
@@ -36,7 +36,7 @@ public abstract class ChatFragment extends BaseFragment {
     }
 
     protected void initAdapter() {
-        arrayAdapterMessages = ((BaseActivity) getActivity()).getArrayAdapterMessages();
+        arrayAdapterMessages = ((NavigationDrawerActivity) getActivity()).getArrayAdapterMessages();
     }
 
 }

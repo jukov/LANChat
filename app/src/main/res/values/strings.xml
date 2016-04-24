@@ -20,6 +20,11 @@
 
     <string name="settings_name">Name</string>
     <string name="settings_name_summary">Name summary</string>
-
     <string name="default_name">Anonym</string>
+
+    <string name="room_name">Room name</string>
+    <string name="create_room">Create room</string>
+    <string name="_private">Private</string>
+    <string name="new_room">New room</string>
+    <string name="room_name_not_empty">Room name must not be empty</string>
 </resources>

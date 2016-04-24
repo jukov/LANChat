@@ -19,6 +19,7 @@ import org.jukov.lanchat.service.LANChatService;
 import org.jukov.lanchat.service.ServiceHelper;
 import org.jukov.lanchat.util.Utils;
 
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_RECEIVER_UID;
@@ -28,7 +29,7 @@ import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PRIVATE_CH
 /**
  * Created by jukov on 10.03.2016.
  */
-public class PrivateChatActivity extends BaseActivity {
+public class PrivateChatActivity extends NavigationDrawerActivity {
 
     private Toolbar toolbar;
 
@@ -78,7 +79,7 @@ public class PrivateChatActivity extends BaseActivity {
                 break;
             default:
                 Intent intent = new Intent();
-                intent.putExtra("id", item.getItemId());
+                intent.putExtra(EXTRA_ID, item.getItemId());
                 setResult(RESULT_OK, intent);
                 finish();
         }
@@ -90,7 +91,7 @@ public class PrivateChatActivity extends BaseActivity {
     @Override
     public boolean onSupportNavigateUp() {
         Intent intent = new Intent();
-        setResult(RESULT_OK, intent);
+        setResult(RESULT_CANCELED, intent);
         finish();
         return true;
     }

@@ -9,8 +9,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import org.jukov.lanchat.BaseActivity;
 import org.jukov.lanchat.MainActivity;
 import org.jukov.lanchat.PrivateChatActivity;
 import org.jukov.lanchat.R;
@@ -23,6 +25,8 @@ import org.jukov.lanchat.service.ServiceHelper;
 public class PeopleFragment extends ListFragment {
 
     MainActivity mainActivity;
+    private ArrayAdapter<PeopleData> arrayAdapter;
+
 
     public static PeopleFragment newInstance(Context context) {
 
@@ -61,7 +65,7 @@ public class PeopleFragment extends ListFragment {
                 PeopleData peopleData = arrayAdapter.getItem(position);
                 intent.putExtra(ServiceHelper.IntentConstants.EXTRA_NAME, peopleData.getName());
                 intent.putExtra(ServiceHelper.IntentConstants.EXTRA_UID, peopleData.getUid());
-                startActivityForResult(intent, 1);
+                getActivity().startActivityForResult(intent, BaseActivity.REQUEST_CODE_PRIVATE_CHAT);
             }
         });
     }

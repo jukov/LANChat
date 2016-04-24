@@ -18,6 +18,7 @@ import android.widget.ArrayAdapter;
 import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.PeopleData;
+import org.jukov.lanchat.dto.RoomData;
 import org.jukov.lanchat.fragment.BaseFragment;
 import org.jukov.lanchat.fragment.GroupChatFragment;
 import org.jukov.lanchat.fragment.PeopleFragment;
@@ -33,6 +34,7 @@ import java.util.HashMap;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.ACTIVITY_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.CLEAR_PEOPLE_LIST_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE_BUNDLE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MODE;
@@ -41,13 +43,16 @@ import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_UID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.GLOBAL_CHAT_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PEOPLE_ACTION;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends NavigationDrawerActivity {
+
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     private HashMap<Integer, Fragment> fragments;
 
     private BroadcastReceiver broadcastReceiver;
 
     private ArrayAdapter<PeopleData> arrayAdapterPeople;
+    private ArrayAdapter<RoomData> arrayAdapterRooms;
     private ArrayAdapter<String> arrayAdapterMessages;
 
     @Override
@@ -125,25 +130,38 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (data.hasExtra("id")) {
-            int id = data.getIntExtra("id", 0);
-            Fragment fragment = fragments.get(id);
-            if (fragment instanceof PreferenceFragmentCompat)
-                toolbar.setTitle(R.string.settings);
-            else {
-                toolbar.setTitle(((BaseFragment) fragment).getTitle());
+        Log.d(TAG, "onActivityResult() " + Integer.toString(resultCode));
+        Log.d(TAG, "onActivityResult() " + Integer.toString(requestCode));
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case REQUEST_CODE_PRIVATE_CHAT:
+                    int id = data.getIntExtra(EXTRA_ID, 0);
+                    Fragment fragment = fragments.get(id);
+                    if (fragment instanceof PreferenceFragmentCompat)
+                        toolbar.setTitle(R.string.settings);
+                    else {
+                        toolbar.setTitle(((BaseFragment) fragment).getTitle());
+                    }
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentContainer, fragments.get(id))
+                            .addToBackStack(null)
+                            .commit();
+                    currentNavigationId = id;
+                    break;
+                case REQUEST_CODE_ROOM_CREATING:
+                    Log.d(TAG, "REQUEST_CODE_ROOM_CREATING");
+                    RoomData roomData = new RoomData(data.getStringExtra(EXTRA_NAME), data.getIntExtra(EXTRA_ID, -1));
+                    arrayAdapterRooms.add(roomData);
             }
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragmentContainer, fragments.get(id))
-                    .addToBackStack(null)
-                    .commit();
-            currentNavigationId = id;
         }
     }
 
     public ArrayAdapter<PeopleData> getArrayAdapterPeople() {
         return arrayAdapterPeople;
+    }
+
+    public ArrayAdapter<RoomData> getArrayAdapterRooms() {
+        return arrayAdapterRooms;
     }
 
     @Override
@@ -179,8 +197,9 @@ public class MainActivity extends BaseActivity {
     private void initAdapters() {
         DBHelper dbHelper = DBHelper.getInstance(this);
 
+        arrayAdapterRooms = new ArrayAdapter<>(this, R.layout.listview_people, R.id.listviewPeopleName, dbHelper.getRooms());
         arrayAdapterMessages = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, dbHelper.getPublicMessages());
-        arrayAdapterPeople = new ArrayAdapter<>(this, R.layout.listview_people, R.id.listviewPeoplesName);
+        arrayAdapterPeople = new ArrayAdapter<>(this, R.layout.listview_people, R.id.listviewPeopleName);
     }
 
     private void initBroadcastReceiver() {
