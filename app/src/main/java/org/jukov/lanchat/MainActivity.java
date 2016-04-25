@@ -134,7 +134,11 @@ public class MainActivity extends NavigationDrawerActivity {
         Log.d(TAG, "onActivityResult() " + Integer.toString(requestCode));
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
-                case REQUEST_CODE_PRIVATE_CHAT:
+                case REQUEST_CODE_ROOM_CREATING:
+                    Log.d(TAG, "REQUEST_CODE_ROOM_CREATING");
+                    RoomData roomData = new RoomData(data.getStringExtra(EXTRA_NAME), data.getIntExtra(EXTRA_ID, -1));
+                    arrayAdapterRooms.add(roomData);
+                default:
                     int id = data.getIntExtra(EXTRA_ID, 0);
                     Fragment fragment = fragments.get(id);
                     if (fragment instanceof PreferenceFragmentCompat)
@@ -148,10 +152,6 @@ public class MainActivity extends NavigationDrawerActivity {
                             .commit();
                     currentNavigationId = id;
                     break;
-                case REQUEST_CODE_ROOM_CREATING:
-                    Log.d(TAG, "REQUEST_CODE_ROOM_CREATING");
-                    RoomData roomData = new RoomData(data.getStringExtra(EXTRA_NAME), data.getIntExtra(EXTRA_ID, -1));
-                    arrayAdapterRooms.add(roomData);
             }
         }
     }

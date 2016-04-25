@@ -1,36 +1,31 @@
 package org.jukov.lanchat;
 
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 
 import org.jukov.lanchat.db.DBHelper;
-import org.jukov.lanchat.fragment.PrivateChatFragment;
+import org.jukov.lanchat.fragment.RoomChatFragment;
 import org.jukov.lanchat.service.LANChatService;
-import org.jukov.lanchat.service.ServiceHelper;
 import org.jukov.lanchat.util.Utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ID;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_RECEIVER_UID;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_UID;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PRIVATE_CHAT_ACTION;
 
 /**
- * Created by jukov on 10.03.2016.
+ * Created by jukov on 24.04.2016.
  */
-public class PrivateChatActivity extends NavigationDrawerActivity {
+public class RoomChatActivity extends NavigationDrawerActivity {
 
-    private String companionName;
-    private String companionUID;
+    private String name;
     private String myUID;
+    private List<String> particants;
 
     private BroadcastReceiver broadcastReceiver;
 
@@ -40,8 +35,10 @@ public class PrivateChatActivity extends NavigationDrawerActivity {
         setContentView(R.layout.activity_main);
 
         Intent intent = getIntent();
-        companionName = intent.getStringExtra(EXTRA_NAME);
-        companionUID = intent.getStringExtra(EXTRA_UID);
+        name = intent.getStringExtra(EXTRA_NAME);
+
+        particants = new ArrayList<>();
+        particants.add(Utils.getAndroidID(this));
         myUID = Utils.getAndroidID(this);
 
         initViews();
@@ -49,12 +46,6 @@ public class PrivateChatActivity extends NavigationDrawerActivity {
         initFragment();
         initBroadcastReceiver();
         initService();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unregisterReceiver(broadcastReceiver);
     }
 
     @Override
@@ -82,8 +73,8 @@ public class PrivateChatActivity extends NavigationDrawerActivity {
         return true;
     }
 
-    public String getCompanionUID() {
-        return companionUID;
+    public ArrayAdapter<String> getArrayAdapterMessages() {
+        return arrayAdapterMessages;
     }
 
     protected void initViews() {
@@ -91,41 +82,41 @@ public class PrivateChatActivity extends NavigationDrawerActivity {
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            getSupportActionBar().setTitle(companionName);
+            getSupportActionBar().setTitle(name);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
     }
 
     private void initAdapter() {
-        DBHelper dbHelper = DBHelper.getInstance(this);
+//        DBHelper dbHelper = DBHelper.getInstance(this);
 
-        arrayAdapterMessages = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,
-                dbHelper.getPrivateMessages(Utils.getAndroidID(this), companionUID));
+//        arrayAdapterMessages = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,
+//                dbHelper.getPrivateMessages(Utils.getAndroidID(this), companionUID));
     }
 
     private void initFragment() {
-        PrivateChatFragment privateChatFragment = PrivateChatFragment.newInstance();
+        RoomChatFragment roomChatFragment = RoomChatFragment.newInstance();
 
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragmentContainer, privateChatFragment)
+                .replace(R.id.fragmentContainer, roomChatFragment)
                 .commit();
     }
 
     private void initBroadcastReceiver() {
-        broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, final Intent intent) {
-                String receiverUID = intent.getStringExtra(EXTRA_RECEIVER_UID);
-                if (receiverUID.equals(myUID) || receiverUID.equals(companionUID))
-                    arrayAdapterMessages.add(intent.getStringExtra(EXTRA_NAME) + ": " + intent.getStringExtra(EXTRA_MESSAGE));
-            }
-        };
-        IntentFilter intentFilter = new IntentFilter(PRIVATE_CHAT_ACTION);
-        registerReceiver(broadcastReceiver, intentFilter);
+//        broadcastReceiver = new BroadcastReceiver() {
+//            @Override
+//            public void onReceive(Context context, final Intent intent) {
+//                String receiverUID = intent.getStringExtra(EXTRA_RECEIVER_UID);
+//                if (receiverUID.equals(myUID) || receiverUID.equals(companionUID))
+//                    arrayAdapterMessages.add(intent.getStringExtra(EXTRA_NAME) + ": " + intent.getStringExtra(EXTRA_MESSAGE));
+//            }
+//        };
+//        IntentFilter intentFilter = new IntentFilter(PRIVATE_CHAT_ACTION);
+//        registerReceiver(broadcastReceiver, intentFilter);
     }
 
     private void initService() {
-        Log.d(getClass().getSimpleName(), "Connecting to service");
-        ServiceHelper.startService(this);
+//        Log.d(getClass().getSimpleName(), "Connecting to service");
+//        ServiceHelper.startService(this);
     }
 }

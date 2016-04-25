@@ -15,8 +15,11 @@ import android.widget.ListView;
 import org.jukov.lanchat.BaseActivity;
 import org.jukov.lanchat.MainActivity;
 import org.jukov.lanchat.R;
+import org.jukov.lanchat.RoomChatActivity;
 import org.jukov.lanchat.RoomCreatingActivity;
 import org.jukov.lanchat.dto.RoomData;
+
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
 
 /**
  * Created by jukov on 16.02.2016.
@@ -64,7 +67,10 @@ public class RoomsFragment extends ListFragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                Intent intent = new Intent(getContext(), PrivateChatActivity.class);
+                RoomData roomData = arrayAdapter.getItem(position);
+                Intent intent = new Intent(getContext(), RoomChatActivity.class);
+                intent.putExtra(EXTRA_NAME, roomData.getName());
+                getActivity().startActivityForResult(intent, BaseActivity.REQUEST_CODE_ROOM_CHAT);
             }
         });
 
