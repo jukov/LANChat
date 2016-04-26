@@ -12,11 +12,11 @@ public class TCPListener extends Thread implements Closeable {
 
     private ClientListener clientListener;
     private ServerSocket serverSocket;
-    private int port;
+//    private int port;
 
     public TCPListener(int port, ClientListener clientListener) {
         this.clientListener = clientListener;
-        this.port = port;
+//        this.port = port;
         try {
             serverSocket = new ServerSocket(port);
         } catch (IOException e) {

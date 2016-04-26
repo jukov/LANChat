@@ -32,11 +32,6 @@ public class Utils {
         return android.text.format.Formatter.formatIpAddress(wifiInfo.getIpAddress());
     }
 
-    @Deprecated
-    public static String getMACAddress(Context context) {
-        return ((WifiManager) context.getSystemService(Context.WIFI_SERVICE)).getConnectionInfo().getMacAddress();
-    }
-
     public static String getAndroidID(Context context) {
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }

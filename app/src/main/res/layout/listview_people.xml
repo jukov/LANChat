@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal" android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="AndroidLintUseCompoundDrawables"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <ImageView
@@ -13,7 +16,8 @@
         android:layout_marginEnd="8pt"
         android:layout_marginLeft="4pt"
         android:layout_marginRight="8pt"
-        android:background="#000000" />
+        android:background="#000000"
+        android:contentDescription="@string/profile_picture"/>
 
     <TextView
         android:layout_width="wrap_content"
