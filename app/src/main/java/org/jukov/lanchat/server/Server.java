@@ -36,7 +36,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Server extends Thread implements Closeable {
 
     public static final String TAG = Server.class.getSimpleName();
-    public static final int CLIENT_THREADS_COUNT = 1;
+    public static final int CLIENT_THREADS_COUNT = 3;
     public static final int SERVER_THREADS_COUNT = 3;
     public static final int GLOBAL_CHAT_MESSAGES_MAX_CAPACITY = 50;
     public static final int ROOMS_MAX_CAPACITY = 50;
@@ -63,6 +63,7 @@ public class Server extends Thread implements Closeable {
     private boolean sendServerBroadcastFlag;
 
     public Server(final Context context, int port) {
+        Log.d(TAG, "Server constructor");
         this.context = context;
         this.port = port;
 
@@ -133,9 +134,10 @@ public class Server extends Thread implements Closeable {
                             ServerConnection serverConnection = new ServerConnection(socket, getServer());
                             serverExecutor.execute(serverConnection);
                             serverConnections.add(serverConnection);
-                            closeUDP();
                         } catch (IOException e) {
                             e.printStackTrace();
+                        } finally {
+                            closeUDP();
                         }
                     }
                 }
@@ -175,6 +177,8 @@ public class Server extends Thread implements Closeable {
 
     public void close() {
         Log.d(TAG, "Close server");
+        stopBroadcastFlag = true;
+
         for (ClientConnection clientConnection: clientConnections) {
             if (!clientConnection.isLocal()) {
                 try {
@@ -219,7 +223,6 @@ public class Server extends Thread implements Closeable {
             serverConnection.close();
         }
 
-        stopBroadcastFlag = true;
         try {
             clientListener.close();
             serverListener.close();

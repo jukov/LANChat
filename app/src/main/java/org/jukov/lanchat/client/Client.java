@@ -108,9 +108,10 @@ public class Client extends Thread implements Closeable {
                     Log.d(getClass().getSimpleName(), "Receive ServiceData");
                     ServiceData serviceData = (ServiceData) data;
                     if (serviceData.getMessageType() == MessageType.DELEGATION_SERVER_STATUS) {
+                        close();
                         ServiceHelper.clearPeopleList(context);
                         ServiceHelper.startServer(context);
-                        break;
+                        return;
                     }
                 }
             }
@@ -121,20 +122,28 @@ public class Client extends Thread implements Closeable {
         * If action = ACTION_DISCONNECT, app closed
         * */
         if (peopleData.getAction() != PeopleData.ACTION_DISCONNECT) {
+            close();
             ServiceHelper.clearPeopleList(context);
             ServiceHelper.searchServer(context);
         }
-        close();
     }
 
     @Override
     public void close() {
         try {
-            peopleData.setAction(PeopleData.ACTION_DISCONNECT);
-            sendMessage(JSONConverter.toJSON(peopleData));
             dataOutputStream.close();
             dataInputStream.close();
             socket.close();
+            Log.d(getClass().getSimpleName(), "close");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendDisconnect() {
+        peopleData.setAction(PeopleData.ACTION_DISCONNECT);
+        try {
+            sendMessage(JSONConverter.toJSON(peopleData));
         } catch (IOException e) {
             e.printStackTrace();
         }

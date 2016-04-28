@@ -35,7 +35,7 @@ public class TCPListener extends Thread implements Closeable {
                 serverSocket.close();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
     }
 

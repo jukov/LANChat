@@ -54,7 +54,7 @@ public class LANChatService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.i(getClass().getSimpleName(), "onCreate");
-        executorService = Executors.newFixedThreadPool(3);
+        executorService = Executors.newCachedThreadPool();
         mode = MODE_NONE;
     }
 
@@ -71,7 +71,13 @@ public class LANChatService extends Service {
                     searchServer();
                     break;
                 case START_SERVER_ACTION:
-                    startServer(TCP_PORT);
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            startServer(TCP_PORT);
+                        }
+                    });
+                    thread.start();
                     break;
                 case SEND_GLOBAL_MESSAGE_ACTION:
                     sendGlobalMessage(intent);
@@ -97,9 +103,9 @@ public class LANChatService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.d(getClass().getSimpleName(), "onDestroy()");
         super.onDestroy();
         if (client != null) {
+            client.sendDisconnect();
             client.close();
             client = null;
         }
@@ -108,6 +114,7 @@ public class LANChatService extends Service {
             server = null;
         }
         executorService.shutdown();
+        Log.d(getClass().getSimpleName(), "onDestroy()");
 //        System.exit(0);
     }
 
