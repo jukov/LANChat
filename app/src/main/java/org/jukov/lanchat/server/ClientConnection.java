@@ -4,6 +4,7 @@ import android.util.Log;
 
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.PeopleData;
+import org.jukov.lanchat.dto.RoomData;
 import org.jukov.lanchat.service.ServiceHelper;
 import org.jukov.lanchat.util.JSONConverter;
 
@@ -34,6 +35,8 @@ public class ClientConnection extends Connection {
                 } else if (data instanceof ChatData) {
                     if (((ChatData) data).getMessageType() == ServiceHelper.MessageType.GLOBAL)
                         server.addMessage((ChatData) data);
+                } else if (data instanceof RoomData) {
+                    server.addRoom((RoomData) data);
                 }
                 server.broadcastMessageToClients(message);
                 server.broadcastMessageToServers(message);

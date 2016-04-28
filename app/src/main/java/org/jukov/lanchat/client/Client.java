@@ -5,7 +5,9 @@ import android.util.Log;
 
 import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.ChatData;
+import org.jukov.lanchat.dto.MessagingData;
 import org.jukov.lanchat.dto.PeopleData;
+import org.jukov.lanchat.dto.RoomData;
 import org.jukov.lanchat.dto.ServiceData;
 import org.jukov.lanchat.service.ServiceHelper;
 import org.jukov.lanchat.util.JSONConverter;
@@ -79,14 +81,29 @@ public class Client extends Thread implements Closeable {
                     ChatData chatData = (ChatData) data;
                     dbHelper.insertMessage(chatData);
                     ServiceHelper.receiveMessage(context, chatData.getMessageType(), chatData);
+
                 } else if (data instanceof PeopleData) {
                     PeopleData peopleData = (PeopleData) data;
                     dbHelper.insertOrRenamePeople(peopleData);
                     ServiceHelper.receivePeople(context, peopleData);
+
+                } else if (data instanceof RoomData) {
+                    RoomData roomData = (RoomData) data;
+                    dbHelper.insertOrRenameRoom(roomData);
+                    ServiceHelper.receiveRoom(context, roomData);
+
                 } else if (data instanceof AbstractCollection) {
+                    Log.d(getClass().getSimpleName(), "receive AbstractCollection");
                     AbstractCollection dataBundle = (AbstractCollection) data;
-                    dbHelper.insertMessages((AbstractCollection) data);
-                    ServiceHelper.receivePublicMessages(context, dataBundle);
+                    MessagingData messagingData = (MessagingData) dataBundle.iterator().next();
+                    if (messagingData instanceof ChatData) {
+                        dbHelper.insertMessages(dataBundle);
+                        ServiceHelper.receivePublicMessages(context, dataBundle);
+                    } else if (messagingData instanceof RoomData) {
+                        dbHelper.insertRooms(dataBundle);
+                        ServiceHelper.receiveRooms(context, dataBundle);
+                    }
+
                 } else if (data instanceof ServiceData) {
                     Log.d(getClass().getSimpleName(), "Receive ServiceData");
                     ServiceData serviceData = (ServiceData) data;

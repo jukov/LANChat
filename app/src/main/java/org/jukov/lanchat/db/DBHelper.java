@@ -24,7 +24,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class DBHelper extends SQLiteOpenHelper {
     private static volatile DBHelper instance;
 
-    public static final int DATABASE_VERSION = 5;
+    public static final int DATABASE_VERSION = 9;
     public static final String DATABASE_NAME = "LANChatDatabase";
 
     private SQLiteDatabase sqLiteDatabase;
@@ -73,7 +73,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public static final String QUERY_CREATE_ROOMS = "CREATE TABLE " + TABLE_ROOMS +
             "(" + KEY_ID +" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
-            KEY_NAME + " TEXT NOT NULL" +
+            KEY_NAME + " TEXT NOT NULL," +
+            KEY_UID + " TEXT NOT NULL" +
             ");";
 
     public static final String QUERY_CREATE_ROOMS_MESSAGES = "CREATE TABLE " + TABLE_ROOMS_MESSAGES +
@@ -111,12 +112,18 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(QUERY_CREATE_PEOPLE);
         db.execSQL(QUERY_CREATE_PUBLIC_MESSAGES);
         db.execSQL(QUERY_CREATE_PRIVATE_MESSAGES);
+        db.execSQL(QUERY_CREATE_ROOMS);
+        db.execSQL(QUERY_CREATE_ROOMS_MESSAGES);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL(QUERY_CREATE_ROOMS);
-        db.execSQL(QUERY_CREATE_ROOMS_MESSAGES);
+//        db.execSQL("DROP TABLE " + TABLE_PEOPLE);
+//        db.execSQL("DROP TABLE " + TABLE_ROOMS);
+//        db.execSQL("DROP TABLE " + TABLE_PRIVATE_MESSAGES);
+//        db.execSQL("DROP TABLE " + TABLE_PUBLIC_MESSAGES);
+//        db.execSQL("DROP TABLE " + TABLE_ROOMS_MESSAGES);
+        onCreate(db);
     }
 
     public void insertMessage(ChatData chatData) {
@@ -180,12 +187,38 @@ public class DBHelper extends SQLiteOpenHelper {
         databaseLock.unlock();
     }
 
-    public int insertRoom(String roomName) {
+
+    public void insertRooms(AbstractCollection<RoomData> rooms) {
         databaseLock.lock();
-        contentValues.put(KEY_NAME, roomName);
-        int id = (int) sqLiteDatabase.insert(TABLE_ROOMS, null, contentValues);
+
+        for (RoomData roomData : rooms) {
+            contentValues.put(KEY_NAME, roomData.getName());
+            contentValues.put(KEY_UID, roomData.getUid());
+            if (sqLiteDatabase.update(
+                    TABLE_ROOMS,
+                    contentValues,
+                    KEY_UID + " = ?",
+                    new String[] {roomData.getUid()}) == 0) {
+                sqLiteDatabase.insert(TABLE_ROOMS, null, contentValues);
+            }
+            contentValues.clear();
+        }
         databaseLock.unlock();
-        return id;
+    }
+
+    public void insertOrRenameRoom(RoomData roomData) {
+        databaseLock.lock();
+        contentValues.put(KEY_NAME, roomData.getName());
+        contentValues.put(KEY_UID, roomData.getUid());
+        if (sqLiteDatabase.update(
+                TABLE_ROOMS,
+                contentValues,
+                KEY_UID + " = ?",
+                new String[] {roomData.getUid()}) == 0) {
+            sqLiteDatabase.insert(TABLE_ROOMS, null, contentValues);
+        }
+        contentValues.clear();
+        databaseLock.unlock();
     }
 
     public void insertOrRenamePeople(PeopleData peopleData) {
@@ -208,7 +241,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         Cursor roomsCursor = sqLiteDatabase.query(
                 TABLE_ROOMS,
-                new String[] {KEY_ID, KEY_NAME},
+                new String[] {KEY_NAME, KEY_UID},
                 null, null, null, null, null);
 
         List<RoomData> rooms = new ArrayList<>();
@@ -216,7 +249,7 @@ public class DBHelper extends SQLiteOpenHelper {
         roomsCursor.moveToFirst();
         if (roomsCursor.getCount() > 0 ) {
             do {
-                rooms.add(new RoomData(roomsCursor.getString(1), roomsCursor.getInt(0)));
+                rooms.add(new RoomData(roomsCursor.getString(0), roomsCursor.getString(1)));
             } while (roomsCursor.moveToNext());
         }
         roomsCursor.close();

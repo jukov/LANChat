@@ -30,8 +30,7 @@ public abstract class Connection implements Closeable, Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        server.broadcastPeoples(this);
-        server.sendMessageHistory(this);
+        server.sendDataToNewConnection(this);
     }
 
     public String getRemoteIp() {

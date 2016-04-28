@@ -111,7 +111,7 @@ public class RoomChatActivity extends NavigationDrawerActivity {
 //                    arrayAdapterMessages.add(intent.getStringExtra(EXTRA_NAME) + ": " + intent.getStringExtra(EXTRA_MESSAGE));
 //            }
 //        };
-//        IntentFilter intentFilter = new IntentFilter(PRIVATE_CHAT_ACTION);
+//        IntentFilter intentFilter = new IntentFilter(SEND_PRIVATE_MESSAGE_ACTION);
 //        registerReceiver(broadcastReceiver, intentFilter);
     }
 

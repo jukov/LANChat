@@ -40,8 +40,9 @@ import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESS
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MODE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_UID;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.GLOBAL_CHAT_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.NEW_ROOM_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PEOPLE_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.SEND_GLOBAL_MESSAGE_ACTION;
 
 public class MainActivity extends NavigationDrawerActivity {
 
@@ -53,7 +54,6 @@ public class MainActivity extends NavigationDrawerActivity {
 
     private ArrayAdapter<PeopleData> arrayAdapterPeople;
     private ArrayAdapter<RoomData> arrayAdapterRooms;
-    private ArrayAdapter<String> arrayAdapterMessages;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,8 +136,10 @@ public class MainActivity extends NavigationDrawerActivity {
             switch (requestCode) {
                 case REQUEST_CODE_ROOM_CREATING:
                     Log.d(TAG, "REQUEST_CODE_ROOM_CREATING");
-                    RoomData roomData = new RoomData(data.getStringExtra(EXTRA_NAME), data.getIntExtra(EXTRA_ID, -1));
-                    arrayAdapterRooms.add(roomData);
+                    ServiceHelper.newRoom(getApplicationContext(), new RoomData(
+                            data.getStringExtra(EXTRA_NAME),
+                            data.getStringExtra(EXTRA_UID)));
+                    break;
                 default:
                     int id = data.getIntExtra(EXTRA_ID, 0);
                     Fragment fragment = fragments.get(id);
@@ -215,7 +217,8 @@ public class MainActivity extends NavigationDrawerActivity {
                             }
                         });
                         break;
-                    case GLOBAL_CHAT_ACTION:
+                    case SEND_GLOBAL_MESSAGE_ACTION:
+                        Log.d(TAG, "Receive global message");
                         if (intent.hasExtra(EXTRA_NAME))
                             arrayAdapterMessages.add(intent.getStringExtra(EXTRA_NAME) + ": " + intent.getStringExtra(EXTRA_MESSAGE));
                         else if (intent.hasExtra(EXTRA_MESSAGE_BUNDLE)) {
@@ -247,6 +250,21 @@ public class MainActivity extends NavigationDrawerActivity {
                                     Log.w(getClass().getSimpleName(), "Unexpected action type");
                             }
                         break;
+                    case NEW_ROOM_ACTION:
+                        Log.d(TAG, "NEW_ROOM_ACTION");
+                        if (intent.hasExtra(EXTRA_NAME)) {
+                            RoomData roomData = new RoomData(
+                                    intent.getStringExtra(EXTRA_NAME),
+                                    intent.getStringExtra(EXTRA_UID));
+                            arrayAdapterRooms.add(roomData);
+                        } else if (intent.hasExtra(EXTRA_MESSAGE_BUNDLE)) {
+                            Parcelable[] parcelables = intent.getParcelableArrayExtra(EXTRA_MESSAGE_BUNDLE);
+                            RoomData[] messages = Arrays.copyOf(parcelables, parcelables.length, RoomData[].class);
+                            for (RoomData roomData : messages) {
+                                arrayAdapterRooms.add(roomData);
+                            }
+                        }
+                        break;
                     case CLEAR_PEOPLE_LIST_ACTION:
                         arrayAdapterPeople.clear();
                 }
@@ -254,9 +272,10 @@ public class MainActivity extends NavigationDrawerActivity {
         };
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ACTIVITY_ACTION);
-        intentFilter.addAction(GLOBAL_CHAT_ACTION);
+        intentFilter.addAction(SEND_GLOBAL_MESSAGE_ACTION);
         intentFilter.addAction(PEOPLE_ACTION);
         intentFilter.addAction(CLEAR_PEOPLE_LIST_ACTION);
+        intentFilter.addAction(NEW_ROOM_ACTION);
         registerReceiver(broadcastReceiver, intentFilter);
     }
 

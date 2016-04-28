@@ -8,9 +8,9 @@ import android.os.Parcelable;
  */
 public class RoomData extends MessagingData {
 
-    public RoomData(String name, int uid) {
+    public RoomData(String name, String uid) {
         setName(name);
-        setUid(Integer.toString(uid));
+        setUid(uid);
     }
 
     public RoomData() {

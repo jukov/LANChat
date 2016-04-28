@@ -21,7 +21,7 @@ import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESS
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_RECEIVER_UID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_UID;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PRIVATE_CHAT_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.SEND_PRIVATE_MESSAGE_ACTION;
 
 /**
  * Created by jukov on 10.03.2016.
@@ -120,7 +120,7 @@ public class PrivateChatActivity extends NavigationDrawerActivity {
                     arrayAdapterMessages.add(intent.getStringExtra(EXTRA_NAME) + ": " + intent.getStringExtra(EXTRA_MESSAGE));
             }
         };
-        IntentFilter intentFilter = new IntentFilter(PRIVATE_CHAT_ACTION);
+        IntentFilter intentFilter = new IntentFilter(SEND_PRIVATE_MESSAGE_ACTION);
         registerReceiver(broadcastReceiver, intentFilter);
     }
 

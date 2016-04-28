@@ -8,6 +8,7 @@ import android.util.Log;
 
 import org.jukov.lanchat.client.Client;
 import org.jukov.lanchat.dto.ChatData;
+import org.jukov.lanchat.dto.RoomData;
 import org.jukov.lanchat.server.Server;
 import org.jukov.lanchat.util.JSONConverter;
 import org.jukov.lanchat.util.UDP;
@@ -22,12 +23,14 @@ import java.util.concurrent.TimeUnit;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_RECEIVER_UID;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.GLOBAL_CHAT_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_UID;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.INIT_SERVICE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.NAME_CHANGE_ACTION;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PRIVATE_CHAT_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.NEW_ROOM_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.SEARCH_SERVER_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.SEND_GLOBAL_MESSAGE_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.SEND_PRIVATE_MESSAGE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.START_SERVER_ACTION;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.START_SERVICE_ACTION;
 
 /**
  * Created by jukov on 16.01.2016.
@@ -61,60 +64,26 @@ public class LANChatService extends Service {
         if (intent != null) {
             Log.d(getClass().getSimpleName(), intent.getAction());
             switch (intent.getAction()) {
-                case START_SERVICE_ACTION:
-                    switch (mode) {
-                        case MODE_NONE:
-                            ServerSearch serverSearch = new ServerSearch(UDP_PORT);
-                            executorService.execute(serverSearch);
-                            break;
-                        case MODE_CLIENT:
-                            client.updateStatus();
-                            break;
-                        case MODE_SERVER:
-                            server.updateStatus();
-                            break;
-                    }
+                case INIT_SERVICE_ACTION:
+                    initService();
                     break;
                 case SEARCH_SERVER_ACTION:
-                    ServerSearch serverSearch = new ServerSearch(UDP_PORT);
-                    executorService.execute(serverSearch);
+                    searchServer();
                     break;
                 case START_SERVER_ACTION:
                     startServer(TCP_PORT);
-                case GLOBAL_CHAT_ACTION:
-                    if (client != null) {
-                        try {
-                            String message = JSONConverter.toJSON(new ChatData(
-                                    getApplicationContext(),
-                                    ServiceHelper.MessageType.GLOBAL, intent.getStringExtra(EXTRA_MESSAGE)
-                            ));
-                            Log.d(getClass().getSimpleName(), message);
-                            client.sendMessage(message);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
                     break;
-                case PRIVATE_CHAT_ACTION:
-                    if (client != null) {
-                        try {
-                            String message = JSONConverter.toJSON(new ChatData(
-                                    getApplicationContext(),
-                                    ServiceHelper.MessageType.PRIVATE,
-                                    intent.getStringExtra(EXTRA_MESSAGE),
-                                    intent.getStringExtra(EXTRA_RECEIVER_UID)
-                            ));
-                            Log.d(getClass().getSimpleName(), message);
-                            client.sendMessage(message);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
+                case SEND_GLOBAL_MESSAGE_ACTION:
+                    sendGlobalMessage(intent);
+                    break;
+                case SEND_PRIVATE_MESSAGE_ACTION:
+                    sendPrivateMessage(intent);
                     break;
                 case NAME_CHANGE_ACTION:
-                    if (client != null) {
-                        client.changeName(intent.getStringExtra(EXTRA_NAME));
-                    }
+                    changeName(intent);
+                    break;
+                case NEW_ROOM_ACTION:
+                    newRoom(intent);
                     break;
                 default:
                     Log.w(getClass().getSimpleName(), "Unexpected intent action type");
@@ -146,6 +115,77 @@ public class LANChatService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    public void initService() {
+        switch (mode) {
+            case MODE_NONE:
+                ServerSearch serverSearch = new ServerSearch(UDP_PORT);
+                executorService.execute(serverSearch);
+                break;
+            case MODE_CLIENT:
+                client.updateStatus();
+                break;
+            case MODE_SERVER:
+                server.updateStatus();
+                break;
+        }
+    }
+
+    public void searchServer() {
+        ServerSearch serverSearch = new ServerSearch(UDP_PORT);
+        executorService.execute(serverSearch);
+    }
+
+    public void sendGlobalMessage(Intent intent) {
+        if (client != null) {
+            try {
+                String message = JSONConverter.toJSON(new ChatData(
+                        getApplicationContext(),
+                        ServiceHelper.MessageType.GLOBAL, intent.getStringExtra(EXTRA_MESSAGE)
+                ));
+                Log.d(getClass().getSimpleName(), message);
+                client.sendMessage(message);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void sendPrivateMessage(Intent intent) {
+        if (client != null) {
+            try {
+                String message = JSONConverter.toJSON(new ChatData(
+                        getApplicationContext(),
+                        ServiceHelper.MessageType.PRIVATE,
+                        intent.getStringExtra(EXTRA_MESSAGE),
+                        intent.getStringExtra(EXTRA_RECEIVER_UID)
+                ));
+                Log.d(getClass().getSimpleName(), message);
+                client.sendMessage(message);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void changeName(Intent intent) {
+        if (client != null) {
+            client.changeName(intent.getStringExtra(EXTRA_NAME));
+        }
+    }
+
+    private void newRoom(Intent intent) {
+        try {
+            String message = JSONConverter.toJSON(new RoomData(
+                    intent.getStringExtra(EXTRA_NAME),
+                    intent.getStringExtra(EXTRA_UID)
+            ));
+            client.sendMessage(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     class ServerSearch extends Thread {

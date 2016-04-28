@@ -7,6 +7,7 @@ import org.jukov.lanchat.R;
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.DataBundle;
 import org.jukov.lanchat.dto.PeopleData;
+import org.jukov.lanchat.dto.RoomData;
 import org.jukov.lanchat.dto.ServiceData;
 import org.jukov.lanchat.service.ServiceHelper;
 import org.jukov.lanchat.util.JSONConverter;
@@ -37,11 +38,14 @@ public class Server extends Thread implements Closeable {
     public static final String TAG = Server.class.getSimpleName();
     public static final int CLIENT_THREADS_COUNT = 1;
     public static final int SERVER_THREADS_COUNT = 3;
+    public static final int GLOBAL_CHAT_MESSAGES_MAX_CAPACITY = 50;
+    public static final int ROOMS_MAX_CAPACITY = 50;
 
     private Context context;
     private int port;
 
-    private Lock bundleLock;
+    private Lock messagesBundleLock;
+    private Lock roomsBundleLock;
     private ThreadPoolExecutor clientExecutor;
     private ThreadPoolExecutor serverExecutor;
     private TCPListener clientListener;
@@ -51,7 +55,9 @@ public class Server extends Thread implements Closeable {
     private Set<ClientConnection> clientConnections;
     private Set<ServerConnection> serverConnections;
     private Set<String> serverIps;
+
     private DataBundle<ChatData> messages;
+    private DataBundle<RoomData> rooms;
 
     private boolean stopBroadcastFlag;
     private boolean sendServerBroadcastFlag;
@@ -67,10 +73,13 @@ public class Server extends Thread implements Closeable {
         serverConnections = Collections.synchronizedSet(new HashSet<ServerConnection>(SERVER_THREADS_COUNT));
         serverIps = Collections.synchronizedSet(new HashSet<String>());
         serverIps.add(Utils.getWifiAddress(context));
-        Log.d(TAG, Utils.getWifiAddress(context));
-        messages = new DataBundle<>(50);
 
-        bundleLock = new ReentrantLock();
+        messages = new DataBundle<>(GLOBAL_CHAT_MESSAGES_MAX_CAPACITY);
+        rooms = new DataBundle<>(ROOMS_MAX_CAPACITY);
+
+        messagesBundleLock = new ReentrantLock();
+        roomsBundleLock = new ReentrantLock();
+
         clientExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(CLIENT_THREADS_COUNT);
         serverExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(SERVER_THREADS_COUNT);
 
@@ -270,41 +279,48 @@ public class Server extends Thread implements Closeable {
         }
     }
 
-    public void broadcastPeoples(Connection targetConnection) {
-        for (ClientConnection clientConnection : clientConnections) {
-            try {
+    public void sendDataToNewConnection(Connection connection) {
+        try {
+            //Send connected people
+            for (ClientConnection clientConnection : clientConnections) {
                 PeopleData peopleData = clientConnection.getPeopleData();
                 if (peopleData != null) {
                     peopleData.setAction(PeopleData.ACTION_CONNECT);
-                    if (!clientConnection.equals(targetConnection)) {
+                    if (!clientConnection.equals(connection)) {
                         Log.d(TAG, peopleData.toString());
-                        targetConnection.sendMessage(JSONConverter.toJSON(peopleData));
+                        connection.sendMessage(JSONConverter.toJSON(peopleData));
                     }
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
-        }
-    }
 
-    public void sendMessageHistory(Connection connection) {
-        if (messages.size() > 0) {
-            try {
+            //Send message history
+            if (messages.size() > 0)
                 connection.sendMessage(JSONConverter.toJSON(messages));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
+            //Send existing rooms
+            if (rooms.size() > 0)
+                connection.sendMessage(JSONConverter.toJSON(rooms));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     public void addMessage(ChatData chatData) {
-        bundleLock.lock();
-            messages.add(chatData);
-            Log.d(TAG, messages.toString());
-        bundleLock.unlock();
+        messagesBundleLock.lock();
+        messages.add(chatData);
+        messagesBundleLock.unlock();
+    }
+
+
+    public void addRoom(RoomData roomData) {
+        roomsBundleLock.lock();
+        rooms.add(roomData);
+        roomsBundleLock.unlock();
     }
 
     public void updateStatus() {//TODO: move updating to client
         ServiceHelper.updateStatus(context, context.getString(R.string.nav_header_people_around, clientConnections.size()));
     }
+
+
 }

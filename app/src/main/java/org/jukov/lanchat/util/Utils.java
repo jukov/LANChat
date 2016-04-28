@@ -8,6 +8,7 @@ import android.provider.Settings;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Date;
 
 /**
  * Created by jukov on 05.02.2016.
@@ -36,4 +37,7 @@ public class Utils {
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
+    public static String newRoomUID(Context context) {
+        return getAndroidID(context) + new Date().toString();
+    }
 }

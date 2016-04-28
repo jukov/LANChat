@@ -10,9 +10,11 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import org.jukov.lanchat.db.DBHelper;
+import org.jukov.lanchat.dto.RoomData;
+import org.jukov.lanchat.util.Utils;
 
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_UID;
 
 /**
  * Created by jukov on 23.04.2016.
@@ -56,10 +58,13 @@ public class RoomCreatingActivity extends BaseActivity {
                     if (roomNameText != null && roomNameTextLayout != null) {
                         if (!roomNameText.getText().toString().equals("")) {
                             DBHelper dbHelper = DBHelper.getInstance(getApplicationContext());
-                            int id = dbHelper.insertRoom(roomNameText.getText().toString());
+                            RoomData roomData = new RoomData(
+                                    roomNameText.getText().toString(),
+                                    Utils.newRoomUID(getApplicationContext()));
+                            dbHelper.insertOrRenameRoom(roomData);
                             Intent intent = new Intent();
-                            intent.putExtra(EXTRA_ID, id);
-                            intent.putExtra(EXTRA_NAME, roomNameText.getText().toString());
+                            intent.putExtra(EXTRA_NAME, roomData.getName());
+                            intent.putExtra(EXTRA_UID, roomData.getUid());
                             setResult(RESULT_OK, intent);
                             finish();
                         } else {

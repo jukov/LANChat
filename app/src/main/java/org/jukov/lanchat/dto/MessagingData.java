@@ -16,7 +16,8 @@ import org.jukov.lanchat.util.Utils;
  */
 @JsonSubTypes({
         @JsonSubTypes.Type(value = PeopleData.class, name = "PeopleData"),
-        @JsonSubTypes.Type(value = ChatData.class, name = "ChatData")
+        @JsonSubTypes.Type(value = ChatData.class, name = "ChatData"),
+        @JsonSubTypes.Type(value = RoomData.class, name = "RoomData")
 })
 public abstract class MessagingData extends Data implements Parcelable {
 
