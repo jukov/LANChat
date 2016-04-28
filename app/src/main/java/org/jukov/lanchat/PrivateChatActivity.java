@@ -16,12 +16,12 @@ import org.jukov.lanchat.service.LANChatService;
 import org.jukov.lanchat.service.ServiceHelper;
 import org.jukov.lanchat.util.Utils;
 
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_DESTINATION_UID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_RECEIVER_UID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_UID;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.SEND_PRIVATE_MESSAGE_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PRIVATE_MESSAGE_ACTION;
 
 /**
  * Created by jukov on 10.03.2016.
@@ -115,12 +115,12 @@ public class PrivateChatActivity extends NavigationDrawerActivity {
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, final Intent intent) {
-                String receiverUID = intent.getStringExtra(EXTRA_RECEIVER_UID);
+                String receiverUID = intent.getStringExtra(EXTRA_DESTINATION_UID);
                 if (receiverUID.equals(myUID) || receiverUID.equals(companionUID))
                     arrayAdapterMessages.add(intent.getStringExtra(EXTRA_NAME) + ": " + intent.getStringExtra(EXTRA_MESSAGE));
             }
         };
-        IntentFilter intentFilter = new IntentFilter(SEND_PRIVATE_MESSAGE_ACTION);
+        IntentFilter intentFilter = new IntentFilter(PRIVATE_MESSAGE_ACTION);
         registerReceiver(broadcastReceiver, intentFilter);
     }
 

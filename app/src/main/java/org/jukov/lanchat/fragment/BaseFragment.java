@@ -1,6 +1,5 @@
 package org.jukov.lanchat.fragment;
 
-import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
@@ -10,7 +9,6 @@ import android.view.View;
 public abstract class BaseFragment extends Fragment {
 
     private String title;
-    protected Context context;
     protected View layout;
 
     public String getTitle() {

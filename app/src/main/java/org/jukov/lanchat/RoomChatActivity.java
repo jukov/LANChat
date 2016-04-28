@@ -1,7 +1,9 @@
 package org.jukov.lanchat;
 
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
@@ -10,13 +12,13 @@ import android.widget.ArrayAdapter;
 import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.fragment.RoomChatFragment;
 import org.jukov.lanchat.service.LANChatService;
-import org.jukov.lanchat.util.Utils;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_DESTINATION_UID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ID;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_UID;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.ROOM_MESSAGE_ACTION;
 
 /**
  * Created by jukov on 24.04.2016.
@@ -24,8 +26,8 @@ import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME
 public class RoomChatActivity extends NavigationDrawerActivity {
 
     private String name;
-    private String myUID;
-    private List<String> particants;
+    private String roomUID;
+//    private List<String> particants;
 
     private BroadcastReceiver broadcastReceiver;
 
@@ -36,16 +38,23 @@ public class RoomChatActivity extends NavigationDrawerActivity {
 
         Intent intent = getIntent();
         name = intent.getStringExtra(EXTRA_NAME);
+        roomUID = intent.getStringExtra(EXTRA_UID);
 
-        particants = new ArrayList<>();
-        particants.add(Utils.getAndroidID(this));
-        myUID = Utils.getAndroidID(this);
+//        particants = new ArrayList<>();
+//        particants.add(Utils.getAndroidID(this));
 
         initViews();
         initAdapter();
         initFragment();
         initBroadcastReceiver();
         initService();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        unregisterReceiver(broadcastReceiver);
     }
 
     @Override
@@ -77,6 +86,10 @@ public class RoomChatActivity extends NavigationDrawerActivity {
         return arrayAdapterMessages;
     }
 
+    public String getRoomUID() {
+        return roomUID;
+    }
+
     protected void initViews() {
         super.initViews();
 
@@ -88,10 +101,12 @@ public class RoomChatActivity extends NavigationDrawerActivity {
     }
 
     private void initAdapter() {
-//        DBHelper dbHelper = DBHelper.getInstance(this);
+        DBHelper dbHelper = DBHelper.getInstance(this);
 
-//        arrayAdapterMessages = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,
-//                dbHelper.getPrivateMessages(Utils.getAndroidID(this), companionUID));
+        arrayAdapterMessages = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_list_item_1,
+                dbHelper.getRoomMessages(roomUID));
     }
 
     private void initFragment() {
@@ -103,16 +118,16 @@ public class RoomChatActivity extends NavigationDrawerActivity {
     }
 
     private void initBroadcastReceiver() {
-//        broadcastReceiver = new BroadcastReceiver() {
-//            @Override
-//            public void onReceive(Context context, final Intent intent) {
-//                String receiverUID = intent.getStringExtra(EXTRA_RECEIVER_UID);
-//                if (receiverUID.equals(myUID) || receiverUID.equals(companionUID))
-//                    arrayAdapterMessages.add(intent.getStringExtra(EXTRA_NAME) + ": " + intent.getStringExtra(EXTRA_MESSAGE));
-//            }
-//        };
-//        IntentFilter intentFilter = new IntentFilter(SEND_PRIVATE_MESSAGE_ACTION);
-//        registerReceiver(broadcastReceiver, intentFilter);
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, final Intent intent) {
+                String destinationUID = intent.getStringExtra(EXTRA_DESTINATION_UID);
+                if (destinationUID.equals(roomUID))
+                    arrayAdapterMessages.add(intent.getStringExtra(EXTRA_NAME) + ": " + intent.getStringExtra(EXTRA_MESSAGE));
+            }
+        };
+        IntentFilter intentFilter = new IntentFilter(ROOM_MESSAGE_ACTION);
+        registerReceiver(broadcastReceiver, intentFilter);
     }
 
     private void initService() {

@@ -15,7 +15,7 @@ public class ChatData extends MessagingData {
 
     private String text;
     private String sendDate;
-    private String receiverUID;
+    private String destinationUID;
     private ServiceHelper.MessageType messageType;
 
     public ChatData() {
@@ -28,11 +28,11 @@ public class ChatData extends MessagingData {
         sendDate = new Date().toString();
     }
 
-    public ChatData(Context context, ServiceHelper.MessageType messageType, String text, String receiverUID) {
+    public ChatData(Context context, ServiceHelper.MessageType messageType, String text, String destinationUID) {
         super(context);
         this.messageType = messageType;
         this.text = text;
-        this.receiverUID = receiverUID;
+        this.destinationUID = destinationUID;
         this.sendDate = new Date().toString();
     }
 
@@ -60,12 +60,12 @@ public class ChatData extends MessagingData {
         this.sendDate = sendDate;
     }
 
-    public String getReceiverUID() {
-        return receiverUID;
+    public String getDestinationUID() {
+        return destinationUID;
     }
 
-    public void setReceiverUID(String receiverUID) {
-        this.receiverUID = receiverUID;
+    public void setDestinationUID(String destinationUID) {
+        this.destinationUID = destinationUID;
     }
 
     @Override

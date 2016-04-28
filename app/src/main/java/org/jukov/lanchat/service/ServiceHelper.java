@@ -21,28 +21,29 @@ public class ServiceHelper {
         //TODO: Rename actions
         public static final String ACTIVITY_ACTION = "org.jukov.lanchat.ACTIVITY";
 
-        public static final String SEND_GLOBAL_MESSAGE_ACTION = "org.jukov.lanchat.GLOBAL_CHAT";
-        public static final String SEND_PRIVATE_MESSAGE_ACTION = "org.jukov.lanchat.PRIVATE_CHAT";
-        public static final String PEOPLE_ACTION = "org.jukov.lanchat.PEOPLE";
-        public static final String INIT_SERVICE_ACTION = "org.jukov.lanchat.CONNECT_TO_SERVICE";
-        public static final String NAME_CHANGE_ACTION = "org.jukov.lanchat.CHANGE_NAME";
-        public static final String SEARCH_SERVER_ACTION = "org.jukov.lanchat.SEARCH_SERVER";
-        public static final String START_SERVER_ACTION = "org.jukov.lanchat.START_SERVER";
-        public static final String CLEAR_PEOPLE_LIST_ACTION = "org.jukov.lanchat.CLEAR_PEOPLE_LIST";
-        public static final String NEW_ROOM_ACTION = "org.jukov.lanchat.NEW_ROOM";
+        public static final String GLOBAL_MESSAGE_ACTION =      "org.jukov.lanchat.GLOBAL_CHAT";
+        public static final String PRIVATE_MESSAGE_ACTION =     "org.jukov.lanchat.PRIVATE_CHAT";
+        public static final String ROOM_MESSAGE_ACTION =        "org.jukov.lanchat.ROOM_MESSAGE_ACTION";
+        public static final String PEOPLE_ACTION =              "org.jukov.lanchat.PEOPLE";
+        public static final String INIT_SERVICE_ACTION =        "org.jukov.lanchat.CONNECT_TO_SERVICE";
+        public static final String NAME_CHANGE_ACTION =         "org.jukov.lanchat.CHANGE_NAME";
+        public static final String SEARCH_SERVER_ACTION =       "org.jukov.lanchat.SEARCH_SERVER";
+        public static final String START_SERVER_ACTION =        "org.jukov.lanchat.START_SERVER";
+        public static final String CLEAR_PEOPLE_LIST_ACTION =   "org.jukov.lanchat.CLEAR_PEOPLE_LIST";
+        public static final String NEW_ROOM_ACTION =            "org.jukov.lanchat.NEW_ROOM";
 
-        public static final String EXTRA_NAME = "name";
-        public static final String EXTRA_MESSAGE = "message";
-        public static final String EXTRA_MESSAGE_BUNDLE = "message_bundle";
-        public static final String EXTRA_UID = "uid";
-        public static final String EXTRA_ID = "id";
-        public static final String EXTRA_MODE = "mode";
-        public static final String EXTRA_ACTION = "action";
-        public static final String EXTRA_RECEIVER_UID = "receiver_uid";
+        public static final String EXTRA_NAME =             "name";
+        public static final String EXTRA_MESSAGE =          "message";
+        public static final String EXTRA_MESSAGE_BUNDLE =   "message_bundle";
+        public static final String EXTRA_UID =              "uid";
+        public static final String EXTRA_ID =               "id";
+        public static final String EXTRA_MODE =             "mode";
+        public static final String EXTRA_ACTION =           "action";
+        public static final String EXTRA_DESTINATION_UID =     "receiver_uid";
     }
 
     public enum MessageType {
-        PRIVATE(0), GLOBAL(1);
+        PRIVATE(0), GLOBAL(1), ROOM(2);
         private int value;
 
         MessageType(int value) {
@@ -80,15 +81,20 @@ public class ServiceHelper {
         sendMessage(context, messageType, message, null);
     }
 
-    public static void sendMessage(Context context, MessageType messageType, String message, String receiverUID) {
+    public static void sendMessage(Context context, MessageType messageType, String message, String destinationUID) {
         Intent intent = new Intent(context, LANChatService.class);
         switch (messageType) {
             case PRIVATE:
-                intent.setAction(IntentConstants.SEND_PRIVATE_MESSAGE_ACTION);
-                intent.putExtra(IntentConstants.EXTRA_RECEIVER_UID, receiverUID);
+                intent.setAction(IntentConstants.PRIVATE_MESSAGE_ACTION);
+                intent.putExtra(IntentConstants.EXTRA_DESTINATION_UID, destinationUID);
+                break;
+            case ROOM:
+                intent.setAction(IntentConstants.ROOM_MESSAGE_ACTION);
+                intent.putExtra(IntentConstants.EXTRA_DESTINATION_UID, destinationUID);
                 break;
             case GLOBAL:
-                intent.setAction(IntentConstants.SEND_GLOBAL_MESSAGE_ACTION);
+                intent.setAction(IntentConstants.GLOBAL_MESSAGE_ACTION);
+                break;
         }
         intent.putExtra(IntentConstants.EXTRA_MESSAGE, message);
         context.startService(intent);
@@ -134,16 +140,20 @@ public class ServiceHelper {
         context.sendBroadcast(intent);
     }
 
-    public static void receiveMessage(Context context, MessageType messageType, ChatData chatData) {
+    public static void receiveMessage(Context context, ChatData chatData) {
         Intent intent = new Intent();
-        switch (messageType) {
+        switch (chatData.getMessageType()) {
             case PRIVATE:
-                intent.setAction(IntentConstants.SEND_PRIVATE_MESSAGE_ACTION);
-                intent.putExtra(IntentConstants.EXTRA_RECEIVER_UID, chatData.getReceiverUID());
+                intent.setAction(IntentConstants.PRIVATE_MESSAGE_ACTION);
+                intent.putExtra(IntentConstants.EXTRA_DESTINATION_UID, chatData.getDestinationUID());
                 break;
             case GLOBAL:
-                intent.setAction(IntentConstants.SEND_GLOBAL_MESSAGE_ACTION);
+                intent.setAction(IntentConstants.GLOBAL_MESSAGE_ACTION);
                 Log.d(MessageType.class.getSimpleName(), "GlobalMessage");
+                break;
+            case ROOM:
+                intent.setAction(IntentConstants.ROOM_MESSAGE_ACTION);
+                intent.putExtra(IntentConstants.EXTRA_DESTINATION_UID, chatData.getDestinationUID());
         }
         intent.putExtra(IntentConstants.EXTRA_NAME, chatData.getName());
         intent.putExtra(IntentConstants.EXTRA_MESSAGE, chatData.getText());
@@ -161,7 +171,7 @@ public class ServiceHelper {
     public static void receivePublicMessages(Context context, AbstractCollection messagesBundle) {
         Object[] objectArray = messagesBundle.toArray();
         ChatData[] messagesArray = Arrays.copyOf(objectArray, objectArray.length, ChatData[].class);
-        Intent intent = new Intent(IntentConstants.SEND_GLOBAL_MESSAGE_ACTION);
+        Intent intent = new Intent(IntentConstants.GLOBAL_MESSAGE_ACTION);
         intent.putExtra(IntentConstants.EXTRA_MESSAGE_BUNDLE, messagesArray);
         context.sendBroadcast(intent);
     }

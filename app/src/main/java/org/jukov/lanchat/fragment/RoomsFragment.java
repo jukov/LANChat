@@ -20,6 +20,7 @@ import org.jukov.lanchat.RoomCreatingActivity;
 import org.jukov.lanchat.dto.RoomData;
 
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_UID;
 
 /**
  * Created by jukov on 16.02.2016.
@@ -70,6 +71,7 @@ public class RoomsFragment extends ListFragment {
                 RoomData roomData = arrayAdapter.getItem(position);
                 Intent intent = new Intent(getContext(), RoomChatActivity.class);
                 intent.putExtra(EXTRA_NAME, roomData.getName());
+                intent.putExtra(EXTRA_UID, roomData.getUid());
                 getActivity().startActivityForResult(intent, BaseActivity.REQUEST_CODE_ROOM_CHAT);
             }
         });

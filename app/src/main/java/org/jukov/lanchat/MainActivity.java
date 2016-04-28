@@ -40,9 +40,9 @@ import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESS
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MODE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_UID;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.GLOBAL_MESSAGE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.NEW_ROOM_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PEOPLE_ACTION;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.SEND_GLOBAL_MESSAGE_ACTION;
 
 public class MainActivity extends NavigationDrawerActivity {
 
@@ -217,7 +217,7 @@ public class MainActivity extends NavigationDrawerActivity {
                             }
                         });
                         break;
-                    case SEND_GLOBAL_MESSAGE_ACTION:
+                    case GLOBAL_MESSAGE_ACTION:
                         Log.d(TAG, "Receive global message");
                         if (intent.hasExtra(EXTRA_NAME))
                             arrayAdapterMessages.add(intent.getStringExtra(EXTRA_NAME) + ": " + intent.getStringExtra(EXTRA_MESSAGE));
@@ -272,7 +272,7 @@ public class MainActivity extends NavigationDrawerActivity {
         };
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ACTIVITY_ACTION);
-        intentFilter.addAction(SEND_GLOBAL_MESSAGE_ACTION);
+        intentFilter.addAction(GLOBAL_MESSAGE_ACTION);
         intentFilter.addAction(PEOPLE_ACTION);
         intentFilter.addAction(CLEAR_PEOPLE_LIST_ACTION);
         intentFilter.addAction(NEW_ROOM_ACTION);

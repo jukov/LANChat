@@ -38,6 +38,6 @@ public class Utils {
     }
 
     public static String newRoomUID(Context context) {
-        return getAndroidID(context) + new Date().toString();
+        return getAndroidID(context) + Long.toString(new Date().getTime());
     }
 }

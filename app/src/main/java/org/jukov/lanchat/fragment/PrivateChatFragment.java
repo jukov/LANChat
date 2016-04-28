@@ -15,7 +15,7 @@ import org.jukov.lanchat.service.ServiceHelper;
  */
 public class PrivateChatFragment extends ChatFragment {
 
-    private PrivateChatActivity privateMessagingActivity;
+    private PrivateChatActivity privateChatActivity;
 
     public static PrivateChatFragment newInstance() {
         return new PrivateChatFragment();
@@ -24,7 +24,7 @@ public class PrivateChatFragment extends ChatFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        privateMessagingActivity = (PrivateChatActivity) getActivity();
+        privateChatActivity = (PrivateChatActivity) getActivity();
     }
 
     @Nullable
@@ -46,10 +46,10 @@ public class PrivateChatFragment extends ChatFragment {
             public void onClick(View v) {
                 if (editTextMessage.getText().length() > 0)
                     ServiceHelper.sendMessage(
-                            privateMessagingActivity,
+                            privateChatActivity,
                             ServiceHelper.MessageType.PRIVATE,
                             editTextMessage.getText().toString(),
-                            privateMessagingActivity.getCompanionUID());
+                            privateChatActivity.getCompanionUID());
                 editTextMessage.setText("");
             }
         });

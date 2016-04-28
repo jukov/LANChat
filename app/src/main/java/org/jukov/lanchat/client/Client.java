@@ -80,7 +80,7 @@ public class Client extends Thread implements Closeable {
                 if (data instanceof ChatData) {
                     ChatData chatData = (ChatData) data;
                     dbHelper.insertMessage(chatData);
-                    ServiceHelper.receiveMessage(context, chatData.getMessageType(), chatData);
+                    ServiceHelper.receiveMessage(context, chatData);
 
                 } else if (data instanceof PeopleData) {
                     PeopleData peopleData = (PeopleData) data;

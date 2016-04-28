@@ -7,11 +7,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.jukov.lanchat.R;
+import org.jukov.lanchat.RoomChatActivity;
+import org.jukov.lanchat.service.ServiceHelper;
 
 /**
  * Created by jukov on 25.04.2016.
  */
 public class RoomChatFragment extends ChatFragment {
+
+    RoomChatActivity roomChatActivity;
 
     public static RoomChatFragment newInstance() {
         return new RoomChatFragment();
@@ -20,6 +24,7 @@ public class RoomChatFragment extends ChatFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        roomChatActivity = (RoomChatActivity) getActivity();
     }
 
     @Nullable
@@ -39,13 +44,15 @@ public class RoomChatFragment extends ChatFragment {
         buttonSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                if (editTextMessage.getText().length() > 0)
-//                    ServiceHelper.sendMessage(
-//                            roomChatActivity,
-//                            ServiceHelper.MessageType.PRIVATE,
-//                            editTextMessage.getText().toString(),
-//                            privateMessagingActivity.getCompanionUID());
-//                editTextMessage.setText("");
+                if (editTextMessage.getText().length() > 0) {
+                    ServiceHelper.sendMessage(
+                            getContext(),
+                            ServiceHelper.MessageType.ROOM,
+                            editTextMessage.getText().toString(),
+                            roomChatActivity.getRoomUID()
+                            );
+                    editTextMessage.setText("");
+                }
             }
         });
     }
