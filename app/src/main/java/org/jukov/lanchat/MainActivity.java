@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 
+import org.jukov.lanchat.adapter.RoomsAdapter;
 import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.PeopleData;
@@ -31,14 +32,13 @@ import org.jukov.lanchat.util.Utils;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.ACTIVITY_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.CLEAR_PEOPLE_LIST_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE_BUNDLE;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MODE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ROOM;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_UID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.GLOBAL_MESSAGE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.NEW_ROOM_ACTION;
@@ -53,7 +53,8 @@ public class MainActivity extends NavigationDrawerActivity {
     private BroadcastReceiver broadcastReceiver;
 
     private ArrayAdapter<PeopleData> arrayAdapterPeople;
-    private ArrayAdapter<RoomData> arrayAdapterRooms;
+    private RoomsAdapter roomsAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,9 +137,6 @@ public class MainActivity extends NavigationDrawerActivity {
             switch (requestCode) {
                 case REQUEST_CODE_ROOM_CREATING:
                     Log.d(TAG, "REQUEST_CODE_ROOM_CREATING");
-                    ServiceHelper.newRoom(getApplicationContext(), new RoomData(
-                            data.getStringExtra(EXTRA_NAME),
-                            data.getStringExtra(EXTRA_UID)));
                     break;
                 default:
                     int id = data.getIntExtra(EXTRA_ID, 0);
@@ -162,8 +160,12 @@ public class MainActivity extends NavigationDrawerActivity {
         return arrayAdapterPeople;
     }
 
-    public ArrayAdapter<RoomData> getArrayAdapterRooms() {
-        return arrayAdapterRooms;
+    public RoomsAdapter getRoomsAdapter() {
+        return roomsAdapter;
+    }
+
+    public int getPeopleAround() {
+        return peopleAround;
     }
 
     @Override
@@ -199,24 +201,18 @@ public class MainActivity extends NavigationDrawerActivity {
     private void initAdapters() {
         DBHelper dbHelper = DBHelper.getInstance(this);
 
-        arrayAdapterRooms = new ArrayAdapter<>(this, R.layout.listview_people, R.id.listviewPeopleName, dbHelper.getRooms());
+        roomsAdapter = new RoomsAdapter(getApplicationContext(), R.layout.listview_people);
         arrayAdapterMessages = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, dbHelper.getPublicMessages());
         arrayAdapterPeople = new ArrayAdapter<>(this, R.layout.listview_people, R.id.listviewPeopleName);
     }
 
-    private void initBroadcastReceiver() {
+    @Override
+    protected void initBroadcastReceiver() {
+        super.initBroadcastReceiver();
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, final Intent intent) {
                 switch (intent.getAction()) {
-                    case ACTIVITY_ACTION:
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                textViewMode.setText(intent.getStringExtra(EXTRA_MODE));
-                            }
-                        });
-                        break;
                     case GLOBAL_MESSAGE_ACTION:
                         Log.d(TAG, "Receive global message");
                         if (intent.hasExtra(EXTRA_NAME))
@@ -233,16 +229,17 @@ public class MainActivity extends NavigationDrawerActivity {
                         String name = intent.getStringExtra(EXTRA_NAME);
                         String uid = intent.getStringExtra(EXTRA_UID);
                         int action = intent.getIntExtra(EXTRA_ACTION, -1);
-                        PeopleData peopleData = new PeopleData(name, uid, action);
+                        Log.d(TAG, Integer.toString(action));
+                        PeopleData peopleData = new PeopleData(name, uid, PeopleData.ActionType.fromInt(action));
                         if (!uid.equals(Utils.getAndroidID(getApplicationContext())))
-                            switch (action) {
-                                case PeopleData.ACTION_CONNECT:
+                            switch (peopleData.getAction()) {
+                                case CONNECT:
                                     arrayAdapterPeople.add(peopleData);
                                     break;
-                                case PeopleData.ACTION_DISCONNECT:
+                                case DISCONNECT:
                                     arrayAdapterPeople.remove(peopleData);
                                     break;
-                                case PeopleData.ACTION_CHANGE_NAME:
+                                case CHANGE_NAME:
                                     arrayAdapterPeople.remove(peopleData);
                                     arrayAdapterPeople.add(peopleData);
                                     break;
@@ -252,16 +249,21 @@ public class MainActivity extends NavigationDrawerActivity {
                         break;
                     case NEW_ROOM_ACTION:
                         Log.d(TAG, "NEW_ROOM_ACTION");
-                        if (intent.hasExtra(EXTRA_NAME)) {
-                            RoomData roomData = new RoomData(
-                                    intent.getStringExtra(EXTRA_NAME),
-                                    intent.getStringExtra(EXTRA_UID));
-                            arrayAdapterRooms.add(roomData);
+                        if (intent.hasExtra(EXTRA_ROOM)) {
+                            RoomData roomData = intent.getParcelableExtra(EXTRA_ROOM);
+                            if (roomData.getParticipantUIDs() != null && roomData.getParticipantUIDs().size() > 0) {
+                                Log.d(TAG, Integer.toString(roomData.getParticipantUIDs().size()));
+                                if (roomData.getParticipantUIDs().contains(Utils.getAndroidID(getApplicationContext()))) {
+                                    roomsAdapter.add(roomData);
+                                }
+                            } else {
+                                roomsAdapter.add(roomData);
+                            }
                         } else if (intent.hasExtra(EXTRA_MESSAGE_BUNDLE)) {
                             Parcelable[] parcelables = intent.getParcelableArrayExtra(EXTRA_MESSAGE_BUNDLE);
                             RoomData[] messages = Arrays.copyOf(parcelables, parcelables.length, RoomData[].class);
                             for (RoomData roomData : messages) {
-                                arrayAdapterRooms.add(roomData);
+                                roomsAdapter.add(roomData);
                             }
                         }
                         break;
@@ -271,7 +273,6 @@ public class MainActivity extends NavigationDrawerActivity {
             }
         };
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ACTIVITY_ACTION);
         intentFilter.addAction(GLOBAL_MESSAGE_ACTION);
         intentFilter.addAction(PEOPLE_ACTION);
         intentFilter.addAction(CLEAR_PEOPLE_LIST_ACTION);

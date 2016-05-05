@@ -1,15 +1,13 @@
-package org.jukov.lanchat.server;
+package org.jukov.lanchat.network;
 
 import android.content.Context;
 import android.util.Log;
 
-import org.jukov.lanchat.R;
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.DataBundle;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.dto.RoomData;
 import org.jukov.lanchat.dto.ServiceData;
-import org.jukov.lanchat.service.ServiceHelper;
 import org.jukov.lanchat.util.JSONConverter;
 import org.jukov.lanchat.util.UDP;
 import org.jukov.lanchat.util.Utils;
@@ -36,7 +34,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Server extends Thread implements Closeable {
 
     public static final String TAG = Server.class.getSimpleName();
-    public static final int CLIENT_THREADS_COUNT = 3;
+    public static final int CLIENT_THREADS_COUNT = 10;
     public static final int SERVER_THREADS_COUNT = 3;
     public static final int GLOBAL_CHAT_MESSAGES_MAX_CAPACITY = 50;
     public static final int ROOMS_MAX_CAPACITY = 50;
@@ -81,8 +79,8 @@ public class Server extends Thread implements Closeable {
         messagesBundleLock = new ReentrantLock();
         roomsBundleLock = new ReentrantLock();
 
-        clientExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(CLIENT_THREADS_COUNT);
-        serverExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(SERVER_THREADS_COUNT);
+        clientExecutor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
+        serverExecutor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
 
         clientListener = new TCPListener(port, new TCPListener.ClientListener() {
             @Override
@@ -91,7 +89,6 @@ public class Server extends Thread implements Closeable {
                 clientExecutor.execute(clientConnection);
                 clientConnections.add(clientConnection);
                 Log.d(TAG, Integer.toString(clientExecutor.getActiveCount()));
-                updateStatus();
             }
         });
         clientListener.start();
@@ -156,7 +153,8 @@ public class Server extends Thread implements Closeable {
                     UDP.send(port, broadcastAddress, UDP.CLIENT_BROADCAST);
                 TimeUnit.MILLISECONDS.sleep(500);
                 if (sendServerBroadcastFlag) { //server must start sending broadcast to servers after 5 seconds after start
-                    UDP.send(port, broadcastAddress, UDP.SERVER_BROADCAST);
+                    if (serverExecutor.getActiveCount() < SERVER_THREADS_COUNT)
+                        UDP.send(port, broadcastAddress, UDP.SERVER_BROADCAST);
                 } else {
                     count++;
                     if (count > 10) {
@@ -241,7 +239,6 @@ public class Server extends Thread implements Closeable {
         } else {
             clientConnections.remove(connection);
         }
-        updateStatus();
     }
 
     public void connectToServer(String data, ServerConnection closingConnection) {
@@ -288,7 +285,7 @@ public class Server extends Thread implements Closeable {
             for (ClientConnection clientConnection : clientConnections) {
                 PeopleData peopleData = clientConnection.getPeopleData();
                 if (peopleData != null) {
-                    peopleData.setAction(PeopleData.ACTION_CONNECT);
+                    peopleData.setAction(PeopleData.ActionType.CONNECT);
                     if (!clientConnection.equals(connection)) {
                         Log.d(TAG, peopleData.toString());
                         connection.sendMessage(JSONConverter.toJSON(peopleData));
@@ -320,10 +317,4 @@ public class Server extends Thread implements Closeable {
         rooms.add(roomData);
         roomsBundleLock.unlock();
     }
-
-    public void updateStatus() {//TODO: move updating to client
-        ServiceHelper.updateStatus(context, context.getString(R.string.nav_header_people_around, clientConnections.size()));
-    }
-
-
 }

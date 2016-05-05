@@ -4,10 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".MainActivity">
 
@@ -16,10 +12,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/frChatMessageText"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:hint="@string/edit_text_message_typehere"
-        android:layout_toLeftOf="@+id/frChatSendButton"
         android:layout_toStartOf="@+id/frChatSendButton" />
 
     <Button
@@ -28,14 +22,12 @@
         android:text="@string/button_send"
         android:id="@+id/frChatSendButton"
         android:layout_alignTop="@+id/frChatMessageText"
-        android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
     <ListView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/frChatMessageList"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_above="@+id/frChatMessageText"
         android:transcriptMode="alwaysScroll"

@@ -6,10 +6,10 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import org.jukov.lanchat.client.Client;
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.RoomData;
-import org.jukov.lanchat.server.Server;
+import org.jukov.lanchat.network.Client;
+import org.jukov.lanchat.network.Server;
 import org.jukov.lanchat.util.JSONConverter;
 import org.jukov.lanchat.util.UDP;
 
@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_DESTINATION_UID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_UID;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ROOM;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.GLOBAL_MESSAGE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.INIT_SERVICE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.NAME_CHANGE_ACTION;
@@ -113,6 +113,11 @@ public class LANChatService extends Service {
             client.close();
             client = null;
         }
+        try {
+            TimeUnit.MILLISECONDS.sleep(100); //delay for sending message
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         if (server != null) {
             server.close();
             server = null;
@@ -134,11 +139,8 @@ public class LANChatService extends Service {
                 ServerSearch serverSearch = new ServerSearch(UDP_PORT);
                 executorService.execute(serverSearch);
                 break;
-            case MODE_CLIENT:
+            default:
                 client.updateStatus();
-                break;
-            case MODE_SERVER:
-                server.updateStatus();
                 break;
         }
     }
@@ -204,10 +206,8 @@ public class LANChatService extends Service {
 
     private void newRoom(Intent intent) {
         try {
-            String message = JSONConverter.toJSON(new RoomData(
-                    intent.getStringExtra(EXTRA_NAME),
-                    intent.getStringExtra(EXTRA_UID)
-            ));
+            RoomData roomData = intent.getParcelableExtra(EXTRA_ROOM);
+            String message = JSONConverter.toJSON(roomData);
             client.sendMessage(message);
         } catch (IOException e) {
             e.printStackTrace();

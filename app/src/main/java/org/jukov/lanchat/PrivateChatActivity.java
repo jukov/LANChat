@@ -111,7 +111,9 @@ public class PrivateChatActivity extends NavigationDrawerActivity {
                 .commit();
     }
 
-    private void initBroadcastReceiver() {
+    @Override
+    protected void initBroadcastReceiver() {
+        super.initBroadcastReceiver();
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, final Intent intent) {

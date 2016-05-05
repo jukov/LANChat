@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import org.jukov.lanchat.BaseActivity;
@@ -17,10 +16,10 @@ import org.jukov.lanchat.MainActivity;
 import org.jukov.lanchat.R;
 import org.jukov.lanchat.RoomChatActivity;
 import org.jukov.lanchat.RoomCreatingActivity;
+import org.jukov.lanchat.adapter.RoomsAdapter;
 import org.jukov.lanchat.dto.RoomData;
 
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_UID;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ROOM;
 
 /**
  * Created by jukov on 16.02.2016.
@@ -28,7 +27,7 @@ import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_UID;
 public class RoomsFragment extends ListFragment {
 
     MainActivity mainActivity;
-    private ArrayAdapter<RoomData> arrayAdapter;
+    private RoomsAdapter roomsAdapter;
 
     public static RoomsFragment newInstance(Context context) {
 
@@ -56,22 +55,21 @@ public class RoomsFragment extends ListFragment {
     }
 
     private void initAdapter() {
-        arrayAdapter = ((MainActivity) getActivity()).getArrayAdapterRooms();
+        roomsAdapter = ((MainActivity) getActivity()).getRoomsAdapter();
     }
 
     private void initViews() {
         listView = (ListView) layout.findViewById(R.id.frList);
         FloatingActionButton fab = (FloatingActionButton) layout.findViewById(R.id.frFab);
 
-        listView.setAdapter(arrayAdapter);
+        listView.setAdapter(roomsAdapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                RoomData roomData = arrayAdapter.getItem(position);
+                RoomData roomData = roomsAdapter.getItem(position);
                 Intent intent = new Intent(getContext(), RoomChatActivity.class);
-                intent.putExtra(EXTRA_NAME, roomData.getName());
-                intent.putExtra(EXTRA_UID, roomData.getUid());
+                intent.putExtra(EXTRA_ROOM, roomData);
                 getActivity().startActivityForResult(intent, BaseActivity.REQUEST_CODE_ROOM_CHAT);
             }
         });

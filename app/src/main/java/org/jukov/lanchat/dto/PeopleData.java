@@ -11,33 +11,62 @@ import android.os.Parcelable;
 public class PeopleData extends MessagingData {
 
     //TODO: transform constants to enum
-    public static final int ACTION_NONE = 0;
-    public static final int ACTION_CONNECT = 1;
-    public static final int ACTION_DISCONNECT = 2;
-    public static final int ACTION_CHANGE_NAME = 3;
+    public enum ActionType {
+        NONE(0),
+        CONNECT(1),
+        DISCONNECT(2),
+        CHANGE_NAME(3);
+        private int value;
 
-    private int action;
+        ActionType(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public static ActionType fromInt(int input) {
+            switch (input) {
+                case 0:
+                    return NONE;
+                case 1:
+                    return CONNECT;
+                case 2:
+                    return DISCONNECT;
+                case 3:
+                    return CHANGE_NAME;
+            }
+            return null;
+        }
+    }
+
+    private ActionType actionType;
 
     public PeopleData() {
     }
 
-    public PeopleData(Context context, int action) {
+    public PeopleData(Context context, ActionType actionType) {
         super(context);
-        this.action = action;
+        setAction(actionType);
     }
 
-    public PeopleData(String name, String uid, int action) {
+    public PeopleData(String name, String uid) {
+        this(name, uid, ActionType.NONE);
+    }
+
+    public PeopleData(String name, String uid, ActionType actionType) {
         setName(name);
         setUid(uid);
-        this.action = action;
+        setAction(actionType);
     }
 
-    public int getAction() {
-        return action;
+    public ActionType getAction() {
+        return actionType;
     }
 
-    public void setAction(int action) {
-        this.action = action;
+    public void setAction(ActionType actionType) {
+        this.actionType = actionType;
     }
 
     @Override

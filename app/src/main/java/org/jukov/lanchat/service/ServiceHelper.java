@@ -37,9 +37,11 @@ public class ServiceHelper {
         public static final String EXTRA_MESSAGE_BUNDLE =   "message_bundle";
         public static final String EXTRA_UID =              "uid";
         public static final String EXTRA_ID =               "id";
-        public static final String EXTRA_MODE =             "mode";
+        public static final String EXTRA_PEOPLE_ARROUND =   "mode";
         public static final String EXTRA_ACTION =           "action";
-        public static final String EXTRA_DESTINATION_UID =     "receiver_uid";
+        public static final String EXTRA_DESTINATION_UID =  "receiver_uid";
+        public static final String EXTRA_ROOM =             "room";
+
     }
 
     public enum MessageType {
@@ -110,8 +112,7 @@ public class ServiceHelper {
     public static void newRoom(Context context, RoomData roomData) {
         Intent intent = new Intent(context, LANChatService.class);
         intent.setAction(IntentConstants.NEW_ROOM_ACTION);
-        intent.putExtra(IntentConstants.EXTRA_NAME, roomData.getName());
-        intent.putExtra(IntentConstants.EXTRA_UID, roomData.getUid());
+        intent.putExtra(IntentConstants.EXTRA_ROOM, roomData);
         context.startService(intent);
     }
 
@@ -119,16 +120,15 @@ public class ServiceHelper {
     * Methods for messages from service to activity
     */
 
-    public static void updateStatus(Context context, String status) {
+    public static void updateStatus(Context context, int connections) {
         Intent intent = new Intent(IntentConstants.ACTIVITY_ACTION);
-        intent.putExtra(IntentConstants.EXTRA_MODE, status);
+        intent.putExtra(IntentConstants.EXTRA_PEOPLE_ARROUND, connections);
         context.sendBroadcast(intent);
     }
 
     public static void receiveRoom(Context context, RoomData roomData) {
         Intent intent = new Intent(IntentConstants.NEW_ROOM_ACTION);
-        intent.putExtra(IntentConstants.EXTRA_NAME, roomData.getName());
-        intent.putExtra(IntentConstants.EXTRA_UID, roomData.getUid());
+        intent.putExtra(IntentConstants.EXTRA_ROOM, roomData);
         context.sendBroadcast(intent);
     }
 
@@ -136,7 +136,7 @@ public class ServiceHelper {
         Intent intent = new Intent(IntentConstants.PEOPLE_ACTION);
         intent.putExtra(IntentConstants.EXTRA_NAME, peopleData.getName());
         intent.putExtra(IntentConstants.EXTRA_UID, peopleData.getUid());
-        intent.putExtra(IntentConstants.EXTRA_ACTION, peopleData.getAction());
+        intent.putExtra(IntentConstants.EXTRA_ACTION, peopleData.getAction().getValue());
         context.sendBroadcast(intent);
     }
 

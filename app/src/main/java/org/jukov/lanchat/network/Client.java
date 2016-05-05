@@ -1,10 +1,11 @@
-package org.jukov.lanchat.client;
+package org.jukov.lanchat.network;
 
 import android.content.Context;
 import android.util.Log;
 
 import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.ChatData;
+import org.jukov.lanchat.dto.DataBundle;
 import org.jukov.lanchat.dto.MessagingData;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.dto.RoomData;
@@ -26,6 +27,8 @@ import static org.jukov.lanchat.dto.ServiceData.MessageType;
  */
 public class Client extends Thread implements Closeable {
 
+    public static final String TAG = Client.class.getSimpleName();
+
     private Context context;
 //    private int port;
 //    private String remoteIp;
@@ -37,35 +40,42 @@ public class Client extends Thread implements Closeable {
 
     private DBHelper dbHelper;
 
+    int connections;
+
     public Client(Context context, String ip, int port) {
         this.context = context;
 //        this.port = port;
 //        this.remoteIp = remoteIp;
-        peopleData = new PeopleData(context, PeopleData.ACTION_NONE);
+        connections = 0;
+        peopleData = new PeopleData(context, PeopleData.ActionType.NONE);
+        dbHelper = DBHelper.getInstance(context);
+        dbHelper.insertOrUpdatePeople(peopleData);
+        DataBundle<MessagingData> dataBundle = new DataBundle<MessagingData>(dbHelper.getRooms(), 50);
         while (socket == null) {
             try {
                 socket = new Socket(ip, port);
                 dataOutputStream = new DataOutputStream(socket.getOutputStream());
                 dataInputStream = new DataInputStream(socket.getInputStream());
-                peopleData.setAction(PeopleData.ACTION_CONNECT);
+                peopleData.setAction(PeopleData.ActionType.CONNECT);
                 sendMessage(JSONConverter.toJSON(peopleData));
-                peopleData.setAction(PeopleData.ACTION_NONE);
+                if (dataBundle.size() > 0)
+                    sendMessage(JSONConverter.toJSON(dataBundle));
+                peopleData.setAction(PeopleData.ActionType.NONE);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        dbHelper = DBHelper.getInstance(context);
     }
 
     public void changeName(String name) {
         peopleData.setName(name);
-        peopleData.setAction(PeopleData.ACTION_CHANGE_NAME);
+        peopleData.setAction(PeopleData.ActionType.CHANGE_NAME);
         try {
             sendMessage(JSONConverter.toJSON(peopleData));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        peopleData.setAction(PeopleData.ACTION_NONE);
+        peopleData.setAction(PeopleData.ActionType.NONE);
     }
 
     @SuppressWarnings("unchecked")
@@ -84,12 +94,23 @@ public class Client extends Thread implements Closeable {
 
                 } else if (data instanceof PeopleData) {
                     PeopleData peopleData = (PeopleData) data;
-                    dbHelper.insertOrRenamePeople(peopleData);
+                    dbHelper.insertOrUpdatePeople(peopleData);
                     ServiceHelper.receivePeople(context, peopleData);
+                    switch (peopleData.getAction()) {
+                        case CONNECT:
+                            connections++;
+                            updateStatus();
+                            break;
+                        case DISCONNECT:
+                            connections--;
+                            updateStatus();
+                            break;
+                    }
 
                 } else if (data instanceof RoomData) {
+                    Log.d(TAG, "data instanceof RoomData");
                     RoomData roomData = (RoomData) data;
-                    dbHelper.insertOrRenameRoom(roomData);
+                    dbHelper.insertOrUpdateRoom(roomData);
                     ServiceHelper.receiveRoom(context, roomData);
 
                 } else if (data instanceof AbstractCollection) {
@@ -121,7 +142,7 @@ public class Client extends Thread implements Closeable {
         /*
         * If action = ACTION_DISCONNECT, app closed
         * */
-        if (peopleData.getAction() != PeopleData.ACTION_DISCONNECT) {
+        if (peopleData.getAction() != PeopleData.ActionType.DISCONNECT) {
             close();
             ServiceHelper.clearPeopleList(context);
             ServiceHelper.searchServer(context);
@@ -141,7 +162,7 @@ public class Client extends Thread implements Closeable {
     }
 
     public void sendDisconnect() {
-        peopleData.setAction(PeopleData.ACTION_DISCONNECT);
+        peopleData.setAction(PeopleData.ActionType.DISCONNECT);
         try {
             sendMessage(JSONConverter.toJSON(peopleData));
         } catch (IOException e) {
@@ -164,8 +185,6 @@ public class Client extends Thread implements Closeable {
     }
 
     public void updateStatus() {
-        ServiceHelper.updateStatus(context, "Mode: client");
+        ServiceHelper.updateStatus(context, connections);
     }
-
-
 }

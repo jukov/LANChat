@@ -1,4 +1,4 @@
-package org.jukov.lanchat.server;
+package org.jukov.lanchat.network;
 
 import java.io.Closeable;
 import java.io.DataInputStream;

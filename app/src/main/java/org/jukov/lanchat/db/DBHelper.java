@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.PeopleData;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -22,9 +24,12 @@ import java.util.concurrent.locks.ReentrantLock;
  * Created by jukov on 13.03.2016.
  */
 public class DBHelper extends SQLiteOpenHelper {
+
+    public static final String TAG = DBHelper.class.getSimpleName();
+
     private static volatile DBHelper instance;
 
-    public static final int DATABASE_VERSION = 10;
+    public static final int DATABASE_VERSION = 12;
     public static final String DATABASE_NAME = "LANChatDatabase";
 
     private SQLiteDatabase sqLiteDatabase;
@@ -45,12 +50,14 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String TABLE_PUBLIC_MESSAGES = "public_messages";
     public static final String TABLE_ROOMS = "rooms";
     public static final String TABLE_ROOMS_MESSAGES = "rooms_messages";
+    public static final String TABLE_PRIVATE_ROOM_PARTICIPANTS = "private_room_participants";
+
 
 
     public static final String QUERY_CREATE_PEOPLE = "CREATE TABLE " + TABLE_PEOPLE +
             "(" + KEY_ID +" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
             KEY_NAME + " TEXT NOT NULL," +
-            KEY_UID + " TEXT NOT NULL" +
+            KEY_UID + " TEXT NOT NULL UNIQUE" +
             ");";
 
     public static final String QUERY_CREATE_PRIVATE_MESSAGES = "CREATE TABLE " + TABLE_PRIVATE_MESSAGES +
@@ -74,7 +81,15 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String QUERY_CREATE_ROOMS = "CREATE TABLE " + TABLE_ROOMS +
             "(" + KEY_ID +" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
             KEY_NAME + " TEXT NOT NULL," +
-            KEY_UID + " TEXT NOT NULL" +
+            KEY_UID + " TEXT NOT NULL UNIQUE" +
+            ");";
+
+    public static final String QUERY_CREATE_PRIVATE_ROOM_PARTCIPANTS = "CREATE TABLE " + TABLE_PRIVATE_ROOM_PARTICIPANTS +
+            "(" + KEY_ID +" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
+            KEY_ID_ROOM + " INTEGER NOT NULL," +
+            KEY_ID_PEOPLE + " INTEGER NOT NULL," +
+            "FOREIGN KEY(" + KEY_ID_ROOM + ") REFERENCES " + TABLE_ROOMS + "(" + KEY_ID + ")," +
+            "FOREIGN KEY(" + KEY_ID_PEOPLE + ") REFERENCES " + TABLE_PEOPLE + "(" + KEY_ID + ")" +
             ");";
 
     public static final String QUERY_CREATE_ROOMS_MESSAGES = "CREATE TABLE " + TABLE_ROOMS_MESSAGES +
@@ -100,6 +115,10 @@ public class DBHelper extends SQLiteOpenHelper {
         return localInstance;
     }
 
+    /*
+    * Init methods
+    */
+
     private DBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
         sqLiteDatabase = this.getReadableDatabase();
@@ -114,17 +133,91 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(QUERY_CREATE_PRIVATE_MESSAGES);
         db.execSQL(QUERY_CREATE_ROOMS);
         db.execSQL(QUERY_CREATE_ROOMS_MESSAGES);
+        db.execSQL(QUERY_CREATE_PRIVATE_ROOM_PARTCIPANTS);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE " + TABLE_PEOPLE);
-        db.execSQL("DROP TABLE " + TABLE_ROOMS);
-        db.execSQL("DROP TABLE " + TABLE_PRIVATE_MESSAGES);
-        db.execSQL("DROP TABLE " + TABLE_PUBLIC_MESSAGES);
-        db.execSQL("DROP TABLE " + TABLE_ROOMS_MESSAGES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PEOPLE);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ROOMS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRIVATE_MESSAGES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PUBLIC_MESSAGES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ROOMS_MESSAGES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRIVATE_ROOM_PARTICIPANTS);
         onCreate(db);
     }
+
+    @Override
+    public synchronized void close() {
+        databaseLock.lock();
+        sqLiteDatabase.close();
+        super.close();
+        instance = null;
+//        databaseLock.unlock();
+    }
+
+    /*
+    * Get-id methods
+    */
+
+    private int getRoomIDFromUID(String uid) {
+        Cursor roomIdCursor = sqLiteDatabase.query(
+                TABLE_ROOMS,
+                new String[] {KEY_ID},
+                KEY_UID + " = ?",
+                new String[] {uid},
+                null, null, null);
+
+        if (roomIdCursor.getCount() > 0) {
+            roomIdCursor.moveToFirst();
+            int id = roomIdCursor.getInt(0);
+            roomIdCursor.close();
+            return id;
+        }
+        roomIdCursor.close();
+        throw new NoSuchElementException("Room not found " + uid);
+    }
+
+
+    private String getPeopleUIDFromID(int id) {
+        Cursor peopleIdCursor = sqLiteDatabase.query(
+                TABLE_PEOPLE,
+                new String[] {KEY_UID},
+                KEY_ID + " = ?",
+                new String[] {Integer.toString(id)},
+                null, null, null);
+
+        if (peopleIdCursor.getCount() > 0) {
+            peopleIdCursor.moveToFirst();
+            String uid = peopleIdCursor.getString(0);
+            peopleIdCursor.close();
+            return uid;
+        }
+        peopleIdCursor.close();
+        throw new NoSuchElementException("People not found " + id);
+    }
+
+    private int getPeopleIDFromUID(String uid) {
+        Cursor peopleIdCursor = sqLiteDatabase.query(
+                TABLE_PEOPLE,
+                new String[] {KEY_ID},
+                KEY_UID + " = ?",
+                new String[] {uid},
+                null, null, null);
+
+        if (peopleIdCursor.getCount() > 0) {
+            peopleIdCursor.moveToFirst();
+            int id = peopleIdCursor.getInt(0);
+            peopleIdCursor.close();
+            return id;
+        }
+        peopleIdCursor.close();
+        throw new NoSuchElementException("People not found " + uid);
+    }
+
+    /*
+    * Insert methods
+    */
 
     public void insertMessage(ChatData chatData) {
         databaseLock.lock();
@@ -135,10 +228,15 @@ public class DBHelper extends SQLiteOpenHelper {
                 new String[]{chatData.getUid()},
                 null, null, null);
 
-        cursorSender.moveToFirst();
-        contentValues.put(KEY_ID_PEOPLE, cursorSender.getInt(0));
-        contentValues.put(KEY_DATE, chatData.getSendDate());
-        contentValues.put(KEY_MESSAGE, chatData.getText());
+        if (cursorSender.getCount() > 0) {
+            cursorSender.moveToFirst();
+            contentValues.put(KEY_ID_PEOPLE, cursorSender.getInt(0));
+        } else {
+            insertOrUpdatePeople(new PeopleData(chatData.getName(), chatData.getUid()));
+            contentValues.put(KEY_ID_PEOPLE, getPeopleIDFromUID(chatData.getUid()));
+        }
+            contentValues.put(KEY_DATE, chatData.getSendDate());
+            contentValues.put(KEY_MESSAGE, chatData.getText());
         Cursor cursorReceiver;
         switch (chatData.getMessageType()) {
             case GLOBAL:
@@ -175,51 +273,56 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public void insertMessages(AbstractCollection<ChatData> messages) {
-        databaseLock.lock();
-        Cursor cursor = sqLiteDatabase.query(
-                TABLE_PEOPLE,
-                new String[]{KEY_ID, KEY_UID},
-                null, null, null, null, null);
-
-        HashMap<String, Integer> peopleIDs = new HashMap<>();
-        if (cursor.getCount() > 0) {
-            cursor.moveToFirst();
-            do {
-                peopleIDs.put(cursor.getString(1), cursor.getInt(0));
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-
         for (ChatData chatData : messages) {
-            contentValues.put(KEY_ID_PEOPLE, peopleIDs.get(chatData.getUid()));
-            contentValues.put(KEY_MESSAGE, chatData.getText());
-            contentValues.put(KEY_DATE, chatData.getSendDate());
-            sqLiteDatabase.insert(TABLE_PUBLIC_MESSAGES, null, contentValues);
-            contentValues.clear();
+            insertMessage(chatData);
         }
-        databaseLock.unlock();
+//        databaseLock.lock();
+//        Cursor cursor = sqLiteDatabase.query(
+//                TABLE_PEOPLE,
+//                new String[]{KEY_ID, KEY_UID},
+//                null, null, null, null, null);
+//
+//        HashMap<String, Integer> peopleIDs = new HashMap<>();
+//        if (cursor.getCount() > 0) {
+//            cursor.moveToFirst();
+//            do {
+//                peopleIDs.put(cursor.getString(1), cursor.getInt(0));
+//            } while (cursor.moveToNext());
+//        }
+//        cursor.close();
+//
+//        for (ChatData chatData : messages) {
+//            contentValues.put(KEY_ID_PEOPLE, peopleIDs.get(chatData.getUid()));
+//            contentValues.put(KEY_MESSAGE, chatData.getText());
+//            contentValues.put(KEY_DATE, chatData.getSendDate());
+//            sqLiteDatabase.insert(TABLE_PUBLIC_MESSAGES, null, contentValues);
+//            contentValues.clear();
+//        }
+//        databaseLock.unlock();
     }
-
 
     public void insertRooms(AbstractCollection<RoomData> rooms) {
-        databaseLock.lock();
-
         for (RoomData roomData : rooms) {
-            contentValues.put(KEY_NAME, roomData.getName());
-            contentValues.put(KEY_UID, roomData.getUid());
-            if (sqLiteDatabase.update(
-                    TABLE_ROOMS,
-                    contentValues,
-                    KEY_UID + " = ?",
-                    new String[] {roomData.getUid()}) == 0) {
-                sqLiteDatabase.insert(TABLE_ROOMS, null, contentValues);
-            }
-            contentValues.clear();
+            insertOrUpdateRoom(roomData);
         }
-        databaseLock.unlock();
+//        databaseLock.lock();
+//
+//        for (RoomData roomData : rooms) {
+//            contentValues.put(KEY_NAME, roomData.getName());
+//            contentValues.put(KEY_UID, roomData.getUid());
+//            if (sqLiteDatabase.update(
+//                    TABLE_ROOMS,
+//                    contentValues,
+//                    KEY_UID + " = ?",
+//                    new String[] {roomData.getUid()}) == 0) {
+//                sqLiteDatabase.insert(TABLE_ROOMS, null, contentValues);
+//            }
+//            contentValues.clear();
+//        }
+//        databaseLock.unlock();
     }
 
-    public void insertOrRenameRoom(RoomData roomData) {
+    public void insertOrUpdateRoom(RoomData roomData) {
         databaseLock.lock();
         contentValues.put(KEY_NAME, roomData.getName());
         contentValues.put(KEY_UID, roomData.getUid());
@@ -227,14 +330,36 @@ public class DBHelper extends SQLiteOpenHelper {
                 TABLE_ROOMS,
                 contentValues,
                 KEY_UID + " = ?",
-                new String[] {roomData.getUid()}) == 0) {
+                new String[] {roomData.getUid()}
+        ) == 0) {
             sqLiteDatabase.insert(TABLE_ROOMS, null, contentValues);
+        }
+        contentValues.clear();
+
+        int id = getRoomIDFromUID(roomData.getUid());
+
+        if (roomData.getParticipantUIDs() != null) {
+            for (String uid : roomData.getParticipantUIDs()) {
+                contentValues.put(KEY_ID_ROOM, id);
+                contentValues.put(KEY_ID_PEOPLE, getPeopleIDFromUID(uid));
+                if (sqLiteDatabase.update(
+                        TABLE_PRIVATE_ROOM_PARTICIPANTS,
+                        contentValues,
+                        KEY_ID_ROOM + " = ? AND " + KEY_ID_PEOPLE + " = ?",
+                        new String[] {
+                                Integer.toString(getRoomIDFromUID(roomData.getUid())),
+                                Integer.toString(getPeopleIDFromUID(uid))}
+                ) == 0) {
+                    sqLiteDatabase.insert(TABLE_PRIVATE_ROOM_PARTICIPANTS, null, contentValues);
+                }
+                contentValues.clear();
+            }
         }
         contentValues.clear();
         databaseLock.unlock();
     }
 
-    public void insertOrRenamePeople(PeopleData peopleData) {
+    public void insertOrUpdatePeople(PeopleData peopleData) {
         databaseLock.lock();
         contentValues.put(KEY_NAME, peopleData.getName());
         contentValues.put(KEY_UID, peopleData.getUid());
@@ -249,25 +374,68 @@ public class DBHelper extends SQLiteOpenHelper {
         databaseLock.unlock();
     }
 
+    /*
+    * Get-data methods
+    */
+
     public List<RoomData> getRooms() {
         databaseLock.lock();
 
         Cursor roomsCursor = sqLiteDatabase.query(
                 TABLE_ROOMS,
-                new String[] {KEY_NAME, KEY_UID},
+                new String[] {KEY_ID, KEY_NAME, KEY_UID},
                 null, null, null, null, null);
 
         List<RoomData> rooms = new ArrayList<>();
-
+        Log.d(TAG, Integer.toString(roomsCursor.getCount()));
         if (roomsCursor.getCount() > 0 ) {
             roomsCursor.moveToFirst();
             do {
-                rooms.add(new RoomData(roomsCursor.getString(0), roomsCursor.getString(1)));
+                Cursor participantsCursor = sqLiteDatabase.query(
+                        TABLE_PRIVATE_ROOM_PARTICIPANTS,
+                        new String[] {KEY_ID_PEOPLE},
+                        KEY_ID_ROOM + " = ?",
+                        new String[] {Integer.toString(roomsCursor.getInt(0))},
+                        null, null, null);
+
+                if (participantsCursor.getCount() > 0) {
+                    participantsCursor.moveToFirst();
+                    List<String> participantUIDs = new ArrayList<>();
+                    do {
+                        participantUIDs.add(getPeopleUIDFromID(participantsCursor.getInt(0)));
+                    } while (participantsCursor.moveToNext());
+                    rooms.add(new RoomData(roomsCursor.getString(1), roomsCursor.getString(2), participantUIDs));
+                } else {
+                    rooms.add(new RoomData(roomsCursor.getString(1), roomsCursor.getString(2)));
+                }
+                participantsCursor.close();
             } while (roomsCursor.moveToNext());
         }
         roomsCursor.close();
         databaseLock.unlock();
         return rooms;
+    }
+
+    public List<PeopleData> getPeople() {
+        databaseLock.lock();
+
+        Cursor peopleCursor = sqLiteDatabase.query(
+                TABLE_PEOPLE,
+                new String[] {KEY_NAME, KEY_UID},
+                null, null, null, null, null);
+
+        List<PeopleData> people = new ArrayList<>();
+
+        if (peopleCursor.getCount() > 0 ) {
+            peopleCursor.moveToFirst();
+            do {
+                people.add(new PeopleData(peopleCursor.getString(0), peopleCursor.getString(1)));
+            } while (peopleCursor.moveToNext());
+        }
+        peopleCursor.close();
+
+        databaseLock.unlock();
+        return people;
     }
 
     public List<String> getPublicMessages() {
@@ -395,14 +563,5 @@ public class DBHelper extends SQLiteOpenHelper {
 
         databaseLock.unlock();
         return messagesList;
-    }
-
-    @Override
-    public synchronized void close() {
-        databaseLock.lock();
-        sqLiteDatabase.close();
-        super.close();
-        instance = null;
-//        databaseLock.unlock();
     }
 }

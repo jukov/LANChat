@@ -7,13 +7,13 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:layout_width="64dp"
-        android:layout_height="64dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:id="@+id/listviewPeoplesPicture"
         android:layout_marginTop="4pt"
         android:layout_marginBottom="4pt"
         android:layout_marginStart="4pt"
-        android:layout_marginEnd="8pt"
+        android:layout_marginEnd="6pt"
         android:background="#000000"
         android:contentDescription="@string/profile_picture"/>
 
@@ -23,11 +23,23 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:id="@+id/listviewPeopleName"
-        android:textColor="#000000"
         android:text="Sample Text"
+        android:textColor="#000000"
+        android:layout_alignWithParentIfMissing="false"
+        android:layout_alignBottom="@+id/listviewPeoplesPicture"
         android:layout_alignTop="@+id/listviewPeoplesPicture"
-        android:layout_toEndOf="@+id/listviewPeoplesPicture"
+        android:textAlignment="center"
         android:gravity="center_vertical"
+        android:layout_toEndOf="@+id/listviewPeoplesPicture"/>
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:focusable="false"
+        android:id="@+id/isParticipant"
+        android:layout_alignParentEnd="true"
+        android:layout_alignBaseline="@+id/listviewPeoplesPicture"
+        android:layout_alignTop="@+id/listviewPeoplesPicture"
         android:layout_alignBottom="@+id/listviewPeoplesPicture" />
 
 </RelativeLayout>

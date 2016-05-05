@@ -26,9 +26,10 @@ public class DataBundle<E extends MessagingData> extends ArrayDeque<E> {
 
     @Override
     public boolean add(E object) {
-        if (size() >= maxCapacity) {
-            removeFirst();
-        }
+        if (maxCapacity != 0)
+            if (size() >= maxCapacity) {
+                removeFirst();
+            }
         return super.add(object);
     }
 }

@@ -8,8 +8,6 @@
     android:paddingBottom="@dimen/navigation_view_vertical_margin"
     android:paddingStart="@dimen/navigation_horizontal_margin"
     android:paddingEnd="@dimen/activity_horizontal_margin"
-    android:paddingLeft="@dimen/navigation_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/navigation_view_vertical_margin"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
@@ -30,7 +28,7 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
     <TextView
-        android:id="@+id/naeTextViewPeoplesAround"
+        android:id="@+id/navTextViewPeoplesAround"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/nav_header_people_around" />

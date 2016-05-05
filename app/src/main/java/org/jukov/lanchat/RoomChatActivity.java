@@ -10,14 +10,17 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 
 import org.jukov.lanchat.db.DBHelper;
+import org.jukov.lanchat.dto.RoomData;
 import org.jukov.lanchat.fragment.RoomChatFragment;
 import org.jukov.lanchat.service.LANChatService;
+
+import java.util.List;
 
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_DESTINATION_UID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_UID;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ROOM;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.ROOM_MESSAGE_ACTION;
 
 /**
@@ -27,7 +30,7 @@ public class RoomChatActivity extends NavigationDrawerActivity {
 
     private String name;
     private String roomUID;
-//    private List<String> particants;
+    private List<String> participantUIDs;
 
     private BroadcastReceiver broadcastReceiver;
 
@@ -37,11 +40,10 @@ public class RoomChatActivity extends NavigationDrawerActivity {
         setContentView(R.layout.activity_main);
 
         Intent intent = getIntent();
-        name = intent.getStringExtra(EXTRA_NAME);
-        roomUID = intent.getStringExtra(EXTRA_UID);
-
-//        particants = new ArrayList<>();
-//        particants.add(Utils.getAndroidID(this));
+        RoomData roomData = intent.getParcelableExtra(EXTRA_ROOM);
+        name = roomData.getName();
+        roomUID = roomData.getUid();
+        participantUIDs = roomData.getParticipantUIDs();
 
         initViews();
         initAdapter();
@@ -117,7 +119,9 @@ public class RoomChatActivity extends NavigationDrawerActivity {
                 .commit();
     }
 
-    private void initBroadcastReceiver() {
+    @Override
+    protected void initBroadcastReceiver() {
+        super.initBroadcastReceiver();
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, final Intent intent) {
