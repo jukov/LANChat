@@ -50,6 +50,14 @@ public abstract class MessagingData extends Data implements Parcelable {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (o instanceof MessagingData) {
+            return getUid().equals(((MessagingData) o).getUid());
+        }
+        return super.equals(o);
+    }
+
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(name);
         dest.writeString(uid);

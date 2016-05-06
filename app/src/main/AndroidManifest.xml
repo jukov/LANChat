@@ -35,7 +35,12 @@
             android:configChanges="keyboardHidden|orientation|screenSize">
         </activity>
         <activity
-            android:name=".RoomCreatingActivity"
+        android:name=".RoomCreatingActivity"
+        android:theme="@style/AppTheme.NoActionBar"
+        android:configChanges="keyboardHidden|orientation|screenSize">
+        </activity>
+        <activity
+            android:name=".AddingPeopleActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:configChanges="keyboardHidden|orientation|screenSize">
         </activity>

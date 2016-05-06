@@ -27,4 +27,5 @@
     <string name="room_name_not_empty">Room name must not be empty</string>
     <string name="profile_picture">Profile picture</string>
     <string name="choose_interlocutor">Choose at least one interlocutor</string>
+    <string name="add_people">Add people</string>
 </resources>

@@ -27,10 +27,10 @@ import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ROOM
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.GLOBAL_MESSAGE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.INIT_SERVICE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.NAME_CHANGE_ACTION;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.NEW_ROOM_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PRIVATE_MESSAGE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.ROOM_MESSAGE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.SEARCH_SERVER_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.SEND_ROOM_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.START_SERVER_ACTION;
 
 /**
@@ -92,8 +92,8 @@ public class LANChatService extends Service {
                 case NAME_CHANGE_ACTION:
                     changeName(intent);
                     break;
-                case NEW_ROOM_ACTION:
-                    newRoom(intent);
+                case SEND_ROOM_ACTION:
+                    sendRoom(intent);
                     break;
                 default:
                     Log.w(getClass().getSimpleName(), "Unexpected intent action type");
@@ -204,7 +204,7 @@ public class LANChatService extends Service {
         }
     }
 
-    private void newRoom(Intent intent) {
+    private void sendRoom(Intent intent) {
         try {
             RoomData roomData = intent.getParcelableExtra(EXTRA_ROOM);
             String message = JSONConverter.toJSON(roomData);

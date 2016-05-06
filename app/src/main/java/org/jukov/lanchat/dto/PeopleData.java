@@ -74,15 +74,7 @@ public class PeopleData extends MessagingData {
         return getName();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o instanceof PeopleData) {
-                return getUid().equals(((PeopleData) o).getUid());
-        }
-        return super.equals(o);
-    }
-
-    public static Parcelable.Creator<? extends MessagingData> CREATOR = new Parcelable.Creator<PeopleData>() {
+    public static Parcelable.Creator<PeopleData> CREATOR = new Parcelable.Creator<PeopleData>() {
         @Override
         public PeopleData createFromParcel(Parcel source) {
             return new PeopleData(source);
@@ -94,7 +86,14 @@ public class PeopleData extends MessagingData {
         }
     };
 
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
+        dest.writeInt(actionType.getValue());
+    }
+
     private PeopleData(Parcel parcel) {
         super(parcel);
+        setAction(ActionType.fromInt(parcel.readInt()));
     }
 }

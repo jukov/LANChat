@@ -11,6 +11,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     public static final int REQUEST_CODE_PRIVATE_CHAT = 1;
     public static final int REQUEST_CODE_ROOM_CREATING = 2;
     public static final int REQUEST_CODE_ROOM_CHAT = 3;
+    public static final int REQUEST_CODE_ADDING_PEOPLE = 4;
 
     protected Toolbar toolbar;
 

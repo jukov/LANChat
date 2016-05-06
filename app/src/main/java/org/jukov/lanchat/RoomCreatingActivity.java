@@ -25,6 +25,7 @@ import org.jukov.lanchat.service.ServiceHelper;
 import org.jukov.lanchat.util.Utils;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 /**
  * Created by jukov on 23.04.2016.
@@ -42,10 +43,10 @@ public class RoomCreatingActivity extends BaseActivity {
     private MenuItem menuItemUndone;
 
     private ArrayAdapter<PeopleData> arrayAdapterPeople;
-    private List<String> privateParticipantsUIDs;
+    private List<PeopleData> privateParticipants;
 
     private boolean nameCorrect;
-    private boolean listViewCorrect;
+    private boolean privateCorrect;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,7 +54,7 @@ public class RoomCreatingActivity extends BaseActivity {
         setContentView(R.layout.activity_room_creating);
 
         initValues();
-        initAdapter();
+        initAdaptersAndLists();
         initViews();
     }
 
@@ -75,9 +76,9 @@ public class RoomCreatingActivity extends BaseActivity {
                 RoomData roomData = new RoomData(
                         roomNameText.getText().toString(),
                         Utils.newRoomUID(getApplicationContext()),
-                        privateParticipantsUIDs);
+                        privateParticipants);
                 dbHelper.insertOrUpdateRoom(roomData);
-                ServiceHelper.newRoom(getApplicationContext(), roomData);
+                ServiceHelper.sendRoom(getApplicationContext(), roomData);
                 Intent intent = new Intent();
                 setResult(RESULT_OK, intent);
                 finish();
@@ -95,7 +96,7 @@ public class RoomCreatingActivity extends BaseActivity {
     }
 
     private void setDoneButton() {
-        if (nameCorrect && listViewCorrect) {
+        if (nameCorrect && privateCorrect) {
             menuItemDone.setVisible(true);
             menuItemUndone.setVisible(false);
         } else {
@@ -106,14 +107,24 @@ public class RoomCreatingActivity extends BaseActivity {
 
     private void initValues() {
         nameCorrect = false;
-        listViewCorrect = true;
-
-        privateParticipantsUIDs = new ArrayList<>();
+        privateCorrect = true;
     }
 
-    private void initAdapter() {
+    private void initAdaptersAndLists() {
+        privateParticipants = new ArrayList<>();
+
         DBHelper dbHelper = DBHelper.getInstance(getApplicationContext());
         List<PeopleData> people = dbHelper.getPeople();
+
+        String myuid = Utils.getAndroidID(getApplicationContext());
+        Iterator<PeopleData> iterator = people.iterator();
+        while (iterator.hasNext()) {
+            PeopleData peopleData = iterator.next();
+            if (peopleData.getUid().equals(myuid)) {
+                iterator.remove();
+                break;
+            }
+        }
 
         arrayAdapterPeople = new ArrayAdapter<>(
                 this,
@@ -169,10 +180,10 @@ public class RoomCreatingActivity extends BaseActivity {
                     listViewPeople.setEnabled(isChecked);
                     if (isChecked) {
                         listViewPeople.setVisibility(View.VISIBLE);
-                        listViewCorrect = privateParticipantsUIDs.size() > 0;
+                        privateCorrect = privateParticipants.size() > 0;
                     } else {
                         listViewPeople.setVisibility(View.GONE);
-                        listViewCorrect = true;
+                        privateCorrect = true;
                     }
                     setDoneButton();
                 }
@@ -192,11 +203,11 @@ public class RoomCreatingActivity extends BaseActivity {
                     CheckBox isParticipant = (CheckBox) view.findViewById(R.id.isParticipant);
                     isParticipant.setChecked(!isParticipant.isChecked());
                     if (isParticipant.isChecked()) {
-                        privateParticipantsUIDs.add(arrayAdapterPeople.getItem(position).getUid());
+                        privateParticipants.add(arrayAdapterPeople.getItem(position));
                     } else {
-                        privateParticipantsUIDs.remove(arrayAdapterPeople.getItem(position).getUid());
+                        privateParticipants.remove(arrayAdapterPeople.getItem(position));
                     }
-                    listViewCorrect = privateParticipantsUIDs.size() > 0;
+                    privateCorrect = privateParticipants.size() > 0;
                     setDoneButton();
                 }
             });

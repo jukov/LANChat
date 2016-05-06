@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.AbstractCollection;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -197,7 +198,6 @@ public class Server extends Thread implements Closeable {
         * It needed for send to servers new node address.
         * New node is first server in Set.
         */
-        //TODO check this
         Iterator<ServerConnection> iterator = serverConnections.iterator();
         ServerConnection serverConnection1;
         String newNodeIp;
@@ -315,6 +315,12 @@ public class Server extends Thread implements Closeable {
     public void addRoom(RoomData roomData) {
         roomsBundleLock.lock();
         rooms.add(roomData);
+        roomsBundleLock.unlock();
+    }
+
+    public void addRoom(AbstractCollection<RoomData> roomDatas) {
+        roomsBundleLock.lock();
+        rooms.addAll(roomDatas);
         roomsBundleLock.unlock();
     }
 }

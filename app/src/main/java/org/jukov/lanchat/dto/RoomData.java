@@ -3,6 +3,7 @@ package org.jukov.lanchat.dto;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -10,27 +11,27 @@ import java.util.List;
  */
 public class RoomData extends MessagingData {
 
-    private List<String> participantUIDs;
+    private List<PeopleData> participants;
 
     public RoomData(String name, String uid) {
         this(name, uid, null);
     }
 
-    public RoomData(String name, String uid, List<String> participantUIDs) {
+    public RoomData(String name, String uid, List<PeopleData> participantUIDs) {
         setName(name);
         setUid(uid);
-        setParticipantUIDs(participantUIDs);
+        setParticipants(participantUIDs);
     }
 
     public RoomData() {
     }
 
-    public List<String> getParticipantUIDs() {
-        return participantUIDs;
+    public List<PeopleData> getParticipants() {
+        return participants;
     }
 
-    public void setParticipantUIDs(List<String> participantUIDs) {
-        this.participantUIDs = participantUIDs;
+    public void setParticipants(List<PeopleData> participants) {
+        this.participants = participants;
     }
 
     @Override
@@ -38,7 +39,7 @@ public class RoomData extends MessagingData {
         return getName();
     }
 
-    public static Parcelable.Creator<? extends MessagingData> CREATOR = new Parcelable.Creator<RoomData>() {
+    public static Parcelable.Creator<RoomData> CREATOR = new Parcelable.Creator<RoomData>() {
         @Override
         public RoomData createFromParcel(Parcel source) {
             return new RoomData(source);
@@ -53,12 +54,14 @@ public class RoomData extends MessagingData {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
-        dest.writeList(participantUIDs);
+        dest.writeTypedList(participants);
     }
 
     private RoomData(Parcel parcel) {
         super(parcel);
-        setParticipantUIDs(parcel.readArrayList(null));
+        List<PeopleData> participants = new ArrayList<>();
+        parcel.readTypedList(participants, PeopleData.CREATOR);
+        setParticipants(participants);
     }
 
 }

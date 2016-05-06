@@ -49,7 +49,7 @@ public class RoomChatFragment extends ChatFragment {
                             getContext(),
                             ServiceHelper.MessageType.ROOM,
                             editTextMessage.getText().toString(),
-                            roomChatActivity.getRoomUID()
+                            roomChatActivity.getUid()
                             );
                     editTextMessage.setText("");
                 }

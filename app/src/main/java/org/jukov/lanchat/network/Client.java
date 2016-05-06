@@ -50,7 +50,8 @@ public class Client extends Thread implements Closeable {
         peopleData = new PeopleData(context, PeopleData.ActionType.NONE);
         dbHelper = DBHelper.getInstance(context);
         dbHelper.insertOrUpdatePeople(peopleData);
-        DataBundle<MessagingData> dataBundle = new DataBundle<MessagingData>(dbHelper.getRooms(), 50);
+        DataBundle<RoomData> dataBundle = new DataBundle<>(dbHelper.getRooms(), 50);
+        Log.d(TAG, Integer.toString(dataBundle.size()));
         while (socket == null) {
             try {
                 socket = new Socket(ip, port);
@@ -58,8 +59,9 @@ public class Client extends Thread implements Closeable {
                 dataInputStream = new DataInputStream(socket.getInputStream());
                 peopleData.setAction(PeopleData.ActionType.CONNECT);
                 sendMessage(JSONConverter.toJSON(peopleData));
-                if (dataBundle.size() > 0)
+                if (dataBundle.size() > 0) {
                     sendMessage(JSONConverter.toJSON(dataBundle));
+                }
                 peopleData.setAction(PeopleData.ActionType.NONE);
             } catch (IOException e) {
                 e.printStackTrace();

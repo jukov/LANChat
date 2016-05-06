@@ -41,8 +41,8 @@ import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ROOM;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_UID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.GLOBAL_MESSAGE_ACTION;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.NEW_ROOM_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PEOPLE_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.SEND_ROOM_ACTION;
 
 public class MainActivity extends NavigationDrawerActivity {
 
@@ -201,7 +201,7 @@ public class MainActivity extends NavigationDrawerActivity {
     private void initAdapters() {
         DBHelper dbHelper = DBHelper.getInstance(this);
 
-        roomsAdapter = new RoomsAdapter(getApplicationContext(), R.layout.listview_people);
+        roomsAdapter = new RoomsAdapter(getApplicationContext());
         arrayAdapterMessages = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, dbHelper.getPublicMessages());
         arrayAdapterPeople = new ArrayAdapter<>(this, R.layout.listview_people, R.id.listviewPeopleName);
     }
@@ -247,14 +247,17 @@ public class MainActivity extends NavigationDrawerActivity {
                                     Log.w(getClass().getSimpleName(), "Unexpected action type");
                             }
                         break;
-                    case NEW_ROOM_ACTION:
-                        Log.d(TAG, "NEW_ROOM_ACTION");
+                    case SEND_ROOM_ACTION:
+                        Log.d(TAG, "SEND_ROOM_ACTION");
                         if (intent.hasExtra(EXTRA_ROOM)) {
                             RoomData roomData = intent.getParcelableExtra(EXTRA_ROOM);
-                            if (roomData.getParticipantUIDs() != null && roomData.getParticipantUIDs().size() > 0) {
-                                Log.d(TAG, Integer.toString(roomData.getParticipantUIDs().size()));
-                                if (roomData.getParticipantUIDs().contains(Utils.getAndroidID(getApplicationContext()))) {
-                                    roomsAdapter.add(roomData);
+                            if (roomData.getParticipants() != null && roomData.getParticipants().size() > 0) {
+                                Log.d(TAG, Integer.toString(roomData.getParticipants().size()));
+                                for (PeopleData peopleData1 : roomData.getParticipants()) {
+                                    if (peopleData1.getUid().contains(Utils.getAndroidID(getApplicationContext()))) {
+                                        roomsAdapter.add(roomData);
+                                        break;
+                                    }
                                 }
                             } else {
                                 roomsAdapter.add(roomData);
@@ -276,7 +279,7 @@ public class MainActivity extends NavigationDrawerActivity {
         intentFilter.addAction(GLOBAL_MESSAGE_ACTION);
         intentFilter.addAction(PEOPLE_ACTION);
         intentFilter.addAction(CLEAR_PEOPLE_LIST_ACTION);
-        intentFilter.addAction(NEW_ROOM_ACTION);
+        intentFilter.addAction(SEND_ROOM_ACTION);
         registerReceiver(broadcastReceiver, intentFilter);
     }
 

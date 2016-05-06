@@ -30,7 +30,7 @@ public class ServiceHelper {
         public static final String SEARCH_SERVER_ACTION =       "org.jukov.lanchat.SEARCH_SERVER";
         public static final String START_SERVER_ACTION =        "org.jukov.lanchat.START_SERVER";
         public static final String CLEAR_PEOPLE_LIST_ACTION =   "org.jukov.lanchat.CLEAR_PEOPLE_LIST";
-        public static final String NEW_ROOM_ACTION =            "org.jukov.lanchat.NEW_ROOM";
+        public static final String SEND_ROOM_ACTION =            "org.jukov.lanchat.SEND_ROOM";
 
         public static final String EXTRA_NAME =             "name";
         public static final String EXTRA_MESSAGE =          "message";
@@ -41,6 +41,7 @@ public class ServiceHelper {
         public static final String EXTRA_ACTION =           "action";
         public static final String EXTRA_DESTINATION_UID =  "receiver_uid";
         public static final String EXTRA_ROOM =             "room";
+        public static final String EXTRA_PARTICIPANTS =     "participants";
 
     }
 
@@ -109,9 +110,9 @@ public class ServiceHelper {
         context.startService(intent);
     }
 
-    public static void newRoom(Context context, RoomData roomData) {
+    public static void sendRoom(Context context, RoomData roomData) {
         Intent intent = new Intent(context, LANChatService.class);
-        intent.setAction(IntentConstants.NEW_ROOM_ACTION);
+        intent.setAction(IntentConstants.SEND_ROOM_ACTION);
         intent.putExtra(IntentConstants.EXTRA_ROOM, roomData);
         context.startService(intent);
     }
@@ -127,7 +128,7 @@ public class ServiceHelper {
     }
 
     public static void receiveRoom(Context context, RoomData roomData) {
-        Intent intent = new Intent(IntentConstants.NEW_ROOM_ACTION);
+        Intent intent = new Intent(IntentConstants.SEND_ROOM_ACTION);
         intent.putExtra(IntentConstants.EXTRA_ROOM, roomData);
         context.sendBroadcast(intent);
     }
@@ -163,7 +164,7 @@ public class ServiceHelper {
     public static void receiveRooms(Context context, AbstractCollection roomsBundle) {
         Object[] objectArray = roomsBundle.toArray();
         RoomData[] messagesArray = Arrays.copyOf(objectArray, objectArray.length, RoomData[].class);
-        Intent intent = new Intent(IntentConstants.NEW_ROOM_ACTION);
+        Intent intent = new Intent(IntentConstants.SEND_ROOM_ACTION);
         intent.putExtra(IntentConstants.EXTRA_MESSAGE_BUNDLE, messagesArray);
         context.sendBroadcast(intent);
     }
