@@ -3,12 +3,14 @@ package org.jukov.lanchat.network;
 import android.util.Log;
 
 import org.jukov.lanchat.dto.ChatData;
+import org.jukov.lanchat.dto.MessagingData;
+import org.jukov.lanchat.dto.RoomData;
 import org.jukov.lanchat.dto.ServiceData;
-import org.jukov.lanchat.service.ServiceHelper;
 import org.jukov.lanchat.util.JSONConverter;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.AbstractCollection;
 
 /**
  * Created by jukov on 05.04.2016.
@@ -28,8 +30,18 @@ public class ServerConnection extends Connection {
                 String message = dataInputStream.readUTF();
                 Object data = JSONConverter.toPOJO(message);
                 if (data instanceof ChatData) {
-                    if (((ChatData) data).getMessageType() == ServiceHelper.MessageType.GLOBAL)
+                    if (((ChatData) data).getMessageType() == ChatData.MessageType.GLOBAL)
                         server.addMessage((ChatData) data);
+                } else if (data instanceof RoomData) {
+                    RoomData roomData = (RoomData) data;
+                    server.addRoom(roomData);
+                } else if (data instanceof AbstractCollection) {
+                    Log.d(getClass().getSimpleName(), "receive AbstractCollection");
+                    AbstractCollection dataBundle = (AbstractCollection) data;
+                    MessagingData messagingData = (MessagingData) dataBundle.iterator().next();
+                    if (messagingData instanceof RoomData) {
+                        server.addRoom(dataBundle);
+                    }
                 } else if (data instanceof ServiceData) {
                     ServiceData serviceData = (ServiceData) data;
                     Log.d(getClass().getSimpleName(), "Receive ServiceData " + serviceData.getData());

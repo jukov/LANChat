@@ -9,10 +9,11 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import org.jukov.lanchat.R;
+import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.dto.RoomData;
+import org.jukov.lanchat.util.Utils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -66,8 +67,6 @@ public class RoomsAdapter extends BaseAdapter {
         textView.setText(roomData.toString());
 
         if (roomData.getParticipants() != null && roomData.getParticipants().size() > 0) {
-            Log.d(TAG, roomData.getName());
-            Log.d(TAG, Arrays.toString(roomData.getParticipants().toArray()));
             textView.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_secure, 0);
         } else {
             textView.setCompoundDrawablesRelativeWithIntrinsicBounds(0,0,0,0);
@@ -76,13 +75,27 @@ public class RoomsAdapter extends BaseAdapter {
     }
 
     public void add(RoomData roomData) {
-        int position = rooms.indexOf(roomData);
-        rooms.remove(roomData);
-        if (position != -1) {
-            rooms.add(position, roomData);
-            return;
+        boolean isParticipant = false;
+        if (roomData.getParticipants() != null && roomData.getParticipants().size() > 0) {
+            Log.d(TAG, Integer.toString(roomData.getParticipants().size()));
+            for (PeopleData peopleData1 : roomData.getParticipants()) {
+                if (peopleData1.getUid().contains(Utils.getAndroidID(context))) {
+                    isParticipant = true;
+                    break;
+                }
+            }
+        } else {
+            isParticipant = true;
         }
-        rooms.add(roomData);
-        notifyDataSetChanged();
+        if (isParticipant) {
+            int position = rooms.indexOf(roomData);
+            rooms.remove(roomData);
+            if (position != -1) {
+                rooms.add(position, roomData);
+                return;
+            }
+            rooms.add(roomData);
+            notifyDataSetChanged();
+        }
     }
 }

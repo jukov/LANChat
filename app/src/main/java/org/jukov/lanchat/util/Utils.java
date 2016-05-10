@@ -8,7 +8,10 @@ import android.provider.Settings;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by jukov on 05.02.2016.
@@ -39,5 +42,20 @@ public class Utils {
 
     public static String newRoomUID(Context context) {
         return getAndroidID(context) + Long.toString(new Date().getTime());
+    }
+
+    public static String getSendMessageDate(Context context, long millis) {
+        long now = System.currentTimeMillis();
+        long diff = now - millis;
+        String format = "HH:mm";
+        if (diff > TimeUnit.DAYS.toMillis(365)) {
+            format = "MMM d, HH:mm";
+        } else if (diff > TimeUnit.DAYS.toMillis(1)) {
+            format = "MMM d yyyy, HH:mm";
+        }
+//        SimpleDateFormat simpleDateFormat = (SimpleDateFormat) android.text.format.DateFormat.getDateFormat(context);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, Locale.getDefault());
+//        return dateFormat.format(new Date(millis));
+        return simpleDateFormat.format(new Date(millis));
     }
 }

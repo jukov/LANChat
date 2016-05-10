@@ -22,7 +22,6 @@
         android:layout_height="wrap_content"
         android:src="@drawable/ic_plus"
         android:layout_alignParentBottom="true"
-        android:layout_alignRight="@+id/frList"
         android:layout_alignEnd="@+id/frList"
         android:layout_margin="@dimen/fab_margin" />
 

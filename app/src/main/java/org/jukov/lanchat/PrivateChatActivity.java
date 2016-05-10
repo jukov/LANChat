@@ -8,15 +8,15 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 
+import org.jukov.lanchat.adapter.ChatAdapter;
 import org.jukov.lanchat.db.DBHelper;
+import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.fragment.PrivateChatFragment;
 import org.jukov.lanchat.service.LANChatService;
 import org.jukov.lanchat.service.ServiceHelper;
 import org.jukov.lanchat.util.Utils;
 
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_DESTINATION_UID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
@@ -99,8 +99,7 @@ public class PrivateChatActivity extends NavigationDrawerActivity {
     private void initAdapter() {
         DBHelper dbHelper = DBHelper.getInstance(this);
 
-        arrayAdapterMessages = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,
-                dbHelper.getPrivateMessages(Utils.getAndroidID(this), companionUID));
+        chatAdapter = new ChatAdapter(getApplicationContext(), dbHelper.getPrivateMessages(myUID, companionUID));
     }
 
     private void initFragment() {
@@ -117,9 +116,9 @@ public class PrivateChatActivity extends NavigationDrawerActivity {
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, final Intent intent) {
-                String receiverUID = intent.getStringExtra(EXTRA_DESTINATION_UID);
-                if (receiverUID.equals(myUID) || receiverUID.equals(companionUID))
-                    arrayAdapterMessages.add(intent.getStringExtra(EXTRA_NAME) + ": " + intent.getStringExtra(EXTRA_MESSAGE));
+                ChatData chatData = intent.getParcelableExtra(EXTRA_MESSAGE);
+                if (chatData.getUid().equals(myUID) || chatData.getUid().equals(companionUID))
+                    chatAdapter.add(chatData);
             }
         };
         IntentFilter intentFilter = new IntentFilter(PRIVATE_MESSAGE_ACTION);

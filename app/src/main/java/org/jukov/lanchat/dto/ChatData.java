@@ -4,8 +4,6 @@ import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import org.jukov.lanchat.service.ServiceHelper;
-
 import java.util.Date;
 
 /**
@@ -13,34 +11,74 @@ import java.util.Date;
  */
 public class ChatData extends MessagingData {
 
+    public enum MessageType {
+        PRIVATE(0),
+        GLOBAL(1),
+        ROOM(2);
+        private int value;
+
+        MessageType(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public static MessageType fromInt(int input) {
+            switch (input) {
+                case 0:
+                    return PRIVATE;
+                case 1:
+                    return GLOBAL;
+                case 2:
+                    return ROOM;
+            }
+            return null;
+        }
+    }
+    
     private String text;
-    private String sendDate;
+    private long sendDate;
     private String destinationUID;
-    private ServiceHelper.MessageType messageType;
+    private MessageType messageType;
 
     public ChatData() {
     }
-
-    public ChatData(Context context, ServiceHelper.MessageType messageType, String text) {
+    
+    public ChatData(Context context, MessageType messageType, String text) {
         super(context);
         this.messageType = messageType;
         this.text = text;
-        sendDate = new Date().toString();
+        sendDate = new Date().getTime();
     }
 
-    public ChatData(Context context, ServiceHelper.MessageType messageType, String text, String destinationUID) {
+    public ChatData(Context context, MessageType messageType, String text, String destinationUID) {
         super(context);
         this.messageType = messageType;
         this.text = text;
         this.destinationUID = destinationUID;
-        this.sendDate = new Date().toString();
+        this.sendDate = new Date().getTime();
     }
 
-    public ServiceHelper.MessageType getMessageType() {
+    public ChatData(String name, String uid, MessageType messageType, String text, long sendDate, String destinationUID) {
+        setName(name);
+        setUid(uid);
+        this.text = text;
+        this.sendDate = sendDate;
+        this.messageType = messageType;
+        this.destinationUID = destinationUID;
+    }
+
+    public ChatData(String name, String uid, MessageType messageType, String text, long sendDate) {
+        this(name, uid, messageType, text, sendDate, null);
+    }
+
+    public MessageType getMessageType() {
         return messageType;
     }
 
-    public void setMessageType(ServiceHelper.MessageType messageType) {
+    public void setMessageType(MessageType messageType) {
         this.messageType = messageType;
     }
 
@@ -52,11 +90,11 @@ public class ChatData extends MessagingData {
         this.text = text;
     }
 
-    public String getSendDate() {
+    public long getSendDate() {
         return sendDate;
     }
 
-    public void setSendDate(String sendDate) {
+    public void setSendDate(long sendDate) {
         this.sendDate = sendDate;
     }
 
@@ -77,8 +115,9 @@ public class ChatData extends MessagingData {
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
         dest.writeString(text);
-        dest.writeString(sendDate);
+        dest.writeLong(sendDate);
         dest.writeInt(messageType.getValue());
+        dest.writeString(destinationUID);
     }
 
     public static Parcelable.Creator<? extends MessagingData> CREATOR = new Parcelable.Creator<ChatData>() {
@@ -96,7 +135,8 @@ public class ChatData extends MessagingData {
     private ChatData(Parcel parcel) {
         super(parcel);
         text = parcel.readString();
-        sendDate = parcel.readString();
-        messageType = ServiceHelper.MessageType.values()[parcel.readInt()];
+        sendDate = parcel.readLong();
+        messageType = MessageType.values()[parcel.readInt()];
+        destinationUID = parcel.readString();
     }
 }

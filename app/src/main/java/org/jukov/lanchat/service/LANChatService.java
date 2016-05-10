@@ -20,15 +20,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_DESTINATION_UID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ROOM;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.GLOBAL_MESSAGE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.INIT_SERVICE_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.MESSAGE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.NAME_CHANGE_ACTION;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PRIVATE_MESSAGE_ACTION;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.ROOM_MESSAGE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.SEARCH_SERVER_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.SEND_ROOM_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.START_SERVER_ACTION;
@@ -80,14 +77,8 @@ public class LANChatService extends Service {
                     });
                     thread.start();
                     break;
-                case GLOBAL_MESSAGE_ACTION:
-                    sendGlobalMessage(intent);
-                    break;
-                case PRIVATE_MESSAGE_ACTION:
-                    sendPrivateMessage(intent);
-                    break;
-                case ROOM_MESSAGE_ACTION:
-                    sendRoomMessage(intent);
+                case MESSAGE_ACTION:
+                    sendMessage(intent);
                     break;
                 case NAME_CHANGE_ACTION:
                     changeName(intent);
@@ -150,47 +141,12 @@ public class LANChatService extends Service {
         executorService.execute(serverSearch);
     }
 
-    public void sendGlobalMessage(Intent intent) {
+    public void sendMessage(Intent intent) {
         if (client != null) {
             try {
-                String message = JSONConverter.toJSON(new ChatData(
-                        getApplicationContext(),
-                        ServiceHelper.MessageType.GLOBAL, intent.getStringExtra(EXTRA_MESSAGE)
-                ));
+                ChatData chatData = intent.getParcelableExtra(EXTRA_MESSAGE);
+                String message = JSONConverter.toJSON(chatData);
                 Log.d(getClass().getSimpleName(), message);
-                client.sendMessage(message);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void sendPrivateMessage(Intent intent) {
-        if (client != null) {
-            try {
-                String message = JSONConverter.toJSON(new ChatData(
-                        getApplicationContext(),
-                        ServiceHelper.MessageType.PRIVATE,
-                        intent.getStringExtra(EXTRA_MESSAGE),
-                        intent.getStringExtra(EXTRA_DESTINATION_UID)
-                ));
-                Log.d(getClass().getSimpleName(), message);
-                client.sendMessage(message);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void sendRoomMessage(Intent intent) {
-        if (client != null) {
-            try {
-                String message = JSONConverter.toJSON(new ChatData(
-                        getApplicationContext(),
-                        ServiceHelper.MessageType.ROOM,
-                        intent.getStringExtra(EXTRA_MESSAGE),
-                        intent.getStringExtra(EXTRA_DESTINATION_UID)
-                ));
                 client.sendMessage(message);
             } catch (IOException e) {
                 e.printStackTrace();

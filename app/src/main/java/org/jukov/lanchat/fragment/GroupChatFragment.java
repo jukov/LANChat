@@ -3,18 +3,15 @@ package org.jukov.lanchat.fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
 
-import org.jukov.lanchat.MainActivity;
 import org.jukov.lanchat.R;
+import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.service.ServiceHelper;
+
+import static org.jukov.lanchat.dto.ChatData.MessageType.GLOBAL;
 
 /**
  * Created by jukov on 15.02.2016.
@@ -48,7 +45,8 @@ public class GroupChatFragment extends ChatFragment {
             @Override
             public void onClick(View v) {
                 if (editTextMessage.getText().length() > 0)
-                    ServiceHelper.sendMessage(getActivity(), ServiceHelper.MessageType.GLOBAL, editTextMessage.getText().toString());
+                    ServiceHelper.sendMessage(getActivity(),
+                            new ChatData(getContext(), GLOBAL, getMessageText()));
                 editTextMessage.setText("");
             }
         });

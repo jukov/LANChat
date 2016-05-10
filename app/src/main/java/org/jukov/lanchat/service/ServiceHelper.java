@@ -2,7 +2,6 @@ package org.jukov.lanchat.service;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.PeopleData;
@@ -30,7 +29,9 @@ public class ServiceHelper {
         public static final String SEARCH_SERVER_ACTION =       "org.jukov.lanchat.SEARCH_SERVER";
         public static final String START_SERVER_ACTION =        "org.jukov.lanchat.START_SERVER";
         public static final String CLEAR_PEOPLE_LIST_ACTION =   "org.jukov.lanchat.CLEAR_PEOPLE_LIST";
-        public static final String SEND_ROOM_ACTION =            "org.jukov.lanchat.SEND_ROOM";
+        public static final String SEND_ROOM_ACTION =           "org.jukov.lanchat.SEND_ROOM";
+        public static final String MESSAGE_ACTION =             "org.jukov.lanchat.MESSAGE";
+
 
         public static final String EXTRA_NAME =             "name";
         public static final String EXTRA_MESSAGE =          "message";
@@ -43,19 +44,6 @@ public class ServiceHelper {
         public static final String EXTRA_ROOM =             "room";
         public static final String EXTRA_PARTICIPANTS =     "participants";
 
-    }
-
-    public enum MessageType {
-        PRIVATE(0), GLOBAL(1), ROOM(2);
-        private int value;
-
-        MessageType(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return value;
-        }
     }
 
     /*
@@ -80,26 +68,10 @@ public class ServiceHelper {
         context.startService(intent);
     }
 
-    public static void sendMessage(Context context, MessageType messageType, String message) {
-        sendMessage(context, messageType, message, null);
-    }
-
-    public static void sendMessage(Context context, MessageType messageType, String message, String destinationUID) {
+    public static void sendMessage(Context context, ChatData chatData) {
         Intent intent = new Intent(context, LANChatService.class);
-        switch (messageType) {
-            case PRIVATE:
-                intent.setAction(IntentConstants.PRIVATE_MESSAGE_ACTION);
-                intent.putExtra(IntentConstants.EXTRA_DESTINATION_UID, destinationUID);
-                break;
-            case ROOM:
-                intent.setAction(IntentConstants.ROOM_MESSAGE_ACTION);
-                intent.putExtra(IntentConstants.EXTRA_DESTINATION_UID, destinationUID);
-                break;
-            case GLOBAL:
-                intent.setAction(IntentConstants.GLOBAL_MESSAGE_ACTION);
-                break;
-        }
-        intent.putExtra(IntentConstants.EXTRA_MESSAGE, message);
+        intent.setAction(IntentConstants.MESSAGE_ACTION);
+        intent.putExtra(IntentConstants.EXTRA_MESSAGE, chatData);
         context.startService(intent);
     }
 
@@ -146,18 +118,14 @@ public class ServiceHelper {
         switch (chatData.getMessageType()) {
             case PRIVATE:
                 intent.setAction(IntentConstants.PRIVATE_MESSAGE_ACTION);
-                intent.putExtra(IntentConstants.EXTRA_DESTINATION_UID, chatData.getDestinationUID());
                 break;
             case GLOBAL:
                 intent.setAction(IntentConstants.GLOBAL_MESSAGE_ACTION);
-                Log.d(MessageType.class.getSimpleName(), "GlobalMessage");
                 break;
             case ROOM:
                 intent.setAction(IntentConstants.ROOM_MESSAGE_ACTION);
-                intent.putExtra(IntentConstants.EXTRA_DESTINATION_UID, chatData.getDestinationUID());
         }
-        intent.putExtra(IntentConstants.EXTRA_NAME, chatData.getName());
-        intent.putExtra(IntentConstants.EXTRA_MESSAGE, chatData.getText());
+        intent.putExtra(IntentConstants.EXTRA_MESSAGE, chatData);
         context.sendBroadcast(intent);
     }
 

@@ -10,11 +10,10 @@ import android.util.Log;
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.dto.RoomData;
+import org.jukov.lanchat.util.Utils;
 
 import java.util.AbstractCollection;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.locks.Lock;
@@ -29,7 +28,9 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private static volatile DBHelper instance;
 
-    public static final int DATABASE_VERSION = 12;
+    private Context context;
+
+    public static final int DATABASE_VERSION = 13;
     public static final String DATABASE_NAME = "LANChatDatabase";
 
     private SQLiteDatabase sqLiteDatabase;
@@ -65,7 +66,7 @@ public class DBHelper extends SQLiteOpenHelper {
             KEY_ID_PEOPLE + " INTEGER NOT NULL," +
             KEY_ID_RECEIVER + " INTEGER NOT NULL," +
             KEY_MESSAGE + " TEXT NOT NULL," +
-            KEY_DATE + " TEXT NOT NULL," +
+            KEY_DATE + " INTEGER NOT NULL," +
             "FOREIGN KEY(" + KEY_ID_PEOPLE + ") REFERENCES " + TABLE_PEOPLE + "(" + KEY_ID + ")," +
             "FOREIGN KEY(" + KEY_ID_RECEIVER + ") REFERENCES " + TABLE_PEOPLE + "(" + KEY_ID + ")" +
             ");";
@@ -74,7 +75,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "(" + KEY_ID +" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
             KEY_ID_PEOPLE + " INTEGER NOT NULL," +
             KEY_MESSAGE + " TEXT NOT NULL," +
-            KEY_DATE + " TEXT NOT NULL," +
+            KEY_DATE + " INTEGER NOT NULL," +
             "FOREIGN KEY(" + KEY_ID_PEOPLE + ") REFERENCES " + TABLE_PEOPLE + "(" + KEY_ID + ")" +
             ");";
 
@@ -97,7 +98,7 @@ public class DBHelper extends SQLiteOpenHelper {
             KEY_ID_ROOM + " INTEGER NOT NULL," +
             KEY_ID_PEOPLE + " INTEGER NOT NULL," +
             KEY_MESSAGE + " TEXT NOT NULL," +
-            KEY_DATE + " TEXT NOT NULL," +
+            KEY_DATE + " INTEGER NOT NULL," +
             "FOREIGN KEY(" + KEY_ID_PEOPLE + ") REFERENCES " + TABLE_PEOPLE + "(" + KEY_ID + ")," +
             "FOREIGN KEY(" + KEY_ID_ROOM + ") REFERENCES " + TABLE_ROOMS + "(" + KEY_ID + ")" +
             ");";
@@ -121,6 +122,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private DBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
+        this.context = context;
         sqLiteDatabase = this.getReadableDatabase();
         contentValues = new ContentValues(1);
         databaseLock = new ReentrantLock();
@@ -230,11 +232,11 @@ public class DBHelper extends SQLiteOpenHelper {
             peopleIdCursor.close();
             return id;
         } else {
+            databaseLock.unlock();
             insertOrUpdatePeople(peopleData);
-            getPeopleID(peopleData);
+            databaseLock.lock();
+            return getPeopleID(peopleData);
         }
-        peopleIdCursor.close();
-        throw new NoSuchElementException("People not found " + peopleData.getUid());
     }
 
     private PeopleData getPeople(int id) {
@@ -333,7 +335,7 @@ public class DBHelper extends SQLiteOpenHelper {
 //        cursor.close();
 //
 //        for (ChatData chatData : messages) {
-//            contentValues.put(KEY_ID_PEOPLE, peopleIDs.get(chatData.getUid()));
+//            contentValues.put(KEY_ID_PEOPLE, peopleIDs.get(chatData.getRoomUid()));
 //            contentValues.put(KEY_MESSAGE, chatData.getText());
 //            contentValues.put(KEY_DATE, chatData.getSendDate());
 //            sqLiteDatabase.insert(TABLE_PUBLIC_MESSAGES, null, contentValues);
@@ -350,12 +352,12 @@ public class DBHelper extends SQLiteOpenHelper {
 //
 //        for (RoomData roomData : rooms) {
 //            contentValues.put(KEY_NAME, roomData.getName());
-//            contentValues.put(KEY_UID, roomData.getUid());
+//            contentValues.put(KEY_UID, roomData.getRoomUid());
 //            if (sqLiteDatabase.update(
 //                    TABLE_ROOMS,
 //                    contentValues,
 //                    KEY_UID + " = ?",
-//                    new String[] {roomData.getUid()}) == 0) {
+//                    new String[] {roomData.getRoomUid()}) == 0) {
 //                sqLiteDatabase.insert(TABLE_ROOMS, null, contentValues);
 //            }
 //            contentValues.clear();
@@ -364,6 +366,20 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public void insertOrUpdateRoom(RoomData roomData) {
+        boolean isParticipant = false;
+        if (roomData.getParticipants() != null && roomData.getParticipants().size() > 0) {
+            Log.d(TAG, Integer.toString(roomData.getParticipants().size()));
+            for (PeopleData peopleData1 : roomData.getParticipants()) {
+                if (peopleData1.getUid().contains(Utils.getAndroidID(context))) {
+                    isParticipant = true;
+                    break;
+                }
+            }
+        } else {
+            isParticipant = true;
+        }
+        if (!isParticipant)
+            return;
         databaseLock.lock();
         contentValues.put(KEY_NAME, roomData.getName());
         contentValues.put(KEY_UID, roomData.getUid());
@@ -481,33 +497,25 @@ public class DBHelper extends SQLiteOpenHelper {
         return people;
     }
 
-    public List<String> getPublicMessages() {
+    public List<ChatData> getPublicMessages() {
         databaseLock.lock();
-
-        Cursor peopleCursor = sqLiteDatabase.query(
-                TABLE_PEOPLE,
-                new String[] {KEY_ID, KEY_NAME},
-                null, null, null, null, null);
-
-        HashMap<Integer, String> peopleMap = new HashMap<>();
-        if (peopleCursor.getCount() > 0 ) {
-            peopleCursor.moveToFirst();
-            do {
-                peopleMap.put(peopleCursor.getInt(0), peopleCursor.getString(1));
-            } while (peopleCursor.moveToNext());
-        }
-        peopleCursor.close();
 
         Cursor messagesCursor = sqLiteDatabase.query(
                 TABLE_PUBLIC_MESSAGES,
-                new String[] {KEY_ID_PEOPLE, KEY_MESSAGE},
+                new String[] {KEY_ID_PEOPLE, KEY_MESSAGE, KEY_DATE},
                 null, null, null, null, null);
 
-        List<String> messagesList = new ArrayList<>();
+        List<ChatData> messagesList = new ArrayList<>();
         if (messagesCursor.getCount() > 0 ) {
             messagesCursor.moveToFirst();
             do {
-                messagesList.add(peopleMap.get(messagesCursor.getInt(0)) + ": " + messagesCursor.getString(1));
+                PeopleData peopleData = getPeople(messagesCursor.getInt(0));
+                messagesList.add(new ChatData(
+                        peopleData.getName(),
+                        peopleData.getUid(),
+                        ChatData.MessageType.GLOBAL,
+                        messagesCursor.getString(1),
+                        messagesCursor.getLong(2)));
             } while (messagesCursor.moveToNext());
         }
         messagesCursor.close();
@@ -516,90 +524,66 @@ public class DBHelper extends SQLiteOpenHelper {
         return messagesList;
     }
 
-    public List<String> getPrivateMessages(String myUID, String companionUID) {
+    public List<ChatData> getPrivateMessages(String myUID, String companionUID) {
         databaseLock.lock();
 
-        Cursor peopleCursor = sqLiteDatabase.query(
-                TABLE_PEOPLE,
-                new String[] {KEY_ID, KEY_NAME},
-                KEY_UID + " = ? OR " + KEY_UID + " = ?",
-                new String[] {myUID, companionUID},
-                null, null, null);
-
-        HashMap<Integer, String> peopleMap = new HashMap<>();
-        if (peopleCursor.getCount() > 0 ) {
-            peopleCursor.moveToFirst();
-            do {
-                peopleMap.put(peopleCursor.getInt(0), peopleCursor.getString(1));
-            } while (peopleCursor.moveToNext());
-        }
-
-        Object[] objectIds = peopleMap.keySet().toArray();
-        Integer[] ids = Arrays.copyOf(objectIds, objectIds.length, Integer[].class);
-        peopleCursor.close();
+        int myId = getPeopleID(myUID);
+        int companionId = getPeopleID(companionUID);
 
         Cursor messagesCursor = sqLiteDatabase.query(
                 TABLE_PRIVATE_MESSAGES,
-                new String[] {KEY_ID_PEOPLE, KEY_MESSAGE},
-                KEY_ID_PEOPLE + " = ? OR " + KEY_ID_PEOPLE + " = ?",
-                new String[] {ids[0].toString(), ids[1].toString()},
+                new String[] {KEY_ID_PEOPLE, KEY_ID_RECEIVER, KEY_MESSAGE, KEY_DATE},
+                "(" + KEY_ID_PEOPLE + " = ? AND " + KEY_ID_RECEIVER + " = ?) OR " +
+                        "(" + KEY_ID_PEOPLE + " = ? AND " + KEY_ID_RECEIVER + " = ?)",
+                new String[] {Integer.toString(myId), Integer.toString(companionId),
+                        Integer.toString(companionId), Integer.toString(myId)},
                 null, null, null);
 
-        List<String> messagesList = new ArrayList<>();
+        List<ChatData> messages = new ArrayList<>();
         if (messagesCursor.getCount() > 0 ) {
             messagesCursor.moveToFirst();
             do {
-                messagesList.add(peopleMap.get(messagesCursor.getInt(0)) + ": " + messagesCursor.getString(1));
+                PeopleData peopleData1 = getPeople(messagesCursor.getInt(0));
+                PeopleData peopleData2 = getPeople(messagesCursor.getInt(1));
+                messages.add(new ChatData(
+                        peopleData1.getName(),
+                        peopleData1.getUid(),
+                        ChatData.MessageType.PRIVATE,
+                        messagesCursor.getString(2),
+                        messagesCursor.getLong(3),
+                        peopleData2.getUid()));
             } while (messagesCursor.moveToNext());
         }
         messagesCursor.close();
 
         databaseLock.unlock();
-        return messagesList;
+        return messages;
     }
 
-    public List<String> getRoomMessages(String roomUID) {
+    public List<ChatData> getRoomMessages(String roomUID) {
         databaseLock.lock();
-        Cursor peopleCursor = sqLiteDatabase.query(
-                TABLE_PEOPLE,
-                new String[]{KEY_ID, KEY_NAME},
-                null, null, null, null, null);
 
-        HashMap<Integer, String> peopleMap = new HashMap<>();
-        if (peopleCursor.getCount() > 0) {
-            peopleCursor.moveToFirst();
-            do {
-                peopleMap.put(peopleCursor.getInt(0), peopleCursor.getString(1));
-            } while (peopleCursor.moveToNext());
-        }
-        peopleCursor.close();
-
-        Cursor roomIdCursor = sqLiteDatabase.query(
-                TABLE_ROOMS,
-                new String[]{KEY_ID},
-                KEY_UID + " = ?",
-                new String[]{roomUID},
-                null, null, null);
-
-        int id = -1;
-        if (roomIdCursor.getCount() > 0) {
-            roomIdCursor.moveToFirst();
-            id = roomIdCursor.getInt(0);
-        }
-        roomIdCursor.close();
+        int roomId = getRoomID(roomUID);
 
         Cursor messagesCursor = sqLiteDatabase.query(
                 TABLE_ROOMS_MESSAGES,
-                new String[] {KEY_ID_PEOPLE, KEY_MESSAGE},
+                new String[] {KEY_ID_ROOM, KEY_ID_PEOPLE, KEY_MESSAGE, KEY_DATE},
                 KEY_ID_ROOM + " = ?",
-                new String[] {Integer.toString(id)},
+                new String[] {Integer.toString(roomId)},
                 null, null, null);
 
-        List<String> messagesList = new ArrayList<>();
+        List<ChatData> messagesList = new ArrayList<>();
         if (messagesCursor.getCount() > 0 ) {
             messagesCursor.moveToFirst();
             do {
-                messagesList.add(peopleMap.get(messagesCursor.getInt(0)) + ": " + messagesCursor.getString(1));
+                PeopleData peopleData = getPeople(messagesCursor.getInt(1));
+                messagesList.add(new ChatData(
+                        peopleData.getName(),
+                        peopleData.getUid(),
+                        ChatData.MessageType.ROOM,
+                        messagesCursor.getString(2),
+                        messagesCursor.getLong(3),
+                        roomUID));
             } while (messagesCursor.moveToNext());
         }
         messagesCursor.close();

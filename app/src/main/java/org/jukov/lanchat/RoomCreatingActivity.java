@@ -76,7 +76,7 @@ public class RoomCreatingActivity extends BaseActivity {
                 RoomData roomData = new RoomData(
                         roomNameText.getText().toString(),
                         Utils.newRoomUID(getApplicationContext()),
-                        privateParticipants);
+                        isPrivate.isChecked() ? privateParticipants : null);
                 dbHelper.insertOrUpdateRoom(roomData);
                 ServiceHelper.sendRoom(getApplicationContext(), roomData);
                 Intent intent = new Intent();
@@ -122,6 +122,7 @@ public class RoomCreatingActivity extends BaseActivity {
             PeopleData peopleData = iterator.next();
             if (peopleData.getUid().equals(myuid)) {
                 iterator.remove();
+                privateParticipants.add(peopleData);
                 break;
             }
         }
@@ -180,7 +181,7 @@ public class RoomCreatingActivity extends BaseActivity {
                     listViewPeople.setEnabled(isChecked);
                     if (isChecked) {
                         listViewPeople.setVisibility(View.VISIBLE);
-                        privateCorrect = privateParticipants.size() > 0;
+                        privateCorrect = privateParticipants.size() > 1;
                     } else {
                         listViewPeople.setVisibility(View.GONE);
                         privateCorrect = true;
@@ -207,7 +208,7 @@ public class RoomCreatingActivity extends BaseActivity {
                     } else {
                         privateParticipants.remove(arrayAdapterPeople.getItem(position));
                     }
-                    privateCorrect = privateParticipants.size() > 0;
+                    privateCorrect = privateParticipants.size() > 1;
                     setDoneButton();
                 }
             });

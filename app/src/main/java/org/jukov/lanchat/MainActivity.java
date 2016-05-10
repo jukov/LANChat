@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 
+import org.jukov.lanchat.adapter.ChatAdapter;
 import org.jukov.lanchat.adapter.RoomsAdapter;
 import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.ChatData;
@@ -119,7 +120,6 @@ public class MainActivity extends NavigationDrawerActivity {
                     toolbar.setTitle(baseFragment.getTitle());
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragmentContainer, baseFragment)
-                            .addToBackStack(null)
                             .commit();
             }
             currentNavigationId = id;
@@ -148,7 +148,6 @@ public class MainActivity extends NavigationDrawerActivity {
                     }
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragmentContainer, fragments.get(id))
-                            .addToBackStack(null)
                             .commit();
                     currentNavigationId = id;
                     break;
@@ -202,7 +201,7 @@ public class MainActivity extends NavigationDrawerActivity {
         DBHelper dbHelper = DBHelper.getInstance(this);
 
         roomsAdapter = new RoomsAdapter(getApplicationContext());
-        arrayAdapterMessages = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, dbHelper.getPublicMessages());
+        chatAdapter = new ChatAdapter(this, dbHelper.getPublicMessages());
         arrayAdapterPeople = new ArrayAdapter<>(this, R.layout.listview_people, R.id.listviewPeopleName);
     }
 
@@ -215,13 +214,15 @@ public class MainActivity extends NavigationDrawerActivity {
                 switch (intent.getAction()) {
                     case GLOBAL_MESSAGE_ACTION:
                         Log.d(TAG, "Receive global message");
-                        if (intent.hasExtra(EXTRA_NAME))
-                            arrayAdapterMessages.add(intent.getStringExtra(EXTRA_NAME) + ": " + intent.getStringExtra(EXTRA_MESSAGE));
+                        if (intent.hasExtra(EXTRA_MESSAGE)) {
+                            ChatData chatData = intent.getParcelableExtra(EXTRA_MESSAGE);
+                            chatAdapter.add(chatData);
+                        }
                         else if (intent.hasExtra(EXTRA_MESSAGE_BUNDLE)) {
                             Parcelable[] parcelables = intent.getParcelableArrayExtra(EXTRA_MESSAGE_BUNDLE);
                             ChatData[] messages = Arrays.copyOf(parcelables, parcelables.length, ChatData[].class);
                             for (ChatData chatData : messages) {
-                                arrayAdapterMessages.add(chatData.toString());
+                                chatAdapter.add(chatData);
                             }
                         }
                         break;
@@ -251,17 +252,7 @@ public class MainActivity extends NavigationDrawerActivity {
                         Log.d(TAG, "SEND_ROOM_ACTION");
                         if (intent.hasExtra(EXTRA_ROOM)) {
                             RoomData roomData = intent.getParcelableExtra(EXTRA_ROOM);
-                            if (roomData.getParticipants() != null && roomData.getParticipants().size() > 0) {
-                                Log.d(TAG, Integer.toString(roomData.getParticipants().size()));
-                                for (PeopleData peopleData1 : roomData.getParticipants()) {
-                                    if (peopleData1.getUid().contains(Utils.getAndroidID(getApplicationContext()))) {
-                                        roomsAdapter.add(roomData);
-                                        break;
-                                    }
-                                }
-                            } else {
-                                roomsAdapter.add(roomData);
-                            }
+                            roomsAdapter.add(roomData);
                         } else if (intent.hasExtra(EXTRA_MESSAGE_BUNDLE)) {
                             Parcelable[] parcelables = intent.getParcelableArrayExtra(EXTRA_MESSAGE_BUNDLE);
                             RoomData[] messages = Arrays.copyOf(parcelables, parcelables.length, RoomData[].class);

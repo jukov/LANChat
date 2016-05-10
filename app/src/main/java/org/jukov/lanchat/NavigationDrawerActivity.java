@@ -15,9 +15,9 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import org.jukov.lanchat.adapter.ChatAdapter;
 import org.jukov.lanchat.service.ServiceHelper;
 
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.ACTIVITY_ACTION;
@@ -38,7 +38,7 @@ public abstract class NavigationDrawerActivity extends BaseActivity implements
 
     protected int currentNavigationId;
 
-    protected ArrayAdapter<String> arrayAdapterMessages;
+    protected ChatAdapter chatAdapter;
 
     private BroadcastReceiver broadcastReceiverStatus;
 
@@ -77,8 +77,8 @@ public abstract class NavigationDrawerActivity extends BaseActivity implements
         }
     }
 
-    public ArrayAdapter<String> getArrayAdapterMessages() {
-        return arrayAdapterMessages;
+    public ChatAdapter getChatAdapter() {
+        return chatAdapter;
     }
 
     protected void initViews() {

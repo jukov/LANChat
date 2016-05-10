@@ -8,7 +8,10 @@ import android.view.ViewGroup;
 
 import org.jukov.lanchat.PrivateChatActivity;
 import org.jukov.lanchat.R;
+import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.service.ServiceHelper;
+
+import static org.jukov.lanchat.dto.ChatData.MessageType.PRIVATE;
 
 /**
  * Created by jukov on 26.02.2016.
@@ -45,11 +48,12 @@ public class PrivateChatFragment extends ChatFragment {
             @Override
             public void onClick(View v) {
                 if (editTextMessage.getText().length() > 0)
-                    ServiceHelper.sendMessage(
-                            privateChatActivity,
-                            ServiceHelper.MessageType.PRIVATE,
-                            editTextMessage.getText().toString(),
-                            privateChatActivity.getCompanionUID());
+                    ServiceHelper.sendMessage(getContext(),
+                            new ChatData(
+                                    getContext(),
+                                    PRIVATE,
+                                    getMessageText(),
+                                    privateChatActivity.getCompanionUID()));
                 editTextMessage.setText("");
             }
         });

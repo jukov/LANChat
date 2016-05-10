@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import org.jukov.lanchat.R;
 import org.jukov.lanchat.RoomChatActivity;
+import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.service.ServiceHelper;
 
 /**
@@ -45,12 +46,12 @@ public class RoomChatFragment extends ChatFragment {
             @Override
             public void onClick(View v) {
                 if (editTextMessage.getText().length() > 0) {
-                    ServiceHelper.sendMessage(
-                            getContext(),
-                            ServiceHelper.MessageType.ROOM,
-                            editTextMessage.getText().toString(),
-                            roomChatActivity.getUid()
-                            );
+                    ServiceHelper.sendMessage(getContext(),
+                            new ChatData(
+                                    getContext(),
+                                    ChatData.MessageType.ROOM,
+                                    getMessageText(),
+                                    roomChatActivity.getRoomUid()));
                     editTextMessage.setText("");
                 }
             }

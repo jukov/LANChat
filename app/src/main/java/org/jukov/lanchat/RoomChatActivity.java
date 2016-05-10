@@ -9,9 +9,10 @@ import android.os.Parcelable;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 
+import org.jukov.lanchat.adapter.ChatAdapter;
 import org.jukov.lanchat.db.DBHelper;
+import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.dto.RoomData;
 import org.jukov.lanchat.fragment.RoomChatFragment;
@@ -21,10 +22,8 @@ import org.jukov.lanchat.service.ServiceHelper;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_DESTINATION_UID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_PARTICIPANTS;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ROOM;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.ROOM_MESSAGE_ACTION;
@@ -34,10 +33,12 @@ import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.ROOM_MESSA
  */
 public class RoomChatActivity extends NavigationDrawerActivity {
 
+    public static final String TAG = RoomChatActivity.class.getSimpleName();
+
     DBHelper dbHelper;
 
-    private String name;
-    private String uid;
+    private String roomName;
+    private String roomUid;
     private List<PeopleData> participants;
 
     private BroadcastReceiver broadcastReceiver;
@@ -49,8 +50,8 @@ public class RoomChatActivity extends NavigationDrawerActivity {
 
         Intent intent = getIntent();
         RoomData roomData = intent.getParcelableExtra(EXTRA_ROOM);
-        name = roomData.getName();
-        uid = roomData.getUid();
+        roomName = roomData.getName();
+        roomUid = roomData.getUid();
         participants = roomData.getParticipants();
 
         dbHelper = DBHelper.getInstance(this);
@@ -59,7 +60,7 @@ public class RoomChatActivity extends NavigationDrawerActivity {
         initAdapter();
         initFragment();
         initBroadcastReceiver();
-        initService();
+//        initService();
     }
 
     @Override
@@ -99,7 +100,7 @@ public class RoomChatActivity extends NavigationDrawerActivity {
                             Arrays.copyOf(parcelableArray, parcelableArray.length, PeopleData[].class))) {
                 participants.add(peopleData);
             }
-            RoomData roomData = new RoomData(name, uid, participants);
+            RoomData roomData = new RoomData(roomName, roomUid, participants);
             dbHelper.insertOrUpdateRoom(roomData);
             ServiceHelper.sendRoom(getApplicationContext(), roomData);
         }
@@ -130,12 +131,12 @@ public class RoomChatActivity extends NavigationDrawerActivity {
         return true;
     }
 
-    public ArrayAdapter<String> getArrayAdapterMessages() {
-        return arrayAdapterMessages;
+    public ChatAdapter getChatAdapter() {
+        return chatAdapter;
     }
 
-    public String getUid() {
-        return uid;
+    public String getRoomUid() {
+        return roomUid;
     }
 
     protected void initViews() {
@@ -143,16 +144,13 @@ public class RoomChatActivity extends NavigationDrawerActivity {
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            getSupportActionBar().setTitle(name);
+            getSupportActionBar().setTitle(roomName);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
     }
 
     private void initAdapter() {
-        arrayAdapterMessages = new ArrayAdapter<>(
-                this,
-                android.R.layout.simple_list_item_1,
-                dbHelper.getRoomMessages(uid));
+        chatAdapter = new ChatAdapter(getApplicationContext(), dbHelper.getRoomMessages(roomUid));
     }
 
     private void initFragment() {
@@ -169,17 +167,17 @@ public class RoomChatActivity extends NavigationDrawerActivity {
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, final Intent intent) {
-                String destinationUID = intent.getStringExtra(EXTRA_DESTINATION_UID);
-                if (destinationUID.equals(uid))
-                    arrayAdapterMessages.add(intent.getStringExtra(EXTRA_NAME) + ": " + intent.getStringExtra(EXTRA_MESSAGE));
+                ChatData chatData = intent.getParcelableExtra(EXTRA_MESSAGE);
+                if (chatData.getDestinationUID().equals(roomUid))
+                    chatAdapter.add(chatData);
             }
         };
         IntentFilter intentFilter = new IntentFilter(ROOM_MESSAGE_ACTION);
         registerReceiver(broadcastReceiver, intentFilter);
     }
 
-    private void initService() {
+//    private void initService() {
 //        Log.d(getClass().getSimpleName(), "Connecting to service");
 //        ServiceHelper.startService(this);
-    }
+//    }
 }

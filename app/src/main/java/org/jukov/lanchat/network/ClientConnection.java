@@ -6,12 +6,13 @@ import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.MessagingData;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.dto.RoomData;
-import org.jukov.lanchat.service.ServiceHelper;
 import org.jukov.lanchat.util.JSONConverter;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.util.AbstractCollection;
+
+import static org.jukov.lanchat.dto.ChatData.MessageType.GLOBAL;
 
 /**
  * Created by jukov on 07.02.2016.
@@ -35,7 +36,7 @@ public class ClientConnection extends Connection {
                 if (data instanceof PeopleData) {
                     peopleData = (PeopleData) data;
                 } else if (data instanceof ChatData) {
-                    if (((ChatData) data).getMessageType() == ServiceHelper.MessageType.GLOBAL)
+                    if (((ChatData) data).getMessageType() == GLOBAL)
                         server.addMessage((ChatData) data);
                 } else if (data instanceof RoomData) {
                     RoomData roomData = (RoomData) data;
