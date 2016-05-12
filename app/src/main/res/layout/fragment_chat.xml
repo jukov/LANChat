@@ -10,7 +10,7 @@
     <ListView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/frChatMessageList"
+        android:id="@+id/listViewMessages"
         android:layout_alignParentStart="true"
         android:transcriptMode="alwaysScroll"
         android:stackFromBottom="true"
@@ -35,23 +35,17 @@
         <EditText
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:id="@+id/frChatMessageText"
+            android:id="@+id/editTextMessage"
             android:hint="@string/edit_text_message_typehere"
             android:layout_weight="1" />
 
         <ImageButton
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:id="@+id/frChatSendButton"
+            android:id="@+id/imageButtonSend"
             android:contentDescription="@string/button_send"
             android:background="@drawable/ic_send"
             android:layout_marginTop="4dp"
             android:layout_marginStart="4dp" />
-
-        <!--<Button-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="@string/button_send"-->
-            <!--android:id="@+id/frChatSendButton"/>-->
     </LinearLayout>
 </RelativeLayout>

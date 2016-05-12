@@ -102,7 +102,7 @@ public class AddingPeopleActivity extends BaseActivity {
         arrayAdapterPeople = new ArrayAdapter<>(
                 this,
                 R.layout.listview_people_check,
-                R.id.listviewPeopleName,
+                R.id.textViewName,
                 people);
     }
 

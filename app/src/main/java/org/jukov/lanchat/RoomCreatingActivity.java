@@ -129,7 +129,7 @@ public class RoomCreatingActivity extends BaseActivity {
         arrayAdapterPeople = new ArrayAdapter<>(
                 this,
                 R.layout.listview_people_check,
-                R.id.listviewPeopleName,
+                R.id.textViewName,
                 people);
     }
 
@@ -143,8 +143,8 @@ public class RoomCreatingActivity extends BaseActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        roomNameText = (EditText) findViewById(R.id.roomNameText);
-        isPrivate = (CheckBox) findViewById(R.id.isPrivate);
+        roomNameText = (EditText) findViewById(R.id.editTextRoomName);
+        isPrivate = (CheckBox) findViewById(R.id.checkBoxIsPrivate);
         listViewPeople = (ListView) findViewById(R.id.listViewPeople);
 
         if (roomNameText != null) {

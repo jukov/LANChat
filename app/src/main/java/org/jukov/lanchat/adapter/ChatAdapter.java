@@ -69,17 +69,17 @@ public final class ChatAdapter extends BaseAdapter {
         ChatData chatData = getItem(position);
 
 
-        TextView textViewName = (TextView) view.findViewById(R.id.nameText);
+        TextView textViewName = (TextView) view.findViewById(R.id.textViewName);
         textViewName.setText(chatData.getText());
-        TextView textViewMessage = (TextView) view.findViewById(R.id.messageText);
+        TextView textViewMessage = (TextView) view.findViewById(R.id.textViewMessage);
         textViewMessage.setText(chatData.getText());
-        TextView textViewDate = (TextView) view.findViewById(R.id.dateText);
+        TextView textViewDate = (TextView) view.findViewById(R.id.textViewDate);
         textViewDate.setText(Utils.getSendMessageDate(chatData.getSendDate()));
 
         LinearLayout layout = (LinearLayout) view
-                .findViewById(R.id.bubble_layout);
+                .findViewById(R.id.linearLayoutBubble);
         LinearLayout parent_layout = (LinearLayout) view
-                .findViewById(R.id.bubble_layout_parent);
+                .findViewById(R.id.linearLayoutMessageContainer);
 
         if (chatData.getUid().equals(myUID)) {
             layout.setBackgroundResource(R.drawable.ic_outcoming);

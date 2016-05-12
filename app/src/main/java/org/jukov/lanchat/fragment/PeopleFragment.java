@@ -46,13 +46,13 @@ public class PeopleFragment extends ListFragment {
     @Nullable
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        layout = inflater.inflate(R.layout.fragment_peoples, container, false);
+        layout = inflater.inflate(R.layout.fragment_people, container, false);
         initViews();
         return layout;
     }
 
     private void initViews() {
-        listView = (ListView) layout.findViewById(R.id.frList);
+        listView = (ListView) layout.findViewById(R.id.listViewPeople);
 
         listView.setAdapter(arrayAdapter);
 

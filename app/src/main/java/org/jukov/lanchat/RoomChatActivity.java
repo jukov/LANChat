@@ -160,7 +160,7 @@ public class RoomChatActivity extends NavigationDrawerActivity {
         RoomChatFragment roomChatFragment = RoomChatFragment.newInstance();
 
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragmentContainer, roomChatFragment)
+                .replace(R.id.relativeLayoutFragmentContainer, roomChatFragment)
                 .commit();
     }
 

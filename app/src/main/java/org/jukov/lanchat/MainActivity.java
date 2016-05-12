@@ -82,7 +82,7 @@ public class MainActivity extends NavigationDrawerActivity {
             switch (id) {
                 case R.id.drawerMenuSettings:
                     getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragmentContainer, fragments.get(id))
+                            .replace(R.id.relativeLayoutFragmentContainer, fragments.get(id))
                             .addToBackStack(null)
                             .commit();
                     toolbar.setTitle(getString(R.string.settings));
@@ -96,7 +96,7 @@ public class MainActivity extends NavigationDrawerActivity {
                     BaseFragment baseFragment = (BaseFragment) fragments.get(id);
                     toolbar.setTitle(baseFragment.getTitle());
                     getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragmentContainer, baseFragment)
+                            .replace(R.id.relativeLayoutFragmentContainer, baseFragment)
                             .commit();
             }
             currentNavigationId = id;
@@ -122,7 +122,7 @@ public class MainActivity extends NavigationDrawerActivity {
                         toolbar.setTitle(((BaseFragment) fragment).getTitle());
                     }
                     getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragmentContainer, fragments.get(id))
+                            .replace(R.id.relativeLayoutFragmentContainer, fragments.get(id))
                             .commit();
                     currentNavigationId = id;
                     break;
@@ -168,7 +168,7 @@ public class MainActivity extends NavigationDrawerActivity {
         fragments.put(R.id.drawerMenuSettings, new SettingsFragment());
 
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragmentContainer, fragments.get(R.id.drawerMenuGlobalChat))
+                .replace(R.id.relativeLayoutFragmentContainer, fragments.get(R.id.drawerMenuGlobalChat))
                 .commit();
     }
 
@@ -177,7 +177,7 @@ public class MainActivity extends NavigationDrawerActivity {
 
         roomsAdapter = new RoomsAdapter(getApplicationContext());
         chatAdapter = new ChatAdapter(this, dbHelper.getPublicMessages());
-        arrayAdapterPeople = new ArrayAdapter<>(this, R.layout.listview_people, R.id.listviewPeopleName);
+        arrayAdapterPeople = new ArrayAdapter<>(this, R.layout.listview_people, R.id.textViewName);
     }
 
     @Override

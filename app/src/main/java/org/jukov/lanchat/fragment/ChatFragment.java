@@ -31,9 +31,9 @@ public abstract class ChatFragment extends BaseFragment {
     }
 
     void initViews() {
-        ListView listViewMessages = (ListView) layout.findViewById(R.id.frChatMessageList);
-        buttonSend = (ImageButton) layout.findViewById(R.id.frChatSendButton);
-        editTextMessage = (EditText) layout.findViewById(R.id.frChatMessageText);
+        ListView listViewMessages = (ListView) layout.findViewById(R.id.listViewMessages);
+        buttonSend = (ImageButton) layout.findViewById(R.id.imageButtonSend);
+        editTextMessage = (EditText) layout.findViewById(R.id.editTextMessage);
 
         listViewMessages.setAdapter(chatAdapter);
     }

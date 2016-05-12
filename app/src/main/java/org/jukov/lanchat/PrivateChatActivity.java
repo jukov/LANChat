@@ -108,7 +108,7 @@ public class PrivateChatActivity extends NavigationDrawerActivity {
         PrivateChatFragment privateChatFragment = PrivateChatFragment.newInstance();
 
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragmentContainer, privateChatFragment)
+                .replace(R.id.relativeLayoutFragmentContainer, privateChatFragment)
                 .commit();
     }
 

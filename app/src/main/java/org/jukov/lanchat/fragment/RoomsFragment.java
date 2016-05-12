@@ -59,8 +59,8 @@ public class RoomsFragment extends ListFragment {
     }
 
     private void initViews() {
-        listView = (ListView) layout.findViewById(R.id.frList);
-        FloatingActionButton fab = (FloatingActionButton) layout.findViewById(R.id.frFab);
+        listView = (ListView) layout.findViewById(R.id.listViewRooms);
+        FloatingActionButton fab = (FloatingActionButton) layout.findViewById(R.id.fab);
 
         listView.setAdapter(roomsAdapter);
 

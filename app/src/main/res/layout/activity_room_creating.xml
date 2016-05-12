@@ -37,12 +37,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:hintTextAppearance="@android:style/TextAppearance.Medium"
-            android:id="@+id/roomNameTextLayout">
+            android:id="@+id/textInputLayoutRoomName">
 
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/roomNameText"
+                android:id="@+id/editTextRoomName"
                 android:hint="@string/room_name"
                 android:singleLine="true"/>
 
@@ -52,16 +52,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/_private"
-            android:id="@+id/isPrivate"
-            android:layout_below="@+id/roomNameTextLayout"
+            android:id="@+id/checkBoxIsPrivate"
+            android:layout_below="@+id/textInputLayoutRoomName"
             android:layout_alignParentStart="true"
-            android:layout_alignEnd="@+id/roomNameTextLayout" />
+            android:layout_alignEnd="@+id/textInputLayoutRoomName" />
 
         <ListView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/listViewPeople"
-            android:layout_below="@+id/isPrivate"
+            android:id="@+id/listViewRooms"
+            android:layout_below="@+id/checkBoxIsPrivate"
             android:layout_alignParentStart="true" />
     </RelativeLayout>
 </android.support.design.widget.CoordinatorLayout>

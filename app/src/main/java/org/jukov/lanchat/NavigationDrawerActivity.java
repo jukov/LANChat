@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -56,7 +55,7 @@ public abstract class NavigationDrawerActivity extends BaseActivity implements
     @Override
     public void onBackPressed() {
         Log.d(getClass().getSimpleName(), "onBackPressed");
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawerLayout);
         if (drawer != null)
             if (drawer.isDrawerOpen(GravityCompat.START)) {
                 drawer.closeDrawer(GravityCompat.START);
@@ -71,7 +70,7 @@ public abstract class NavigationDrawerActivity extends BaseActivity implements
         switch (key) {
             case "name":
                 String name = sharedPreferences.getString("name", getString(R.string.default_name));
-                TextView textView = (TextView) navigationDrawerHeaderView.findViewById(R.id.navTextViewName);
+                TextView textView = (TextView) navigationDrawerHeaderView.findViewById(R.id.textViewName);
                 ServiceHelper.changeName(this, name);
                 textView.setText(getString(R.string.nav_header_hello, name));
                 break;
@@ -85,7 +84,7 @@ public abstract class NavigationDrawerActivity extends BaseActivity implements
     protected void initViews() {
         super.initViews();
 
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
 
         drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
@@ -113,16 +112,16 @@ public abstract class NavigationDrawerActivity extends BaseActivity implements
             }
         });
 
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.navigationView);
         if (navigationView != null) {
             navigationView.setNavigationItemSelectedListener(this);
             navigationDrawerHeaderView = navigationView.getHeaderView(0);
         }
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        TextView textView = (TextView) navigationDrawerHeaderView.findViewById(R.id.navTextViewName);
+        TextView textView = (TextView) navigationDrawerHeaderView.findViewById(R.id.textViewName);
         textView.setText(getString(R.string.nav_header_hello, sharedPreferences.getString("name", getString(R.string.default_name))));
 
-        textViewMode = (TextView) navigationDrawerHeaderView.findViewById(R.id.navTextViewPeoplesAround);
+        textViewMode = (TextView) navigationDrawerHeaderView.findViewById(R.id.textViewPeopleAround);
         textViewMode.setText(getString(R.string.nav_header_people_around, peopleAround));
     }
 

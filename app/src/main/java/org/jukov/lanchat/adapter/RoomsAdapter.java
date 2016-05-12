@@ -1,7 +1,6 @@
 package org.jukov.lanchat.adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,7 +63,7 @@ public final class RoomsAdapter extends BaseAdapter {
 
         RoomData roomData = getItem(position);
 
-        TextView textView = (TextView) view.findViewById(R.id.listviewPeopleName);
+        TextView textView = (TextView) view.findViewById(R.id.textViewName);
         textView.setText(roomData.toString());
 
         if (roomData.getParticipants() != null && roomData.getParticipants().size() > 0) {

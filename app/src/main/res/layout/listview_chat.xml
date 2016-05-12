@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/bubble_layout_parent"
+    android:id="@+id/linearLayoutMessageContainer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -10,7 +10,7 @@
     android:paddingRight="4dp">
 
     <LinearLayout
-        android:id="@+id/bubble_layout"
+        android:id="@+id/linearLayoutBubble"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/ic_outcoming"
@@ -22,7 +22,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="New Text"
-            android:id="@+id/nameText"
+            android:id="@+id/textViewName"
             android:textColor="@color/purple400"
             android:textStyle="bold"
             android:paddingLeft="8dp"
@@ -31,7 +31,7 @@
             android:textSize="16sp" />
 
         <TextView
-            android:id="@+id/messageText"
+            android:id="@+id/textViewMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxEms="18"
@@ -46,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="New Text"
-            android:id="@+id/dateText"
+            android:id="@+id/textViewDate"
             android:textColor="@color/purple400"
             android:paddingBottom="8dp"
             android:paddingRight="8dp"
