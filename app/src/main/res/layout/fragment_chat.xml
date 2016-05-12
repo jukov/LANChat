@@ -37,7 +37,8 @@
             android:layout_height="wrap_content"
             android:id="@+id/editTextMessage"
             android:hint="@string/edit_text_message_typehere"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:maxLines="5" />
 
         <ImageButton
             android:layout_width="32dp"

@@ -83,7 +83,6 @@ public class MainActivity extends NavigationDrawerActivity {
                 case R.id.drawerMenuSettings:
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.relativeLayoutFragmentContainer, fragments.get(id))
-                            .addToBackStack(null)
                             .commit();
                     toolbar.setTitle(getString(R.string.settings));
                     break;
