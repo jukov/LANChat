@@ -16,10 +16,7 @@ import java.util.Arrays;
 public class ServiceHelper {
 
     public class IntentConstants {
-
-        //TODO: Rename actions
-        public static final String ACTIVITY_ACTION = "org.jukov.lanchat.ACTIVITY";
-
+        public static final String ACTIVITY_ACTION =            "org.jukov.lanchat.ACTIVITY";
         public static final String GLOBAL_MESSAGE_ACTION =      "org.jukov.lanchat.GLOBAL_CHAT";
         public static final String PRIVATE_MESSAGE_ACTION =     "org.jukov.lanchat.PRIVATE_CHAT";
         public static final String ROOM_MESSAGE_ACTION =        "org.jukov.lanchat.ROOM_MESSAGE_ACTION";
@@ -32,18 +29,15 @@ public class ServiceHelper {
         public static final String SEND_ROOM_ACTION =           "org.jukov.lanchat.SEND_ROOM";
         public static final String MESSAGE_ACTION =             "org.jukov.lanchat.MESSAGE";
 
-
         public static final String EXTRA_NAME =             "name";
         public static final String EXTRA_MESSAGE =          "message";
         public static final String EXTRA_MESSAGE_BUNDLE =   "message_bundle";
         public static final String EXTRA_UID =              "uid";
         public static final String EXTRA_ID =               "id";
-        public static final String EXTRA_PEOPLE_ARROUND =   "mode";
+        public static final String EXTRA_PEOPLE_AROUND =   "mode";
         public static final String EXTRA_ACTION =           "action";
-        public static final String EXTRA_DESTINATION_UID =  "receiver_uid";
         public static final String EXTRA_ROOM =             "room";
         public static final String EXTRA_PARTICIPANTS =     "participants";
-
     }
 
     /*
@@ -95,7 +89,7 @@ public class ServiceHelper {
 
     public static void updateStatus(Context context, int connections) {
         Intent intent = new Intent(IntentConstants.ACTIVITY_ACTION);
-        intent.putExtra(IntentConstants.EXTRA_PEOPLE_ARROUND, connections);
+        intent.putExtra(IntentConstants.EXTRA_PEOPLE_AROUND, connections);
         context.sendBroadcast(intent);
     }
 

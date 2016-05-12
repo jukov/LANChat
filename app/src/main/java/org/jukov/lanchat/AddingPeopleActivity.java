@@ -27,6 +27,7 @@ import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_PART
  */
 public class AddingPeopleActivity extends BaseActivity {
 
+    @SuppressWarnings("unused")
     private static final String TAG = AddingPeopleActivity.class.getSimpleName();
 
     private ArrayAdapter<PeopleData> arrayAdapterPeople;

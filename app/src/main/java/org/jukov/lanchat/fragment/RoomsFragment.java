@@ -18,6 +18,7 @@ import org.jukov.lanchat.RoomChatActivity;
 import org.jukov.lanchat.RoomCreatingActivity;
 import org.jukov.lanchat.adapter.RoomsAdapter;
 import org.jukov.lanchat.dto.RoomData;
+import org.jukov.lanchat.service.ServiceHelper;
 
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ROOM;
 
@@ -26,7 +27,6 @@ import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ROOM
  */
 public class RoomsFragment extends ListFragment {
 
-    MainActivity mainActivity;
     private RoomsAdapter roomsAdapter;
 
     public static RoomsFragment newInstance(Context context) {
@@ -70,6 +70,7 @@ public class RoomsFragment extends ListFragment {
                 RoomData roomData = roomsAdapter.getItem(position);
                 Intent intent = new Intent(getContext(), RoomChatActivity.class);
                 intent.putExtra(EXTRA_ROOM, roomData);
+                intent.putExtra(ServiceHelper.IntentConstants.EXTRA_PEOPLE_AROUND, mainActivity.getPeopleAround());
                 getActivity().startActivityForResult(intent, BaseActivity.REQUEST_CODE_ROOM_CHAT);
             }
         });

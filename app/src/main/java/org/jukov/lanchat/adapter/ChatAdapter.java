@@ -15,22 +15,23 @@ import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.util.Utils;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 /**
  * Created by jukov on 07.05.2016.
  */
-public class ChatAdapter extends BaseAdapter {
+public final class ChatAdapter extends BaseAdapter {
 
+    @SuppressWarnings("unused")
     public static final String TAG = RoomsAdapter.class.getSimpleName();
 
-    private Context context;
-    private List<ChatData> messages;
-    LayoutInflater layoutInflater;
+    private final Context context;
+    private final List<ChatData> messages;
+    private final LayoutInflater layoutInflater;
 
-    private String myUID;
+    private final String myUID;
 
+    @SuppressWarnings("unused")
     public ChatAdapter(Context context) {
         this(context, new ArrayList<ChatData>());
     }
@@ -57,6 +58,7 @@ public class ChatAdapter extends BaseAdapter {
         return messages.get(position);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = convertView;
@@ -72,8 +74,7 @@ public class ChatAdapter extends BaseAdapter {
         TextView textViewMessage = (TextView) view.findViewById(R.id.messageText);
         textViewMessage.setText(chatData.getText());
         TextView textViewDate = (TextView) view.findViewById(R.id.dateText);
-        Calendar calendar = Calendar.getInstance();
-        textViewDate.setText(Utils.getSendMessageDate(context, chatData.getSendDate()));
+        textViewDate.setText(Utils.getSendMessageDate(chatData.getSendDate()));
 
         LinearLayout layout = (LinearLayout) view
                 .findViewById(R.id.bubble_layout);

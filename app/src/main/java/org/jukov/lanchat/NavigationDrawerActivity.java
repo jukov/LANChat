@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -21,7 +22,7 @@ import org.jukov.lanchat.adapter.ChatAdapter;
 import org.jukov.lanchat.service.ServiceHelper;
 
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.ACTIVITY_ACTION;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_PEOPLE_ARROUND;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_PEOPLE_AROUND;
 
 /**
  * Created by jukov on 21.04.2016.
@@ -30,19 +31,19 @@ public abstract class NavigationDrawerActivity extends BaseActivity implements
         SharedPreferences.OnSharedPreferenceChangeListener,
         NavigationView.OnNavigationItemSelectedListener {
 
-    protected DrawerLayout drawerLayout;
-    protected NavigationView navigationView;
-    protected ActionBarDrawerToggle actionBarDrawerToggle;
-    protected View navigationDrawerHeaderView;
-    protected TextView textViewMode;
+    DrawerLayout drawerLayout;
+    NavigationView navigationView;
+    ActionBarDrawerToggle actionBarDrawerToggle;
+    View navigationDrawerHeaderView;
+    TextView textViewMode;
 
-    protected int currentNavigationId;
+    int currentNavigationId;
 
-    protected ChatAdapter chatAdapter;
+    ChatAdapter chatAdapter;
 
     private BroadcastReceiver broadcastReceiverStatus;
 
-    protected static int peopleAround = 0;
+    protected int peopleAround = 0;
 
     public abstract boolean onNavigationItemSelected(MenuItem item);
 
@@ -96,6 +97,7 @@ public abstract class NavigationDrawerActivity extends BaseActivity implements
             public void onDrawerOpened(View drawerView) {
                 InputMethodManager inputMethodManager = (InputMethodManager)
                         NavigationDrawerActivity.this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+                //noinspection ConstantConditions
                 inputMethodManager.hideSoftInputFromWindow(
                         NavigationDrawerActivity.this.getCurrentFocus().getWindowToken(), 0);
             }
@@ -121,15 +123,15 @@ public abstract class NavigationDrawerActivity extends BaseActivity implements
         textView.setText(getString(R.string.nav_header_hello, sharedPreferences.getString("name", getString(R.string.default_name))));
 
         textViewMode = (TextView) navigationDrawerHeaderView.findViewById(R.id.navTextViewPeoplesAround);
-        textViewMode.setText(getString(R.string.nav_header_people_around, 0));
+        textViewMode.setText(getString(R.string.nav_header_people_around, peopleAround));
     }
 
-    protected void initBroadcastReceiver() {
+    void initBroadcastReceiver() {
         broadcastReceiverStatus = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, final Intent intent) {
                 if (intent.getAction().equals(ACTIVITY_ACTION)) {
-                    peopleAround = intent.getIntExtra(EXTRA_PEOPLE_ARROUND, -1);
+                    peopleAround = intent.getIntExtra(EXTRA_PEOPLE_AROUND, -1);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

@@ -30,6 +30,7 @@ public class Utils {
         return InetAddress.getByAddress(quads);
     }
 
+    @SuppressWarnings("deprecation")
     public static String getWifiAddress(Context context) {
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
@@ -44,18 +45,16 @@ public class Utils {
         return getAndroidID(context) + Long.toString(new Date().getTime());
     }
 
-    public static String getSendMessageDate(Context context, long millis) {
+    public static String getSendMessageDate(long millis) {
         long now = System.currentTimeMillis();
         long diff = now - millis;
         String format = "HH:mm";
         if (diff > TimeUnit.DAYS.toMillis(365)) {
-            format = "MMM d, HH:mm";
-        } else if (diff > TimeUnit.DAYS.toMillis(1)) {
             format = "MMM d yyyy, HH:mm";
+        } else if (diff > TimeUnit.DAYS.toMillis(1)) {
+            format = "MMM d, HH:mm";
         }
-//        SimpleDateFormat simpleDateFormat = (SimpleDateFormat) android.text.format.DateFormat.getDateFormat(context);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, Locale.getDefault());
-//        return dateFormat.format(new Date(millis));
         return simpleDateFormat.format(new Date(millis));
     }
 }

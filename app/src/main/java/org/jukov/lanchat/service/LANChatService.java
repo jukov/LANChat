@@ -35,19 +35,20 @@ import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.START_SERV
  */
 public class LANChatService extends Service {
 
-    public static final int TCP_PORT = 1791;
-    public static final int UDP_PORT = 1791;
+    private static final int TCP_PORT = 1791;
+    private static final int UDP_PORT = 1791;
 
-    private int mode;
+    private static final int MODE_NONE = 0;
+    private static final int MODE_CLIENT = 1;
+    private static final int MODE_SERVER = 2;
 
-    public static final int MODE_NONE = 0;
-    public static final int MODE_CLIENT = 1;
-    public static final int MODE_SERVER = 2;
     private ExecutorService executorService;
 
     private Server server;
-
     private Client client;
+
+    private int mode;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -72,7 +73,7 @@ public class LANChatService extends Service {
                     Thread thread = new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            startServer(TCP_PORT);
+                            startServer();
                         }
                     });
                     thread.start();
@@ -124,10 +125,10 @@ public class LANChatService extends Service {
         return null;
     }
 
-    public void initService() {
+    private void initService() {
         switch (mode) {
             case MODE_NONE:
-                ServerSearch serverSearch = new ServerSearch(UDP_PORT);
+                ServerSearch serverSearch = new ServerSearch();
                 executorService.execute(serverSearch);
                 break;
             default:
@@ -136,12 +137,12 @@ public class LANChatService extends Service {
         }
     }
 
-    public void searchServer() {
-        ServerSearch serverSearch = new ServerSearch(UDP_PORT);
+    private void searchServer() {
+        ServerSearch serverSearch = new ServerSearch();
         executorService.execute(serverSearch);
     }
 
-    public void sendMessage(Intent intent) {
+    private void sendMessage(Intent intent) {
         if (client != null) {
             try {
                 ChatData chatData = intent.getParcelableExtra(EXTRA_MESSAGE);
@@ -154,7 +155,7 @@ public class LANChatService extends Service {
         }
     }
 
-    public void changeName(Intent intent) {
+    private void changeName(Intent intent) {
         if (client != null) {
             client.changeName(intent.getStringExtra(EXTRA_NAME));
         }
@@ -173,11 +174,11 @@ public class LANChatService extends Service {
 
     class ServerSearch extends Thread {
 
-        private int port;
+        private final int port;
         final Semaphore semaphore;
 
-        public ServerSearch(int port) {
-            this.port = port;
+        public ServerSearch() {
+            this.port = LANChatService.UDP_PORT;
             semaphore = new Semaphore(1);
         }
 
@@ -210,9 +211,9 @@ public class LANChatService extends Service {
                 Log.d(getClass().getSimpleName(), receive[0] ? "Broadcast received" : "Broadcast not received");
 
                 if (receive[0]) {
-                    startClient(broadcastIP.toString(), TCP_PORT);
+                    startClient(broadcastIP.toString());
                 } else {
-                    startServer(TCP_PORT);
+                    startServer();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -220,17 +221,17 @@ public class LANChatService extends Service {
         }
     }
 
-    private void startServer(int port) {
+    private void startServer() {
         mode = MODE_SERVER;
-        server = new Server(getApplicationContext(), port);
+        server = new Server(getApplicationContext(), LANChatService.TCP_PORT);
         executorService.execute(server);
-        client = new Client(getApplicationContext(), "127.0.0.1", port);
+        client = new Client(getApplicationContext(), "127.0.0.1", LANChatService.TCP_PORT);
         executorService.execute(client);
     }
 
-    private void startClient(String ip, int port) {
+    private void startClient(String ip) {
         mode = MODE_CLIENT;
-        client = new Client(getApplicationContext(), ip, port);
+        client = new Client(getApplicationContext(), ip, LANChatService.TCP_PORT);
         executorService.execute(client);
         client.updateStatus();
     }

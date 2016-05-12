@@ -13,9 +13,9 @@ public abstract class BaseActivity extends AppCompatActivity {
     public static final int REQUEST_CODE_ROOM_CHAT = 3;
     public static final int REQUEST_CODE_ADDING_PEOPLE = 4;
 
-    protected Toolbar toolbar;
+    Toolbar toolbar;
 
-    protected void initViews() {
+    void initViews() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
     }

@@ -10,17 +10,17 @@ import java.net.Socket;
 /**
  * Created by jukov on 05.04.2016.
  */
-public abstract class Connection implements Closeable, Runnable {
+abstract class Connection implements Closeable, Runnable {
 
-    protected Socket socket;
-    protected Server server;
+    protected final Socket socket;
+    protected final Server server;
 
-    protected DataOutputStream dataOutputStream;
-    protected DataInputStream dataInputStream;
+    DataOutputStream dataOutputStream;
+    DataInputStream dataInputStream;
 
-    private String remoteIp;
+    private final String remoteIp;
 
-    public Connection(Socket socket, Server server) {
+    Connection(Socket socket, Server server) {
         this.socket = socket;
         this.server = server;
         remoteIp = ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress().toString().substring(1);

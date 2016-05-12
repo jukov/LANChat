@@ -19,6 +19,7 @@ import org.jukov.lanchat.util.Utils;
         @JsonSubTypes.Type(value = ChatData.class, name = "ChatData"),
         @JsonSubTypes.Type(value = RoomData.class, name = "RoomData")
 })
+@SuppressWarnings("unused")
 public abstract class MessagingData extends Data implements Parcelable {
 
     private String name;
@@ -37,7 +38,7 @@ public abstract class MessagingData extends Data implements Parcelable {
         return uid;
     }
 
-    public void setUid(String uid) {
+    void setUid(String uid) {
         this.uid = uid;
     }
 

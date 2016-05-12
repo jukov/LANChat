@@ -16,7 +16,7 @@ public class PeopleData extends MessagingData {
         CONNECT(1),
         DISCONNECT(2),
         CHANGE_NAME(3);
-        private int value;
+        private final int value;
 
         ActionType(int value) {
             this.value = value;
@@ -46,9 +46,9 @@ public class PeopleData extends MessagingData {
     public PeopleData() {
     }
 
-    public PeopleData(Context context, ActionType actionType) {
+    public PeopleData(Context context) {
         super(context);
-        setAction(actionType);
+        setAction(ActionType.NONE);
     }
 
     public PeopleData(String name, String uid) {
@@ -74,6 +74,7 @@ public class PeopleData extends MessagingData {
         return getName();
     }
 
+    @SuppressWarnings("CanBeFinal")
     public static Parcelable.Creator<PeopleData> CREATOR = new Parcelable.Creator<PeopleData>() {
         @Override
         public PeopleData createFromParcel(Parcel source) {

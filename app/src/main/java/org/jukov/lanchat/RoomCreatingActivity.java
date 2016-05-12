@@ -3,7 +3,6 @@ package org.jukov.lanchat;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.ActionBar;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -32,9 +31,9 @@ import java.util.List;
  */
 public class RoomCreatingActivity extends BaseActivity {
 
+    @SuppressWarnings("WeakerAccess")
     public static final String TAG = RoomCreatingActivity.class.getSimpleName();
 
-    private TextInputLayout roomNameTextLayout;
     private EditText roomNameText;
     private CheckBox isPrivate;
     private ListView listViewPeople;
@@ -116,11 +115,11 @@ public class RoomCreatingActivity extends BaseActivity {
         DBHelper dbHelper = DBHelper.getInstance(getApplicationContext());
         List<PeopleData> people = dbHelper.getPeople();
 
-        String myuid = Utils.getAndroidID(getApplicationContext());
+        String myUID = Utils.getAndroidID(getApplicationContext());
         Iterator<PeopleData> iterator = people.iterator();
         while (iterator.hasNext()) {
             PeopleData peopleData = iterator.next();
-            if (peopleData.getUid().equals(myuid)) {
+            if (peopleData.getUid().equals(myUID)) {
                 iterator.remove();
                 privateParticipants.add(peopleData);
                 break;
@@ -144,7 +143,6 @@ public class RoomCreatingActivity extends BaseActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        roomNameTextLayout = (TextInputLayout) findViewById(R.id.roomNameTextLayout);
         roomNameText = (EditText) findViewById(R.id.roomNameText);
         isPrivate = (CheckBox) findViewById(R.id.isPrivate);
         listViewPeople = (ListView) findViewById(R.id.listViewPeople);

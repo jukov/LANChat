@@ -24,44 +24,40 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class DBHelper extends SQLiteOpenHelper {
 
-    public static final String TAG = DBHelper.class.getSimpleName();
-
     private static volatile DBHelper instance;
 
-    private Context context;
+    @SuppressWarnings("WeakerAccess")
+    public static final String TAG = DBHelper.class.getSimpleName();
 
-    public static final int DATABASE_VERSION = 13;
-    public static final String DATABASE_NAME = "LANChatDatabase";
+    private static final int DATABASE_VERSION = 13;
+    private static final String DATABASE_NAME = "LANChatDatabase";
 
-    private SQLiteDatabase sqLiteDatabase;
-    private ContentValues contentValues;
+    private final Context context;
+    private final SQLiteDatabase sqLiteDatabase;
+    private final ContentValues contentValues;
+    private final Lock databaseLock;
 
-    private Lock databaseLock;
+    private static final String KEY_ID = "_id";
+    private static final String KEY_NAME = "key_name";
+    private static final String KEY_UID = "key_uid";
+    private static final String KEY_MESSAGE = "key_message";
+    private static final String KEY_DATE = "key_date";
+    private static final String KEY_ID_PEOPLE = "id_people";
+    private static final String KEY_ID_RECEIVER = "id_receiver";
+    private static final String KEY_ID_ROOM = "id_room";
+    private static final String TABLE_PEOPLE = "people";
+    private static final String TABLE_PRIVATE_MESSAGES = "private_messages";
+    private static final String TABLE_PUBLIC_MESSAGES = "public_messages";
+    private static final String TABLE_ROOMS = "rooms";
+    private static final String TABLE_ROOMS_MESSAGES = "rooms_messages";
+    private static final String TABLE_PRIVATE_ROOM_PARTICIPANTS = "private_room_participants";
 
-    public static final String KEY_ID = "_id";
-    public static final String KEY_NAME = "key_name";
-    public static final String KEY_UID = "key_uid";
-    public static final String KEY_MESSAGE = "key_message";
-    public static final String KEY_DATE = "key_date";
-    public static final String KEY_ID_PEOPLE = "id_people";
-    public static final String KEY_ID_RECEIVER = "id_receiver";
-    public static final String KEY_ID_ROOM = "id_room";
-    public static final String TABLE_PEOPLE = "people";
-    public static final String TABLE_PRIVATE_MESSAGES = "private_messages";
-    public static final String TABLE_PUBLIC_MESSAGES = "public_messages";
-    public static final String TABLE_ROOMS = "rooms";
-    public static final String TABLE_ROOMS_MESSAGES = "rooms_messages";
-    public static final String TABLE_PRIVATE_ROOM_PARTICIPANTS = "private_room_participants";
-
-
-
-    public static final String QUERY_CREATE_PEOPLE = "CREATE TABLE " + TABLE_PEOPLE +
+    private static final String QUERY_CREATE_PEOPLE = "CREATE TABLE " + TABLE_PEOPLE +
             "(" + KEY_ID +" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
             KEY_NAME + " TEXT NOT NULL," +
             KEY_UID + " TEXT NOT NULL UNIQUE" +
             ");";
-
-    public static final String QUERY_CREATE_PRIVATE_MESSAGES = "CREATE TABLE " + TABLE_PRIVATE_MESSAGES +
+    private static final String QUERY_CREATE_PRIVATE_MESSAGES = "CREATE TABLE " + TABLE_PRIVATE_MESSAGES +
             "(" + KEY_ID +" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
             KEY_ID_PEOPLE + " INTEGER NOT NULL," +
             KEY_ID_RECEIVER + " INTEGER NOT NULL," +
@@ -70,30 +66,26 @@ public class DBHelper extends SQLiteOpenHelper {
             "FOREIGN KEY(" + KEY_ID_PEOPLE + ") REFERENCES " + TABLE_PEOPLE + "(" + KEY_ID + ")," +
             "FOREIGN KEY(" + KEY_ID_RECEIVER + ") REFERENCES " + TABLE_PEOPLE + "(" + KEY_ID + ")" +
             ");";
-
-    public static final String QUERY_CREATE_PUBLIC_MESSAGES = "CREATE TABLE " + TABLE_PUBLIC_MESSAGES +
+    private static final String QUERY_CREATE_PUBLIC_MESSAGES = "CREATE TABLE " + TABLE_PUBLIC_MESSAGES +
             "(" + KEY_ID +" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
             KEY_ID_PEOPLE + " INTEGER NOT NULL," +
             KEY_MESSAGE + " TEXT NOT NULL," +
             KEY_DATE + " INTEGER NOT NULL," +
             "FOREIGN KEY(" + KEY_ID_PEOPLE + ") REFERENCES " + TABLE_PEOPLE + "(" + KEY_ID + ")" +
             ");";
-
-    public static final String QUERY_CREATE_ROOMS = "CREATE TABLE " + TABLE_ROOMS +
+    private static final String QUERY_CREATE_ROOMS = "CREATE TABLE " + TABLE_ROOMS +
             "(" + KEY_ID +" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
             KEY_NAME + " TEXT NOT NULL," +
             KEY_UID + " TEXT NOT NULL UNIQUE" +
             ");";
-
-    public static final String QUERY_CREATE_PRIVATE_ROOM_PARTCIPANTS = "CREATE TABLE " + TABLE_PRIVATE_ROOM_PARTICIPANTS +
+    private static final String QUERY_CREATE_PRIVATE_ROOM_PARTICIPANTS = "CREATE TABLE " + TABLE_PRIVATE_ROOM_PARTICIPANTS +
             "(" + KEY_ID +" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
             KEY_ID_ROOM + " INTEGER NOT NULL," +
             KEY_ID_PEOPLE + " INTEGER NOT NULL," +
             "FOREIGN KEY(" + KEY_ID_ROOM + ") REFERENCES " + TABLE_ROOMS + "(" + KEY_ID + ")," +
             "FOREIGN KEY(" + KEY_ID_PEOPLE + ") REFERENCES " + TABLE_PEOPLE + "(" + KEY_ID + ")" +
             ");";
-
-    public static final String QUERY_CREATE_ROOMS_MESSAGES = "CREATE TABLE " + TABLE_ROOMS_MESSAGES +
+    private static final String QUERY_CREATE_ROOMS_MESSAGES = "CREATE TABLE " + TABLE_ROOMS_MESSAGES +
             "(" + KEY_ID +" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
             KEY_ID_ROOM + " INTEGER NOT NULL," +
             KEY_ID_PEOPLE + " INTEGER NOT NULL," +
@@ -103,25 +95,25 @@ public class DBHelper extends SQLiteOpenHelper {
             "FOREIGN KEY(" + KEY_ID_ROOM + ") REFERENCES " + TABLE_ROOMS + "(" + KEY_ID + ")" +
             ");";
 
+    /*
+    * Init methods
+    */
+
     public static DBHelper getInstance(Context context) {
         DBHelper localInstance = instance;
         if (localInstance == null) {
             synchronized (DBHelper.class) {
                 localInstance = instance;
                 if (localInstance == null) {
-                    instance = localInstance = new DBHelper(context, DATABASE_NAME, null, DATABASE_VERSION);
+                    instance = localInstance = new DBHelper(context);
                 }
             }
         }
         return localInstance;
     }
 
-    /*
-    * Init methods
-    */
-
-    private DBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
-        super(context, name, factory, version);
+    private DBHelper(Context context) {
+        super(context, DBHelper.DATABASE_NAME, null, DBHelper.DATABASE_VERSION);
         this.context = context;
         sqLiteDatabase = this.getReadableDatabase();
         contentValues = new ContentValues(1);
@@ -135,7 +127,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(QUERY_CREATE_PRIVATE_MESSAGES);
         db.execSQL(QUERY_CREATE_ROOMS);
         db.execSQL(QUERY_CREATE_ROOMS_MESSAGES);
-        db.execSQL(QUERY_CREATE_PRIVATE_ROOM_PARTCIPANTS);
+        db.execSQL(QUERY_CREATE_PRIVATE_ROOM_PARTICIPANTS);
     }
 
     @Override
@@ -319,50 +311,12 @@ public class DBHelper extends SQLiteOpenHelper {
         for (ChatData chatData : messages) {
             insertMessage(chatData);
         }
-//        databaseLock.lock();
-//        Cursor cursor = sqLiteDatabase.query(
-//                TABLE_PEOPLE,
-//                new String[]{KEY_ID, KEY_UID},
-//                null, null, null, null, null);
-//
-//        HashMap<String, Integer> peopleIDs = new HashMap<>();
-//        if (cursor.getCount() > 0) {
-//            cursor.moveToFirst();
-//            do {
-//                peopleIDs.put(cursor.getString(1), cursor.getInt(0));
-//            } while (cursor.moveToNext());
-//        }
-//        cursor.close();
-//
-//        for (ChatData chatData : messages) {
-//            contentValues.put(KEY_ID_PEOPLE, peopleIDs.get(chatData.getRoomUid()));
-//            contentValues.put(KEY_MESSAGE, chatData.getText());
-//            contentValues.put(KEY_DATE, chatData.getSendDate());
-//            sqLiteDatabase.insert(TABLE_PUBLIC_MESSAGES, null, contentValues);
-//            contentValues.clear();
-//        }
-//        databaseLock.unlock();
     }
 
     public void insertRooms(AbstractCollection<RoomData> rooms) {
         for (RoomData roomData : rooms) {
             insertOrUpdateRoom(roomData);
         }
-//        databaseLock.lock();
-//
-//        for (RoomData roomData : rooms) {
-//            contentValues.put(KEY_NAME, roomData.getName());
-//            contentValues.put(KEY_UID, roomData.getRoomUid());
-//            if (sqLiteDatabase.update(
-//                    TABLE_ROOMS,
-//                    contentValues,
-//                    KEY_UID + " = ?",
-//                    new String[] {roomData.getRoomUid()}) == 0) {
-//                sqLiteDatabase.insert(TABLE_ROOMS, null, contentValues);
-//            }
-//            contentValues.clear();
-//        }
-//        databaseLock.unlock();
     }
 
     public void insertOrUpdateRoom(RoomData roomData) {

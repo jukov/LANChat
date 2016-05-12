@@ -16,7 +16,7 @@ import org.jukov.lanchat.service.ServiceHelper;
  */
 public class RoomChatFragment extends ChatFragment {
 
-    RoomChatActivity roomChatActivity;
+    private RoomChatActivity roomChatActivity;
 
     public static RoomChatFragment newInstance() {
         return new RoomChatFragment();

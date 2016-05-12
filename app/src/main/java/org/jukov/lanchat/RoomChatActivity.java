@@ -25,6 +25,7 @@ import java.util.List;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_PARTICIPANTS;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_PEOPLE_AROUND;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ROOM;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.ROOM_MESSAGE_ACTION;
 
@@ -33,9 +34,10 @@ import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.ROOM_MESSA
  */
 public class RoomChatActivity extends NavigationDrawerActivity {
 
+    @SuppressWarnings("unused")
     public static final String TAG = RoomChatActivity.class.getSimpleName();
 
-    DBHelper dbHelper;
+    private DBHelper dbHelper;
 
     private String roomName;
     private String roomUid;
@@ -52,6 +54,7 @@ public class RoomChatActivity extends NavigationDrawerActivity {
         RoomData roomData = intent.getParcelableExtra(EXTRA_ROOM);
         roomName = roomData.getName();
         roomUid = roomData.getUid();
+        peopleAround = intent.getIntExtra(EXTRA_PEOPLE_AROUND, -1);
         participants = roomData.getParticipants();
 
         dbHelper = DBHelper.getInstance(this);

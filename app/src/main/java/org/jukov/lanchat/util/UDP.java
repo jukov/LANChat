@@ -1,6 +1,5 @@
 package org.jukov.lanchat.util;
 
-import android.content.Context;
 import android.util.Log;
 
 import java.io.Closeable;
@@ -18,10 +17,9 @@ public class UDP extends Thread implements Closeable {
     public static final String CLIENT_BROADCAST = "org.jukov.lanchat.BROADCAST_TO_CLIENTS";
     public static final String SERVER_BROADCAST = "org.jukov.lanchat.BROADCAST_TO_SERVERS";
 
-    private BroadcastListener broadcastListener;
-    private Context context;
+    private final BroadcastListener broadcastListener;
+    private final int port;
     private DatagramSocket receiveSocket;
-    private int port;
 
     private static DatagramSocket sendSocket;
 

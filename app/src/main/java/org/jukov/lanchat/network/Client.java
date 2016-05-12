@@ -27,27 +27,23 @@ import static org.jukov.lanchat.dto.ServiceData.MessageType;
  */
 public class Client extends Thread implements Closeable {
 
+    @SuppressWarnings("WeakerAccess")
     public static final String TAG = Client.class.getSimpleName();
 
-    private Context context;
-//    private int port;
-//    private String remoteIp;
-    private PeopleData peopleData;
+    private final Context context;
+    private final DBHelper dbHelper;
 
     private Socket socket;
     private DataOutputStream dataOutputStream;
     private DataInputStream dataInputStream;
 
-    private DBHelper dbHelper;
-
-    int connections;
+    private PeopleData peopleData;
+    private int connections;
 
     public Client(Context context, String ip, int port) {
         this.context = context;
-//        this.port = port;
-//        this.remoteIp = remoteIp;
         connections = 0;
-        peopleData = new PeopleData(context, PeopleData.ActionType.NONE);
+        peopleData = new PeopleData(context);
         dbHelper = DBHelper.getInstance(context);
         dbHelper.insertOrUpdatePeople(peopleData);
         DataBundle<RoomData> dataBundle = new DataBundle<>(dbHelper.getRooms(), 50);
@@ -180,10 +176,6 @@ public class Client extends Thread implements Closeable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public String getLocalIP() {
-        return socket.getLocalAddress().toString();
     }
 
     public void updateStatus() {

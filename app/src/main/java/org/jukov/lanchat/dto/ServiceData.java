@@ -4,13 +4,14 @@ package org.jukov.lanchat.dto;
 /**
  * Created by jukov on 07.04.2016.
  */
+@SuppressWarnings("unused")
 public class ServiceData extends Data {
 
     public enum MessageType {
         DELEGATION_SERVER_STATUS(0),
         NEW_NODE_ADDRESS(1);
 
-        private int value;
+        private final int value;
         MessageType(int value) {
             this.value = value;
         }

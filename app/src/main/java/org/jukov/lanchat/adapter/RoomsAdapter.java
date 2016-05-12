@@ -19,13 +19,14 @@ import java.util.List;
 /**
  * Created by jukov on 02.05.2016.
  */
-public class RoomsAdapter extends BaseAdapter {
+public final class RoomsAdapter extends BaseAdapter {
 
+    @SuppressWarnings("WeakerAccess")
     public static final String TAG = RoomsAdapter.class.getSimpleName();
 
-    private Context context;
-    private List<RoomData> rooms;
-    LayoutInflater layoutInflater;
+    private final Context context;
+    private final List<RoomData> rooms;
+    private final LayoutInflater layoutInflater;
 
     public RoomsAdapter(Context context) {
         this.context = context;

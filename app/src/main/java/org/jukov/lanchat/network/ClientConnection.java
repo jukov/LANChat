@@ -17,7 +17,7 @@ import static org.jukov.lanchat.dto.ChatData.MessageType.GLOBAL;
 /**
  * Created by jukov on 07.02.2016.
  */
-public class ClientConnection extends Connection {
+class ClientConnection extends Connection {
 
     private PeopleData peopleData;
 
@@ -25,6 +25,7 @@ public class ClientConnection extends Connection {
         super(socket, server);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void run() {
         Log.d(getClass().getSimpleName(), "Connection started");

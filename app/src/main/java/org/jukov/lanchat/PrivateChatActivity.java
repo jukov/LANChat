@@ -20,6 +20,7 @@ import org.jukov.lanchat.util.Utils;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_PEOPLE_AROUND;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_UID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PRIVATE_MESSAGE_ACTION;
 
@@ -42,6 +43,7 @@ public class PrivateChatActivity extends NavigationDrawerActivity {
         Intent intent = getIntent();
         companionName = intent.getStringExtra(EXTRA_NAME);
         companionUID = intent.getStringExtra(EXTRA_UID);
+        peopleAround = intent.getIntExtra(EXTRA_PEOPLE_AROUND, -1);
         myUID = Utils.getAndroidID(this);
 
         initViews();

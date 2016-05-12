@@ -9,6 +9,7 @@ import java.util.Date;
 /**
  * Created by jukov on 09.02.2016.
  */
+@SuppressWarnings({"SameParameterValue", "unused"})
 public class ChatData extends MessagingData {
 
     public enum MessageType {

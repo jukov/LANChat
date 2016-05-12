@@ -24,9 +24,7 @@ import org.jukov.lanchat.service.ServiceHelper;
  */
 public class PeopleFragment extends ListFragment {
 
-    MainActivity mainActivity;
     private ArrayAdapter<PeopleData> arrayAdapter;
-
 
     public static PeopleFragment newInstance(Context context) {
 
@@ -65,6 +63,7 @@ public class PeopleFragment extends ListFragment {
                 PeopleData peopleData = arrayAdapter.getItem(position);
                 intent.putExtra(ServiceHelper.IntentConstants.EXTRA_NAME, peopleData.getName());
                 intent.putExtra(ServiceHelper.IntentConstants.EXTRA_UID, peopleData.getUid());
+                intent.putExtra(ServiceHelper.IntentConstants.EXTRA_PEOPLE_AROUND, mainActivity.getPeopleAround());
                 getActivity().startActivityForResult(intent, BaseActivity.REQUEST_CODE_PRIVATE_CHAT);
             }
         });

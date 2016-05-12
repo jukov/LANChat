@@ -15,7 +15,7 @@ import java.util.Queue;
  */
 public class JSONConverter {
 
-    public static ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static String toJSON(Data message) throws IOException {
         return objectMapper.writeValueAsString(message);

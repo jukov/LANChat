@@ -18,7 +18,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.AbstractCollection;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -34,29 +33,31 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class Server extends Thread implements Closeable {
 
-    public static final String TAG = Server.class.getSimpleName();
-    public static final int CLIENT_THREADS_COUNT = 10;
-    public static final int SERVER_THREADS_COUNT = 3;
-    public static final int GLOBAL_CHAT_MESSAGES_MAX_CAPACITY = 50;
-    public static final int ROOMS_MAX_CAPACITY = 50;
+    private static final String TAG = Server.class.getSimpleName();
 
-    private Context context;
-    private int port;
+    private static final int CLIENT_THREADS_COUNT = 10;
+    private static final int SERVER_THREADS_COUNT = 3;
+    private static final int GLOBAL_CHAT_MESSAGES_MAX_CAPACITY = 50;
+    private static final int ROOMS_MAX_CAPACITY = 50;
 
-    private Lock messagesBundleLock;
-    private Lock roomsBundleLock;
-    private ThreadPoolExecutor clientExecutor;
-    private ThreadPoolExecutor serverExecutor;
-    private TCPListener clientListener;
-    private TCPListener serverListener;
-    private UDP udpServerListener;
+    private final Context context;
 
-    private Set<ClientConnection> clientConnections;
-    private Set<ServerConnection> serverConnections;
-    private Set<String> serverIps;
+    private final int port;
 
-    private DataBundle<ChatData> messages;
-    private DataBundle<RoomData> rooms;
+    private final Lock messagesBundleLock;
+    private final Lock roomsBundleLock;
+    private final ThreadPoolExecutor clientExecutor;
+    private final ThreadPoolExecutor serverExecutor;
+    private final TCPListener clientListener;
+    private final TCPListener serverListener;
+    private final UDP udpServerListener;
+
+    private final Set<ClientConnection> clientConnections;
+    private final Set<ServerConnection> serverConnections;
+    private final Set<String> serverIps;
+
+    private final DataBundle<ChatData> messages;
+    private final DataBundle<RoomData> rooms;
 
     private boolean stopBroadcastFlag;
     private boolean sendServerBroadcastFlag;
@@ -65,9 +66,6 @@ public class Server extends Thread implements Closeable {
         Log.d(TAG, "Server constructor");
         this.context = context;
         this.port = port;
-
-        stopBroadcastFlag = false;
-        sendServerBroadcastFlag = false;
 
         clientConnections = Collections.synchronizedSet(new HashSet<ClientConnection>(CLIENT_THREADS_COUNT));
         serverConnections = Collections.synchronizedSet(new HashSet<ServerConnection>(SERVER_THREADS_COUNT));
@@ -82,6 +80,9 @@ public class Server extends Thread implements Closeable {
 
         clientExecutor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
         serverExecutor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
+
+        stopBroadcastFlag = false;
+        sendServerBroadcastFlag = false;
 
         clientListener = new TCPListener(port, new TCPListener.ClientListener() {
             @Override
@@ -98,9 +99,9 @@ public class Server extends Thread implements Closeable {
             @Override
             public void onReceive(Socket socket) {
                 String ip = ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress().toString().substring(1);
-                Log.d(TAG, "Trying to accept " + ip);
-                Log.d(TAG, Utils.getWifiAddress(context));
-                Log.d(TAG, Arrays.toString(serverIps.toArray()));
+//                Log.d(TAG, "Trying to accept " + ip);
+//                Log.d(TAG, Utils.getWifiAddress(context));
+//                Log.d(TAG, Arrays.toString(serverIps.toArray()));
                 if (!serverIps.contains(ip)) {
                     serverIps.add(ip);
                     if (udpServerListener != null)
@@ -127,7 +128,7 @@ public class Server extends Thread implements Closeable {
                     if (!serverIps.contains(ip)) {
                         try {
                             serverIps.add(ip);
-                            Log.d(TAG, "Catched broadcast from server " + ip);
+                            Log.d(TAG, "Catch broadcast from server " + ip);
                             Socket socket = new Socket(ip, getServer().port + 1);
                             ServerConnection serverConnection = new ServerConnection(socket, getServer());
                             serverExecutor.execute(serverConnection);
@@ -169,7 +170,7 @@ public class Server extends Thread implements Closeable {
         }
     }
 
-    public void closeUDP() {
+    private void closeUDP() {
         udpServerListener.close();
         Log.d(TAG, "Close UDP");
     }
@@ -237,6 +238,7 @@ public class Server extends Thread implements Closeable {
             serverIps.remove(connection.getRemoteIp());
             serverConnections.remove(connection);
         } else {
+            //noinspection SuspiciousMethodCalls
             clientConnections.remove(connection);
         }
     }
@@ -318,9 +320,9 @@ public class Server extends Thread implements Closeable {
         roomsBundleLock.unlock();
     }
 
-    public void addRoom(AbstractCollection<RoomData> roomDatas) {
+    public void addRoom(AbstractCollection<RoomData> roomData) {
         roomsBundleLock.lock();
-        rooms.addAll(roomDatas);
+        rooms.addAll(roomData);
         roomsBundleLock.unlock();
     }
 }

@@ -15,12 +15,13 @@ import java.util.AbstractCollection;
 /**
  * Created by jukov on 05.04.2016.
  */
-public class ServerConnection extends Connection {
+class ServerConnection extends Connection {
 
     public ServerConnection(Socket socket, Server server) {
         super(socket, server);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void run() {
         Log.d(getClass().getSimpleName(), "Connection started");

@@ -8,15 +8,13 @@ import java.net.Socket;
 /**
  * Created by jukov on 05.02.2016.
  */
-public class TCPListener extends Thread implements Closeable {
+class TCPListener extends Thread implements Closeable {
 
-    private ClientListener clientListener;
+    private final ClientListener clientListener;
     private ServerSocket serverSocket;
-//    private int port;
 
     public TCPListener(int port, ClientListener clientListener) {
         this.clientListener = clientListener;
-//        this.port = port;
         try {
             serverSocket = new ServerSocket(port);
         } catch (IOException e) {

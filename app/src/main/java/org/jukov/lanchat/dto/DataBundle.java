@@ -6,6 +6,7 @@ import java.util.Collection;
 /**
  * Created by jukov on 22.03.2016.
  */
+@SuppressWarnings({"SameParameterValue", "unused"})
 public class DataBundle<E extends MessagingData> extends ArrayDeque<E> {
 
     private int maxCapacity;

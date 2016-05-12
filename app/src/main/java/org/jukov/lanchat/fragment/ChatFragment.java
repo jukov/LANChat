@@ -15,11 +15,10 @@ import org.jukov.lanchat.adapter.ChatAdapter;
  */
 public abstract class ChatFragment extends BaseFragment {
 
-    protected ListView listViewMessages;
-    protected ImageButton buttonSend;
-    protected EditText editTextMessage;
+    private ChatAdapter chatAdapter;
 
-    protected ChatAdapter chatAdapter;
+    EditText editTextMessage;
+    ImageButton buttonSend;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -27,19 +26,19 @@ public abstract class ChatFragment extends BaseFragment {
         initAdapter();
     }
 
-    protected String getMessageText() {
+    String getMessageText() {
         return editTextMessage.getText().toString();
     }
 
-    protected void initViews() {
-        listViewMessages = (ListView) layout.findViewById(R.id.frChatMessageList);
+    void initViews() {
+        ListView listViewMessages = (ListView) layout.findViewById(R.id.frChatMessageList);
         buttonSend = (ImageButton) layout.findViewById(R.id.frChatSendButton);
         editTextMessage = (EditText) layout.findViewById(R.id.frChatMessageText);
 
         listViewMessages.setAdapter(chatAdapter);
     }
 
-    protected void initAdapter() {
+    private void initAdapter() {
         chatAdapter = ((NavigationDrawerActivity) getActivity()).getChatAdapter();
     }
 

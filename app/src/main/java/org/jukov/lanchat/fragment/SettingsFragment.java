@@ -12,7 +12,7 @@ import org.jukov.lanchat.R;
  */
 public class SettingsFragment extends PreferenceFragmentCompat {
 
-    SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener;
+    private SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener;
 
     @Override
     public void onCreatePreferences(Bundle bundle, String s) {
