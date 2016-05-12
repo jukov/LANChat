@@ -106,6 +106,9 @@ public final class ChatAdapter extends BaseAdapter {
     }
 
     public void add(ChatData chatData) {
+        if (messages.contains(chatData)) {
+            return;
+        }
         messages.add(chatData);
         notifyDataSetChanged();
     }

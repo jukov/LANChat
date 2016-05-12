@@ -210,7 +210,6 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     private int getPeopleID(PeopleData peopleData) {
-        Log.d(TAG, "getPeopleID()");
         Cursor peopleIdCursor = sqLiteDatabase.query(
                 TABLE_PEOPLE,
                 new String[] {KEY_ID},
@@ -254,28 +253,24 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public void insertMessage(ChatData chatData) {
         databaseLock.lock();
-        Cursor cursorSender = sqLiteDatabase.query(
-                TABLE_PEOPLE,
-                new String[]{KEY_ID},
-                KEY_UID + " = ?",
-                new String[]{chatData.getUid()},
-                null, null, null);
 
-        if (cursorSender.getCount() > 0) {
-            cursorSender.moveToFirst();
-            contentValues.put(KEY_ID_PEOPLE, cursorSender.getInt(0));
-        } else {
-            databaseLock.unlock();
-            insertOrUpdatePeople(new PeopleData(chatData.getName(), chatData.getUid()));
-            databaseLock.lock();
-            contentValues.put(KEY_ID_PEOPLE, getPeopleID(chatData.getUid()));
-        }
-            contentValues.put(KEY_DATE, chatData.getSendDate());
-            contentValues.put(KEY_MESSAGE, chatData.getText());
+        int peopleId = getPeopleID(new PeopleData(chatData.getName(), chatData.getUid()));
+
+        contentValues.put(KEY_ID_PEOPLE, peopleId);
+        contentValues.put(KEY_MESSAGE, chatData.getText());
+        contentValues.put(KEY_DATE, chatData.getSendDate());
+
         Cursor cursorReceiver;
         switch (chatData.getMessageType()) {
             case GLOBAL:
-                sqLiteDatabase.insert(TABLE_PUBLIC_MESSAGES, null, contentValues);
+                if (sqLiteDatabase.update(
+                        TABLE_PUBLIC_MESSAGES,
+                        contentValues,
+                        KEY_ID_PEOPLE + " = ? AND " + KEY_MESSAGE + " = ? AND " + KEY_DATE + " = ?",
+                        new String[] {Integer.toString(peopleId), chatData.getText(), Long.toString(chatData.getSendDate())}
+                ) == 0) {
+                    sqLiteDatabase.insert(TABLE_PUBLIC_MESSAGES, null, contentValues);
+                }
                 break;
             case PRIVATE:
                 cursorReceiver = sqLiteDatabase.query(
@@ -303,7 +298,6 @@ public class DBHelper extends SQLiteOpenHelper {
                 break;
         }
         contentValues.clear();
-        cursorSender.close();
         databaseLock.unlock();
     }
 
@@ -322,7 +316,6 @@ public class DBHelper extends SQLiteOpenHelper {
     public void insertOrUpdateRoom(RoomData roomData) {
         boolean isParticipant = false;
         if (roomData.getParticipants() != null && roomData.getParticipants().size() > 0) {
-            Log.d(TAG, Integer.toString(roomData.getParticipants().size()));
             for (PeopleData peopleData1 : roomData.getParticipants()) {
                 if (peopleData1.getUid().contains(Utils.getAndroidID(context))) {
                     isParticipant = true;

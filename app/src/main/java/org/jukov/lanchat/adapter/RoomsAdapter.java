@@ -78,7 +78,6 @@ public final class RoomsAdapter extends BaseAdapter {
     public void add(RoomData roomData) {
         boolean isParticipant = false;
         if (roomData.getParticipants() != null && roomData.getParticipants().size() > 0) {
-            Log.d(TAG, Integer.toString(roomData.getParticipants().size()));
             for (PeopleData peopleData1 : roomData.getParticipants()) {
                 if (peopleData1.getUid().contains(Utils.getAndroidID(context))) {
                     isParticipant = true;

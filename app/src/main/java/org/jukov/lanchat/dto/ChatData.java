@@ -3,6 +3,7 @@ package org.jukov.lanchat.dto;
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.util.Date;
 
@@ -11,6 +12,8 @@ import java.util.Date;
  */
 @SuppressWarnings({"SameParameterValue", "unused"})
 public class ChatData extends MessagingData {
+
+    public static final String TAG = ChatData.class.getSimpleName();
 
     public enum MessageType {
         PRIVATE(0),
@@ -110,6 +113,23 @@ public class ChatData extends MessagingData {
     @Override
     public String toString() {
         return getName() + ": " + text;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof ChatData) {
+            ChatData chatData = (ChatData) o;
+//            if (chatData.getUid().equals(getUid()) &&
+//                    chatData.getText().equals(getText()) &&
+//                    chatData.getSendDate() == getSendDate()) {
+            Log.d(TAG, Integer.toString(Long.valueOf(chatData.getSendDate()).compareTo(getSendDate())));
+            if (chatData.getUid().equals(getUid()))
+                if (chatData.getText().equals(getText()))
+                    if (Long.valueOf(chatData.getSendDate()).compareTo(getSendDate()) == 0) {
+                        return true;
+            }
+        } else return super.equals(o);
+        return false;
     }
 
     @Override
