@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.jukov.lanchat.BaseActivity;
 import org.jukov.lanchat.MainActivity;
@@ -79,7 +80,10 @@ public class RoomsFragment extends ListFragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getContext(), RoomCreatingActivity.class);
-                getActivity().startActivityForResult(intent, BaseActivity.REQUEST_CODE_ROOM_CREATING);
+                if (roomsAdapter.getCount() <= 1000)
+                    getActivity().startActivityForResult(intent, BaseActivity.REQUEST_CODE_ROOM_CREATING);
+                else
+                    Toast.makeText(getContext(), R.string.cant_create_room, Toast.LENGTH_SHORT).show();
             }
         });
     }

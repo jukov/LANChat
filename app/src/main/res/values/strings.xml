@@ -17,7 +17,7 @@
     <string name="exit">Exit</string>
 
     <string name="settings_name">Name</string>
-    <string name="settings_name_summary">Name summary</string>
+    <string name="settings_name_summary">Change your name</string>
     <string name="default_name">Anonym</string>
 
     <string name="room_name">Room name</string>
@@ -26,4 +26,5 @@
     <string name="new_room">New room</string>
     <string name="profile_picture">Profile picture</string>
     <string name="add_people">Add people</string>
+    <string name="cant_create_room">Can\'t create more than 1000 rooms</string>
 </resources>

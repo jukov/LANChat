@@ -38,7 +38,7 @@ public class Server extends Thread implements Closeable {
     private static final int CLIENT_THREADS_COUNT = 10;
     private static final int SERVER_THREADS_COUNT = 3;
     private static final int GLOBAL_CHAT_MESSAGES_MAX_CAPACITY = 50;
-    private static final int ROOMS_MAX_CAPACITY = 50;
+    private static final int ROOMS_MAX_CAPACITY = 1000;
 
     private final Context context;
 
