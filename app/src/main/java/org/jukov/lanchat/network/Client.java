@@ -97,13 +97,12 @@ public class Client extends Thread implements Closeable {
                     switch (peopleData.getAction()) {
                         case CONNECT:
                             connections++;
-                            updateStatus();
                             break;
                         case DISCONNECT:
                             connections--;
-                            updateStatus();
                             break;
                     }
+                    updateStatus();
 
                 } else if (data instanceof RoomData) {
                     Log.d(TAG, "data instanceof RoomData");
