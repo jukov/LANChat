@@ -1,5 +1,7 @@
 package org.jukov.lanchat.network;
 
+import org.jukov.lanchat.util.Utils;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -16,7 +18,7 @@ class TCPListener extends Thread implements Closeable {
     public TCPListener(int port, ClientListener clientListener) {
         this.clientListener = clientListener;
         try {
-            serverSocket = new ServerSocket(port);
+            serverSocket = new ServerSocket(port, 50, Utils.getIpAddress());
         } catch (IOException e) {
             e.printStackTrace();
         }

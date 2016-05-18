@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketAddress;
 import java.net.SocketException;
 
 /**
@@ -31,7 +32,7 @@ public class UDP extends Thread implements Closeable {
     public static void send(int port, InetAddress broadcastAddress, String message) {
         try {
             if (sendSocket == null) {
-                sendSocket = new DatagramSocket();
+                sendSocket = new DatagramSocket(port+1, Utils.getIpAddress());
             }
             sendSocket.setBroadcast(true);
             byte[] sendData = message.getBytes();

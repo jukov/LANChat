@@ -12,6 +12,7 @@ import org.jukov.lanchat.network.Client;
 import org.jukov.lanchat.network.Server;
 import org.jukov.lanchat.util.JSONConverter;
 import org.jukov.lanchat.util.UDP;
+import org.jukov.lanchat.util.Utils;
 
 import java.io.IOException;
 import java.util.Random;
@@ -225,7 +226,7 @@ public class LANChatService extends Service {
         mode = MODE_SERVER;
         server = new Server(getApplicationContext(), LANChatService.TCP_PORT);
         executorService.execute(server);
-        client = new Client(getApplicationContext(), "127.0.0.1", LANChatService.TCP_PORT);
+        client = new Client(getApplicationContext(), Utils.getIpAddress().getHostAddress(), LANChatService.TCP_PORT);
         executorService.execute(client);
     }
 

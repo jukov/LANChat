@@ -7,6 +7,7 @@ import org.jukov.lanchat.dto.MessagingData;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.dto.RoomData;
 import org.jukov.lanchat.util.JSONConverter;
+import org.jukov.lanchat.util.Utils;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -18,6 +19,8 @@ import static org.jukov.lanchat.dto.ChatData.MessageType.GLOBAL;
  * Created by jukov on 07.02.2016.
  */
 class ClientConnection extends Connection {
+
+    public static final String TAG = ClientConnection.class.getSimpleName();
 
     private PeopleData peopleData;
 
@@ -68,6 +71,8 @@ class ClientConnection extends Connection {
     }
 
     public boolean isLocal() {
-        return socket.getRemoteSocketAddress().toString().contains("127.0.0.1");
+        Log.d(TAG, "isLocal() " + socket.getRemoteSocketAddress().toString());
+        Log.d(TAG, "isLocal() " + Utils.getIpAddress().getHostAddress());
+        return socket.getRemoteSocketAddress().toString().contains(Utils.getIpAddress().getHostAddress());
     }
 }

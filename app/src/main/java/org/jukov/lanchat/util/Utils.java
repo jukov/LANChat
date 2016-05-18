@@ -5,11 +5,15 @@ import android.net.DhcpInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
+import android.util.Log;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -30,7 +34,36 @@ public class Utils {
         return InetAddress.getByAddress(quads);
     }
 
-    @SuppressWarnings("deprecation")
+    public static InetAddress getIpAddress() {
+        InetAddress inetAddress;
+        InetAddress myAddr = null;
+        try {
+            for (Enumeration<NetworkInterface> networkInterface = NetworkInterface
+                    .getNetworkInterfaces(); networkInterface.hasMoreElements();) {
+
+                NetworkInterface singleInterface = networkInterface.nextElement();
+
+                for (Enumeration <InetAddress> IpAddresses = singleInterface.getInetAddresses(); IpAddresses
+                        .hasMoreElements();) {
+                    inetAddress = IpAddresses.nextElement();
+
+                    if (!inetAddress.isLoopbackAddress() && (singleInterface.getDisplayName()
+                            .contains("wlan0") ||
+                            singleInterface.getDisplayName().contains("eth0") ||
+                            singleInterface.getDisplayName().contains("ap0"))) {
+
+                        myAddr = inetAddress;
+                    }
+                }
+            }
+
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+        return myAddr;
+    }
+
+    @Deprecated
     public static String getWifiAddress(Context context) {
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();

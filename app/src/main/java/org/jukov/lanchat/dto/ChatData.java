@@ -119,13 +119,9 @@ public class ChatData extends MessagingData {
     public boolean equals(Object o) {
         if (o instanceof ChatData) {
             ChatData chatData = (ChatData) o;
-//            if (chatData.getUid().equals(getUid()) &&
-//                    chatData.getText().equals(getText()) &&
-//                    chatData.getSendDate() == getSendDate()) {
-            Log.d(TAG, Integer.toString(Long.valueOf(chatData.getSendDate()).compareTo(getSendDate())));
-            if (chatData.getUid().equals(getUid()))
-                if (chatData.getText().equals(getText()))
-                    if (Long.valueOf(chatData.getSendDate()).compareTo(getSendDate()) == 0) {
+            if (chatData.getUid().equals(getUid()) &&
+                    chatData.getText().equals(getText()) &&
+                    Long.valueOf(chatData.getSendDate()).compareTo(getSendDate()) == 0) {
                         return true;
             }
         } else return super.equals(o);

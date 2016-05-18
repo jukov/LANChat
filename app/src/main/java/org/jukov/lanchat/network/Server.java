@@ -70,7 +70,8 @@ public class Server extends Thread implements Closeable {
         clientConnections = Collections.synchronizedSet(new HashSet<ClientConnection>(CLIENT_THREADS_COUNT));
         serverConnections = Collections.synchronizedSet(new HashSet<ServerConnection>(SERVER_THREADS_COUNT));
         serverIps = Collections.synchronizedSet(new HashSet<String>());
-        serverIps.add(Utils.getWifiAddress(context));
+//        serverIps.add(Utils.getWifiAddress(context));
+        serverIps.add(Utils.getIpAddress().getHostAddress());
 
         messages = new DataBundle<>(GLOBAL_CHAT_MESSAGES_MAX_CAPACITY);
         rooms = new DataBundle<>(ROOMS_MAX_CAPACITY);
@@ -245,7 +246,7 @@ public class Server extends Thread implements Closeable {
 
     public void connectToServer(String data, ServerConnection closingConnection) {
         Log.d(TAG, "Connect to server " + data);
-        Log.d(TAG, "My ip: " + Utils.getWifiAddress(context));
+        Log.d(TAG, "My ip: " + Utils.getIpAddress());
         closingConnection.close();
         try {
             Socket socket = new Socket(data, getServer().port + 1);
