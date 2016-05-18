@@ -16,18 +16,22 @@ import java.util.Arrays;
 public class ServiceHelper {
 
     public class IntentConstants {
-        public static final String ACTIVITY_ACTION =            "org.jukov.lanchat.ACTIVITY";
-        public static final String GLOBAL_MESSAGE_ACTION =      "org.jukov.lanchat.GLOBAL_CHAT";
-        public static final String PRIVATE_MESSAGE_ACTION =     "org.jukov.lanchat.PRIVATE_CHAT";
-        public static final String ROOM_MESSAGE_ACTION =        "org.jukov.lanchat.ROOM_MESSAGE_ACTION";
-        public static final String PEOPLE_ACTION =              "org.jukov.lanchat.PEOPLE";
         public static final String INIT_SERVICE_ACTION =        "org.jukov.lanchat.CONNECT_TO_SERVICE";
-        public static final String NAME_CHANGE_ACTION =         "org.jukov.lanchat.CHANGE_NAME";
         public static final String SEARCH_SERVER_ACTION =       "org.jukov.lanchat.SEARCH_SERVER";
         public static final String START_SERVER_ACTION =        "org.jukov.lanchat.START_SERVER";
+
+        public static final String PEOPLE_AROUND_ACTION =       "org.jukov.lanchat.PEOPLE_AROUND";
+        public static final String NAME_CHANGE_ACTION =         "org.jukov.lanchat.CHANGE_NAME";
+
+        public static final String GLOBAL_MESSAGE_ACTION =      "org.jukov.lanchat.GLOBAL_MESSAGE";
+        public static final String PRIVATE_MESSAGE_ACTION =     "org.jukov.lanchat.PRIVATE_MESSAGE";
+        public static final String ROOM_MESSAGE_ACTION =        "org.jukov.lanchat.ROOM_MESSAG";
+        public static final String MESSAGE_ACTION =             "org.jukov.lanchat.MESSAGE";
+
+        public static final String PEOPLE_ACTION =              "org.jukov.lanchat.PEOPLE";
+
         public static final String CLEAR_PEOPLE_LIST_ACTION =   "org.jukov.lanchat.CLEAR_PEOPLE_LIST";
         public static final String SEND_ROOM_ACTION =           "org.jukov.lanchat.SEND_ROOM";
-        public static final String MESSAGE_ACTION =             "org.jukov.lanchat.MESSAGE";
 
         public static final String EXTRA_NAME =             "name";
         public static final String EXTRA_MESSAGE =          "message";
@@ -88,7 +92,7 @@ public class ServiceHelper {
     */
 
     public static void updateStatus(Context context, int connections) {
-        Intent intent = new Intent(IntentConstants.ACTIVITY_ACTION);
+        Intent intent = new Intent(IntentConstants.PEOPLE_AROUND_ACTION);
         intent.putExtra(IntentConstants.EXTRA_PEOPLE_AROUND, connections);
         context.sendBroadcast(intent);
     }
@@ -101,6 +105,7 @@ public class ServiceHelper {
 
     public static void receivePeople(Context context, PeopleData peopleData) {
         Intent intent = new Intent(IntentConstants.PEOPLE_ACTION);
+//        intent.putExtra(IntentConstants.EXTRA_PEOPLE)
         intent.putExtra(IntentConstants.EXTRA_NAME, peopleData.getName());
         intent.putExtra(IntentConstants.EXTRA_UID, peopleData.getUid());
         intent.putExtra(IntentConstants.EXTRA_ACTION, peopleData.getAction().getValue());

@@ -85,7 +85,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "FOREIGN KEY(" + KEY_ID_ROOM + ") REFERENCES " + TABLE_ROOMS + "(" + KEY_ID + ")," +
             "FOREIGN KEY(" + KEY_ID_PEOPLE + ") REFERENCES " + TABLE_PEOPLE + "(" + KEY_ID + ")" +
             ");";
-    private static final String QUERY_CREATE_ROOMS_MESSAGES = "CREATE TABLE " + TABLE_ROOMS_MESSAGES +
+    private static final String QUERY_CREATE_ROOM_MESSAGES = "CREATE TABLE " + TABLE_ROOMS_MESSAGES +
             "(" + KEY_ID +" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
             KEY_ID_ROOM + " INTEGER NOT NULL," +
             KEY_ID_PEOPLE + " INTEGER NOT NULL," +
@@ -126,7 +126,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(QUERY_CREATE_PUBLIC_MESSAGES);
         db.execSQL(QUERY_CREATE_PRIVATE_MESSAGES);
         db.execSQL(QUERY_CREATE_ROOMS);
-        db.execSQL(QUERY_CREATE_ROOMS_MESSAGES);
+        db.execSQL(QUERY_CREATE_ROOM_MESSAGES);
         db.execSQL(QUERY_CREATE_PRIVATE_ROOM_PARTICIPANTS);
     }
 

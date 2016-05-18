@@ -20,7 +20,7 @@ import android.widget.TextView;
 import org.jukov.lanchat.adapter.ChatAdapter;
 import org.jukov.lanchat.service.ServiceHelper;
 
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.ACTIVITY_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PEOPLE_AROUND_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_PEOPLE_AROUND;
 
 /**
@@ -129,7 +129,7 @@ public abstract class NavigationDrawerActivity extends BaseActivity implements
         broadcastReceiverStatus = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, final Intent intent) {
-                if (intent.getAction().equals(ACTIVITY_ACTION)) {
+                if (intent.getAction().equals(PEOPLE_AROUND_ACTION)) {
                     peopleAround = intent.getIntExtra(EXTRA_PEOPLE_AROUND, -1);
                     runOnUiThread(new Runnable() {
                         @Override
@@ -141,7 +141,7 @@ public abstract class NavigationDrawerActivity extends BaseActivity implements
             }
         };
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ACTIVITY_ACTION);
+        intentFilter.addAction(PEOPLE_AROUND_ACTION);
         registerReceiver(broadcastReceiverStatus, intentFilter);
     }
 
