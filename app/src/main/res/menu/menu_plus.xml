@@ -5,7 +5,7 @@
     tools:context=".MainActivity">
 
     <item android:id="@+id/action_menu_plus"
-        android:title=""
+        android:title="@string/add_people"
         android:orderInCategory="100"
         android:icon="@drawable/ic_plus"
         app:showAsAction="ifRoom"

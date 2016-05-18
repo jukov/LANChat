@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="_private">Приватная</string>
+    <string name="add_people">Добавить людей</string>
+    <string name="button_send">Отправить</string>
+    <string name="cant_create_room">Нельзя создать более 1000 комнат</string>
+    <string name="create_room">Создать комнату</string>
+    <string name="default_name">Аноним</string>
+    <string name="edit_text_message_typehere">Введите сообщение…</string>
+    <string name="exit">Выход</string>
+    <string name="global_chat">Глобальный чат</string>
+    <string name="nav_header_hello">Привет, %s</string>
+    <string name="nav_header_people_around">Людей вокруг: %d</string>
+    <string name="navigation_drawer_close">Закрыть панель навигации</string>
+    <string name="navigation_drawer_open">Открыть панель навигации</string>
+    <string name="new_room">Новая  комната</string>
+    <string name="people">Люди</string>
+    <string name="profile_picture">Изображение профиля</string>
+    <string name="room_name">Название комнаты</string>
+    <string name="rooms">Комнаты</string>
+    <string name="settings">Настройки</string>
+    <string name="settings_name">Имя</string>
+    <string name="settings_name_summary">Изменить своё имя</string>
+</resources>
