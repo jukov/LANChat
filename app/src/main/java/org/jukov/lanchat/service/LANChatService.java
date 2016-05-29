@@ -11,7 +11,7 @@ import org.jukov.lanchat.dto.RoomData;
 import org.jukov.lanchat.network.Client;
 import org.jukov.lanchat.network.Server;
 import org.jukov.lanchat.util.JSONConverter;
-import org.jukov.lanchat.util.UDP;
+import org.jukov.lanchat.network.UDP;
 import org.jukov.lanchat.util.Utils;
 
 import java.io.IOException;

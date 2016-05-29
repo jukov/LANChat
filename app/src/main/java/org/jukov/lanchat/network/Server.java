@@ -1,6 +1,8 @@
 package org.jukov.lanchat.network;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
 import org.jukov.lanchat.dto.ChatData;
@@ -9,7 +11,6 @@ import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.dto.RoomData;
 import org.jukov.lanchat.dto.ServiceData;
 import org.jukov.lanchat.util.JSONConverter;
-import org.jukov.lanchat.util.UDP;
 import org.jukov.lanchat.util.Utils;
 
 import java.io.Closeable;
@@ -35,7 +36,7 @@ public class Server extends Thread implements Closeable {
 
     private static final String TAG = Server.class.getSimpleName();
 
-    private static final int CLIENT_THREADS_COUNT = 10;
+    private int CLIENT_THREADS_COUNT;
     private static final int SERVER_THREADS_COUNT = 3;
     private static final int GLOBAL_CHAT_MESSAGES_MAX_CAPACITY = 50;
     private static final int ROOMS_MAX_CAPACITY = 1000;
@@ -66,6 +67,16 @@ public class Server extends Thread implements Closeable {
         Log.d(TAG, "Server constructor");
         this.context = context;
         this.port = port;
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String max_clients = sharedPreferences.getString("max_clients", "10");
+        try {
+            CLIENT_THREADS_COUNT = Integer.valueOf(max_clients);
+        }
+        catch (NumberFormatException e) { //preference might have non-number symbols, because appcompat preference have a bug
+            e.printStackTrace();
+            CLIENT_THREADS_COUNT = 10;
+        }
 
         clientConnections = Collections.synchronizedSet(new HashSet<ClientConnection>(CLIENT_THREADS_COUNT));
         serverConnections = Collections.synchronizedSet(new HashSet<ServerConnection>(SERVER_THREADS_COUNT));

@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <EditTextPreference
-        android:key="name"
-        android:summary="@string/settings_name_summary"
-        android:title="@string/settings_name">
-    </EditTextPreference>
+    <PreferenceCategory android:title="@string/preference_profile">
+        <EditTextPreference
+            android:key="name"
+            android:summary="@string/settings_name_summary"
+            android:title="@string/settings_name"
+            android:defaultValue="@string/default_name"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/preference_network">
+        <EditTextPreference
+            android:key="max_clients"
+            android:summary="@string/max_clients_summary"
+            android:title="@string/max_clients"
+            android:defaultValue="10"
+            android:numeric="integer"/>
+    </PreferenceCategory>
 </PreferenceScreen>

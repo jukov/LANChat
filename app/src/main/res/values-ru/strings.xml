@@ -21,4 +21,8 @@
     <string name="settings">Настройки</string>
     <string name="settings_name">Имя</string>
     <string name="settings_name_summary">Изменить своё имя</string>
+    <string name="max_clients">Максимум клиентов</string>
+    <string name="max_clients_summary">Максимальное количество клиентов в режиме сервера</string>
+    <string name="preference_network">Сеть</string>
+    <string name="preference_profile">Профиль</string>
 </resources>

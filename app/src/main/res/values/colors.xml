@@ -3,7 +3,7 @@
     <color name="primary">#673ab7</color>
     <color name="primaryDark">#512da8</color>
     <color name="primaryLight">#ede7f6</color>
-    <color name="accent">#ffc400</color>
+    <color name="accent">#673ab7</color>
     <color name="whiteBackground">#fafafa</color>
     <color name="purple400">#7e57c2</color>
     <color name="purple100">#d1c4e9</color>

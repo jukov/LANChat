@@ -1,6 +1,8 @@
-package org.jukov.lanchat.util;
+package org.jukov.lanchat.network;
 
 import android.util.Log;
+
+import org.jukov.lanchat.util.Utils;
 
 import java.io.Closeable;
 import java.io.IOException;

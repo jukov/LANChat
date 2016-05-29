@@ -18,6 +18,8 @@
 
     <string name="settings_name">Name</string>
     <string name="settings_name_summary">Change your name</string>
+    <string name="max_clients_summary">Maximum clients for server mode</string>
+    <string name="max_clients">Max clients</string>
     <string name="default_name">Anonym</string>
 
     <string name="room_name">Room name</string>
@@ -27,4 +29,7 @@
     <string name="profile_picture">Profile picture</string>
     <string name="add_people">Add people</string>
     <string name="cant_create_room">Can\'t create more than 1000 rooms</string>
+
+    <string name="preference_profile">Profile</string>
+    <string name="preference_network">Network</string>
 </resources>
