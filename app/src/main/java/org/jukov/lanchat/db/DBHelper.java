@@ -570,4 +570,14 @@ public class DBHelper extends SQLiteOpenHelper {
                 break;
         }
     }
+
+    public void deleteMessages(PeopleData peopleData) {
+        String myID = Integer.toString(getPeopleID(Utils.getAndroidID(context)));
+        String companionID = Integer.toString(getPeopleID(peopleData.getUid()));
+        sqLiteDatabase.delete(TABLE_PRIVATE_MESSAGES,
+                "(" + KEY_ID_PEOPLE + " = ? AND " +
+                KEY_ID_RECEIVER + " = ?) OR (" +
+                KEY_ID_PEOPLE + " = ? AND " +
+                KEY_ID_RECEIVER + " = ?)", new String[] {myID, companionID, companionID, myID});
+    }
 }

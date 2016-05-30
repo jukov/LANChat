@@ -1,21 +1,24 @@
 package org.jukov.lanchat.fragment;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import org.jukov.lanchat.BaseActivity;
 import org.jukov.lanchat.MainActivity;
 import org.jukov.lanchat.PrivateChatActivity;
 import org.jukov.lanchat.R;
+import org.jukov.lanchat.adapter.PeopleAdapter;
+import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.service.ServiceHelper;
 
@@ -24,7 +27,7 @@ import org.jukov.lanchat.service.ServiceHelper;
  */
 public class PeopleFragment extends ListFragment {
 
-    private ArrayAdapter<PeopleData> arrayAdapter;
+    private PeopleAdapter peopleAdapter;
 
     public static PeopleFragment newInstance(Context context) {
 
@@ -54,23 +57,42 @@ public class PeopleFragment extends ListFragment {
     private void initViews() {
         listView = (ListView) layout.findViewById(R.id.listViewPeople);
 
-        listView.setAdapter(arrayAdapter);
+        listView.setAdapter(peopleAdapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getContext(), PrivateChatActivity.class);
-                PeopleData peopleData = arrayAdapter.getItem(position);
+                PeopleData peopleData = peopleAdapter.getItem(position);
                 intent.putExtra(ServiceHelper.IntentConstants.EXTRA_NAME, peopleData.getName());
                 intent.putExtra(ServiceHelper.IntentConstants.EXTRA_UID, peopleData.getUid());
                 intent.putExtra(ServiceHelper.IntentConstants.EXTRA_PEOPLE_AROUND, mainActivity.getPeopleAround());
                 getActivity().startActivityForResult(intent, BaseActivity.REQUEST_CODE_PRIVATE_CHAT);
             }
         });
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(getString(R.string.choose_action))
+                        .setItems(new String[] {getString(R.string.delete_messages)}, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                PeopleData peopleData = peopleAdapter.getItem(position);
+                                DBHelper dbHelper = DBHelper.getInstance(getContext());
+                                dbHelper.deleteMessages(peopleData);
+                                peopleAdapter.remove(position);
+                            }
+                        });
+                builder.create().show();
+                return true;
+            }
+        });
     }
 
     private void initAdapter() {
-        arrayAdapter = ((MainActivity) getActivity()).getArrayAdapterPeople();
+        peopleAdapter = ((MainActivity) getActivity()).getPeopleAdapter();
     }
 
     @Override

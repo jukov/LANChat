@@ -35,4 +35,7 @@
     <string name="choose_action">Choose an action</string>
     <string name="delete_message">Delete message</string>
     <string name="star_message">Star message</string>
+    <string name="offline">Offline</string>
+    <string name="online">Online</string>
+    <string name="delete_messages">Delete messages</string>
 </resources>

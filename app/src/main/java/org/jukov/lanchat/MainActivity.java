@@ -13,9 +13,9 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 
 import org.jukov.lanchat.adapter.ChatAdapter;
+import org.jukov.lanchat.adapter.PeopleAdapter;
 import org.jukov.lanchat.adapter.RoomsAdapter;
 import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.ChatData;
@@ -32,8 +32,9 @@ import org.jukov.lanchat.util.Utils;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.CLEAR_PEOPLE_LIST_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
@@ -44,6 +45,7 @@ import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_UID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.GLOBAL_MESSAGE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PEOPLE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.SEND_ROOM_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.SET_ALL_OFFLINE_ACTION;
 
 public class MainActivity extends NavigationDrawerActivity {
 
@@ -53,7 +55,7 @@ public class MainActivity extends NavigationDrawerActivity {
 
     private BroadcastReceiver broadcastReceiver;
 
-    private ArrayAdapter<PeopleData> arrayAdapterPeople;
+    private PeopleAdapter peopleAdapter;
     private RoomsAdapter roomsAdapter;
 
     @Override
@@ -129,8 +131,8 @@ public class MainActivity extends NavigationDrawerActivity {
         }
     }
 
-    public ArrayAdapter<PeopleData> getArrayAdapterPeople() {
-        return arrayAdapterPeople;
+    public PeopleAdapter getPeopleAdapter() {
+        return peopleAdapter;
     }
 
     public RoomsAdapter getRoomsAdapter() {
@@ -176,7 +178,18 @@ public class MainActivity extends NavigationDrawerActivity {
 
         roomsAdapter = new RoomsAdapter(getApplicationContext());
         chatAdapter = new ChatAdapter(this, dbHelper.getPublicMessages());
-        arrayAdapterPeople = new ArrayAdapter<>(this, R.layout.listview_people, R.id.textViewName);
+        peopleAdapter = new PeopleAdapter(this);
+
+        List<PeopleData> people = dbHelper.getPeople();
+        Iterator<PeopleData> iterator = people.iterator();
+        while (iterator.hasNext()) {
+            PeopleData peopleData = iterator.next();
+            if (peopleData.getUid().equals(Utils.getAndroidID(getApplicationContext()))) {
+                iterator.remove();
+                break;
+            }
+        }
+        peopleAdapter.addAll(people);
     }
 
     @Override
@@ -209,14 +222,14 @@ public class MainActivity extends NavigationDrawerActivity {
                         if (!uid.equals(Utils.getAndroidID(getApplicationContext())))
                             switch (peopleData.getAction()) {
                                 case CONNECT:
-                                    arrayAdapterPeople.add(peopleData);
+                                    peopleAdapter.add(peopleData);
                                     break;
                                 case DISCONNECT:
-                                    arrayAdapterPeople.remove(peopleData);
+                                    peopleAdapter.setOffline(peopleData);
                                     break;
                                 case CHANGE_NAME:
-                                    arrayAdapterPeople.remove(peopleData);
-                                    arrayAdapterPeople.add(peopleData);
+                                    peopleAdapter.setOffline(peopleData);
+                                    peopleAdapter.add(peopleData);
                                     break;
                                 default:
                                     Log.w(getClass().getSimpleName(), "Unexpected action type");
@@ -235,15 +248,15 @@ public class MainActivity extends NavigationDrawerActivity {
                             }
                         }
                         break;
-                    case CLEAR_PEOPLE_LIST_ACTION:
-                        arrayAdapterPeople.clear();
+                    case SET_ALL_OFFLINE_ACTION:
+                        peopleAdapter.allOffline();
                 }
             }
         };
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(GLOBAL_MESSAGE_ACTION);
         intentFilter.addAction(PEOPLE_ACTION);
-        intentFilter.addAction(CLEAR_PEOPLE_LIST_ACTION);
+        intentFilter.addAction(SET_ALL_OFFLINE_ACTION);
         intentFilter.addAction(SEND_ROOM_ACTION);
         registerReceiver(broadcastReceiver, intentFilter);
     }

@@ -30,7 +30,7 @@ public class ServiceHelper {
 
         public static final String PEOPLE_ACTION =              "org.jukov.lanchat.PEOPLE";
 
-        public static final String CLEAR_PEOPLE_LIST_ACTION =   "org.jukov.lanchat.CLEAR_PEOPLE_LIST";
+        public static final String SET_ALL_OFFLINE_ACTION =   "org.jukov.lanchat.CLEAR_PEOPLE_LIST";
         public static final String SEND_ROOM_ACTION =           "org.jukov.lanchat.SEND_ROOM";
 
         public static final String EXTRA_NAME =             "name";
@@ -145,7 +145,7 @@ public class ServiceHelper {
     }
 
     public static void clearPeopleList(Context context) {
-        Intent intent = new Intent(IntentConstants.CLEAR_PEOPLE_LIST_ACTION);
+        Intent intent = new Intent(IntentConstants.SET_ALL_OFFLINE_ACTION);
         context.sendBroadcast(intent);
     }
 }
