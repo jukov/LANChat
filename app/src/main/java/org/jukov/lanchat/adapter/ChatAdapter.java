@@ -113,4 +113,8 @@ public final class ChatAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public void remove(int position) {
+        messages.remove(position);
+        notifyDataSetChanged();
+    }
 }

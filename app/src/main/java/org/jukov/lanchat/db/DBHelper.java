@@ -47,7 +47,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String KEY_ID_ROOM = "id_room";
     private static final String TABLE_PEOPLE = "people";
     private static final String TABLE_PRIVATE_MESSAGES = "private_messages";
-    private static final String TABLE_PUBLIC_MESSAGES = "public_messages";
+    private static final String TABLE_GLOBAL_MESSAGES = "public_messages";
     private static final String TABLE_ROOMS = "rooms";
     private static final String TABLE_ROOMS_MESSAGES = "rooms_messages";
     private static final String TABLE_PRIVATE_ROOM_PARTICIPANTS = "private_room_participants";
@@ -66,7 +66,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "FOREIGN KEY(" + KEY_ID_PEOPLE + ") REFERENCES " + TABLE_PEOPLE + "(" + KEY_ID + ")," +
             "FOREIGN KEY(" + KEY_ID_RECEIVER + ") REFERENCES " + TABLE_PEOPLE + "(" + KEY_ID + ")" +
             ");";
-    private static final String QUERY_CREATE_PUBLIC_MESSAGES = "CREATE TABLE " + TABLE_PUBLIC_MESSAGES +
+    private static final String QUERY_CREATE_GLOBAL_MESSAGES = "CREATE TABLE " + TABLE_GLOBAL_MESSAGES +
             "(" + KEY_ID +" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
             KEY_ID_PEOPLE + " INTEGER NOT NULL," +
             KEY_MESSAGE + " TEXT NOT NULL," +
@@ -123,7 +123,7 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(QUERY_CREATE_PEOPLE);
-        db.execSQL(QUERY_CREATE_PUBLIC_MESSAGES);
+        db.execSQL(QUERY_CREATE_GLOBAL_MESSAGES);
         db.execSQL(QUERY_CREATE_PRIVATE_MESSAGES);
         db.execSQL(QUERY_CREATE_ROOMS);
         db.execSQL(QUERY_CREATE_ROOM_MESSAGES);
@@ -135,7 +135,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PEOPLE);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ROOMS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRIVATE_MESSAGES);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PUBLIC_MESSAGES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_GLOBAL_MESSAGES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ROOMS_MESSAGES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRIVATE_ROOM_PARTICIPANTS);
         onCreate(db);
@@ -171,7 +171,6 @@ public class DBHelper extends SQLiteOpenHelper {
         roomIdCursor.close();
         throw new NoSuchElementException("Room not found " + uid);
     }
-
 
     private String getPeopleUID(int id) {
         Cursor peopleIdCursor = sqLiteDatabase.query(
@@ -264,12 +263,12 @@ public class DBHelper extends SQLiteOpenHelper {
         switch (chatData.getMessageType()) {
             case GLOBAL:
                 if (sqLiteDatabase.update(
-                        TABLE_PUBLIC_MESSAGES,
+                        TABLE_GLOBAL_MESSAGES,
                         contentValues,
                         KEY_ID_PEOPLE + " = ? AND " + KEY_MESSAGE + " = ? AND " + KEY_DATE + " = ?",
                         new String[] {Integer.toString(peopleId), chatData.getText(), Long.toString(chatData.getSendDate())}
                 ) == 0) {
-                    sqLiteDatabase.insert(TABLE_PUBLIC_MESSAGES, null, contentValues);
+                    sqLiteDatabase.insert(TABLE_GLOBAL_MESSAGES, null, contentValues);
                 }
                 break;
             case PRIVATE:
@@ -448,7 +447,7 @@ public class DBHelper extends SQLiteOpenHelper {
         databaseLock.lock();
 
         Cursor messagesCursor = sqLiteDatabase.query(
-                TABLE_PUBLIC_MESSAGES,
+                TABLE_GLOBAL_MESSAGES,
                 new String[] {KEY_ID_PEOPLE, KEY_MESSAGE, KEY_DATE},
                 null, null, null, null, null);
 
@@ -537,5 +536,38 @@ public class DBHelper extends SQLiteOpenHelper {
 
         databaseLock.unlock();
         return messagesList;
+    }
+
+    /*
+    * Delete methods
+    */
+
+    public void deleteMessage(ChatData chatData) {
+        switch (chatData.getMessageType()) {
+            case GLOBAL:
+                sqLiteDatabase.delete(TABLE_GLOBAL_MESSAGES, KEY_ID_PEOPLE + " = ? AND " +
+                                      KEY_MESSAGE + " = ? AND " +
+                                      KEY_DATE + " = ?",
+                        new String[] {Integer.toString(getPeopleID(chatData.getUid())),
+                                      chatData.getText(),
+                                      Long.toString(chatData.getSendDate())});
+                break;
+            case PRIVATE:
+                sqLiteDatabase.delete(TABLE_PRIVATE_MESSAGES, KEY_ID_PEOPLE + " = ? AND " +
+                                KEY_MESSAGE + " = ? AND " +
+                                KEY_DATE + " = ?",
+                        new String[] {Integer.toString(getPeopleID(chatData.getUid())),
+                                chatData.getText(),
+                                Long.toString(chatData.getSendDate())});
+                break;
+            case ROOM:
+                sqLiteDatabase.delete(TABLE_ROOMS_MESSAGES, KEY_ID_PEOPLE + " = ? AND " +
+                                KEY_MESSAGE + " = ? AND " +
+                                KEY_DATE + " = ?",
+                        new String[] {Integer.toString(getPeopleID(chatData.getUid())),
+                                chatData.getText(),
+                                Long.toString(chatData.getSendDate())});
+                break;
+        }
     }
 }
