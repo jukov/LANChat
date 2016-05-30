@@ -82,7 +82,6 @@ public class PeopleFragment extends ListFragment {
                                 PeopleData peopleData = peopleAdapter.getItem(position);
                                 DBHelper dbHelper = DBHelper.getInstance(getContext());
                                 dbHelper.deleteMessages(peopleData);
-                                peopleAdapter.remove(position);
                             }
                         });
                 builder.create().show();

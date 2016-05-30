@@ -106,10 +106,4 @@ public class PeopleAdapter extends BaseAdapter {
         }
         notifyDataSetChanged();
     }
-
-    public void remove(int position) {
-        if (people.get(position).getAction() == PeopleData.ActionType.DISCONNECT || people.get(position).getAction() == PeopleData.ActionType.NONE)
-            people.remove(position);
-        notifyDataSetChanged();
-    }
 }

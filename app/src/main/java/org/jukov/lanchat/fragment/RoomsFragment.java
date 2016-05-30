@@ -1,10 +1,12 @@
 package org.jukov.lanchat.fragment;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +20,7 @@ import org.jukov.lanchat.R;
 import org.jukov.lanchat.RoomChatActivity;
 import org.jukov.lanchat.RoomCreatingActivity;
 import org.jukov.lanchat.adapter.RoomsAdapter;
+import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.RoomData;
 import org.jukov.lanchat.service.ServiceHelper;
 
@@ -73,6 +76,25 @@ public class RoomsFragment extends ListFragment {
                 intent.putExtra(EXTRA_ROOM, roomData);
                 intent.putExtra(ServiceHelper.IntentConstants.EXTRA_PEOPLE_AROUND, mainActivity.getPeopleAround());
                 getActivity().startActivityForResult(intent, BaseActivity.REQUEST_CODE_ROOM_CHAT);
+            }
+        });
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(getString(R.string.choose_action))
+                        .setItems(new String[] {getString(R.string.delete_messages)}, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                RoomData roomData = roomsAdapter.getItem(position);
+                                DBHelper dbHelper = DBHelper.getInstance(getContext());
+                                dbHelper.deleteRoom(roomData);
+                                roomsAdapter.remove(position);
+                            }
+                        });
+                builder.create().show();
+                return true;
             }
         });
 

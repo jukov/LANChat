@@ -97,4 +97,8 @@ public final class RoomsAdapter extends BaseAdapter {
             notifyDataSetChanged();
         }
     }
+
+    public void remove(int position) {
+        rooms.remove(position);
+    }
 }

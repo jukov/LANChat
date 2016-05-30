@@ -29,7 +29,7 @@ public class DBHelper extends SQLiteOpenHelper {
     @SuppressWarnings("WeakerAccess")
     public static final String TAG = DBHelper.class.getSimpleName();
 
-    private static final int DATABASE_VERSION = 13;
+    private static final int DATABASE_VERSION = 14;
     private static final String DATABASE_NAME = "LANChatDatabase";
 
     private final Context context;
@@ -82,7 +82,7 @@ public class DBHelper extends SQLiteOpenHelper {
             "(" + KEY_ID +" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
             KEY_ID_ROOM + " INTEGER NOT NULL," +
             KEY_ID_PEOPLE + " INTEGER NOT NULL," +
-            "FOREIGN KEY(" + KEY_ID_ROOM + ") REFERENCES " + TABLE_ROOMS + "(" + KEY_ID + ")," +
+            "FOREIGN KEY(" + KEY_ID_ROOM + ") REFERENCES " + TABLE_ROOMS + "(" + KEY_ID + ") ON DELETE CASCADE," +
             "FOREIGN KEY(" + KEY_ID_PEOPLE + ") REFERENCES " + TABLE_PEOPLE + "(" + KEY_ID + ")" +
             ");";
     private static final String QUERY_CREATE_ROOM_MESSAGES = "CREATE TABLE " + TABLE_ROOMS_MESSAGES +
@@ -92,7 +92,7 @@ public class DBHelper extends SQLiteOpenHelper {
             KEY_MESSAGE + " TEXT NOT NULL," +
             KEY_DATE + " INTEGER NOT NULL," +
             "FOREIGN KEY(" + KEY_ID_PEOPLE + ") REFERENCES " + TABLE_PEOPLE + "(" + KEY_ID + ")," +
-            "FOREIGN KEY(" + KEY_ID_ROOM + ") REFERENCES " + TABLE_ROOMS + "(" + KEY_ID + ")" +
+            "FOREIGN KEY(" + KEY_ID_ROOM + ") REFERENCES " + TABLE_ROOMS + "(" + KEY_ID + ") ON DELETE CASCADE" +
             ");";
 
     /*
@@ -118,6 +118,11 @@ public class DBHelper extends SQLiteOpenHelper {
         sqLiteDatabase = this.getReadableDatabase();
         contentValues = new ContentValues(1);
         databaseLock = new ReentrantLock();
+    }
+
+    @Override
+    public void onConfigure(SQLiteDatabase db) {
+        db.setForeignKeyConstraintsEnabled(true);
     }
 
     @Override
@@ -579,5 +584,14 @@ public class DBHelper extends SQLiteOpenHelper {
                 KEY_ID_RECEIVER + " = ?) OR (" +
                 KEY_ID_PEOPLE + " = ? AND " +
                 KEY_ID_RECEIVER + " = ?)", new String[] {myID, companionID, companionID, myID});
+    }
+
+    public void deleteMessages(RoomData roomData) {
+//        String roomID = Integer.toString(getRoomID(roomData.getUid()));
+//        sqLiteDatabase.delete(TABLE_ROOMS_MESSAGES, KEY_ID_ROOM + " = ?", new String[] {roomID});
+    }
+
+    public void deleteRoom(RoomData roomData) {
+        sqLiteDatabase.delete(TABLE_ROOMS, KEY_UID + " = ?", new String[] {roomData.getUid()});
     }
 }
