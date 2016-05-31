@@ -35,13 +35,13 @@ class ServerConnection extends Connection {
                         server.addMessage((ChatData) data);
                 } else if (data instanceof RoomData) {
                     RoomData roomData = (RoomData) data;
-                    server.addRoom(roomData);
+                    server.addOrRenameRoom(roomData);
                 } else if (data instanceof AbstractCollection) {
                     Log.d(getClass().getSimpleName(), "receive AbstractCollection");
                     AbstractCollection dataBundle = (AbstractCollection) data;
                     MessagingData messagingData = (MessagingData) dataBundle.iterator().next();
                     if (messagingData instanceof RoomData) {
-                        server.addRoom(dataBundle);
+                        server.addOrRenameRoom(dataBundle);
                     }
                 } else if (data instanceof ServiceData) {
                     ServiceData serviceData = (ServiceData) data;

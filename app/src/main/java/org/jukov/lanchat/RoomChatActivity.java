@@ -63,7 +63,6 @@ public class RoomChatActivity extends NavigationDrawerActivity {
         initAdapter();
         initFragment();
         initBroadcastReceiver();
-//        initService();
     }
 
     @Override
@@ -178,9 +177,4 @@ public class RoomChatActivity extends NavigationDrawerActivity {
         IntentFilter intentFilter = new IntentFilter(ROOM_MESSAGE_ACTION);
         registerReceiver(broadcastReceiver, intentFilter);
     }
-
-//    private void initService() {
-//        Log.d(getClass().getSimpleName(), "Connecting to service");
-//        ServiceHelper.startService(this);
-//    }
 }

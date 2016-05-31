@@ -25,4 +25,16 @@
     <string name="max_clients_summary">Максимальное количество клиентов в режиме сервера</string>
     <string name="preference_network">Сеть</string>
     <string name="preference_profile">Профиль</string>
+    <string name="choose_action">Выберите действие</string>
+    <string name="delete_message">Удалить сообщение</string>
+    <string name="delete_messages">Удалить сообщения</string>
+    <string name="offline">Не в сети</string>
+    <string name="online">В сети</string>
+    <string name="star_message">Отметить сообщение</string>
+    <string name="delete_room">Удалить комнату</string>
+    <string name="incorrect_name">Неверное название</string>
+    <string name="rename_room">Переименовать комнату</string>
+    <string name="require_wifi">Для работы приложения требуется Wi-Fi подключение. Пожалуйста, подключитесь к точке доступа и перезапустите приложение</string>
+    <string name="type_new_name">Введите новое имя</string>
+    <string name="you_sure">Вы уверены?</string>
 </resources>

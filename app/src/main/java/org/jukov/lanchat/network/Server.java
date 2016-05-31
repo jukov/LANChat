@@ -38,7 +38,7 @@ public class Server extends Thread implements Closeable {
 
     private int CLIENT_THREADS_COUNT;
     private static final int SERVER_THREADS_COUNT = 3;
-    private static final int GLOBAL_CHAT_MESSAGES_MAX_CAPACITY = 50;
+//    private static final int GLOBAL_CHAT_MESSAGES_MAX_CAPACITY = 50;
     private static final int ROOMS_MAX_CAPACITY = 1000;
 
     private final Context context;
@@ -57,7 +57,7 @@ public class Server extends Thread implements Closeable {
     private final Set<ServerConnection> serverConnections;
     private final Set<String> serverIps;
 
-    private final DataBundle<ChatData> messages;
+//    private final DataBundle<ChatData> messages;
     private final DataBundle<RoomData> rooms;
 
     private boolean stopBroadcastFlag;
@@ -84,7 +84,7 @@ public class Server extends Thread implements Closeable {
 //        serverIps.add(Utils.getWifiAddress(context));
         serverIps.add(Utils.getIpAddress().getHostAddress());
 
-        messages = new DataBundle<>(GLOBAL_CHAT_MESSAGES_MAX_CAPACITY);
+//        messages = new DataBundle<>(GLOBAL_CHAT_MESSAGES_MAX_CAPACITY);
         rooms = new DataBundle<>(ROOMS_MAX_CAPACITY);
 
         messagesBundleLock = new ReentrantLock();
@@ -308,8 +308,8 @@ public class Server extends Thread implements Closeable {
             }
 
             //Send message history
-            if (messages.size() > 0)
-                connection.sendMessage(JSONConverter.toJSON(messages));
+//            if (messages.size() > 0)
+//                connection.sendMessage(JSONConverter.toJSON(messages));
 
             //Send existing rooms
             if (rooms.size() > 0)
@@ -321,18 +321,19 @@ public class Server extends Thread implements Closeable {
 
     public void addMessage(ChatData chatData) {
         messagesBundleLock.lock();
-        messages.add(chatData);
+//        messages.add(chatData);
         messagesBundleLock.unlock();
     }
 
 
-    public void addRoom(RoomData roomData) {
+    public void addOrRenameRoom(RoomData roomData) {
         roomsBundleLock.lock();
+        rooms.remove(roomData);
         rooms.add(roomData);
         roomsBundleLock.unlock();
     }
 
-    public void addRoom(AbstractCollection<RoomData> roomData) {
+    public void addOrRenameRoom(AbstractCollection<RoomData> roomData) {
         roomsBundleLock.lock();
         rooms.addAll(roomData);
         roomsBundleLock.unlock();

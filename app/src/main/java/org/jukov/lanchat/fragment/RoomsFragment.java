@@ -3,6 +3,9 @@ package org.jukov.lanchat.fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.wifi.SupplicantState;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -11,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -82,21 +86,69 @@ public class RoomsFragment extends ListFragment {
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(getString(R.string.choose_action))
-                        .setItems(new String[] {getString(R.string.delete_messages)}, new DialogInterface.OnClickListener() {
+                        .setItems(new String[] {getString(R.string.delete_room), getString(R.string.rename_room)}, new DialogInterface.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                RoomData roomData = roomsAdapter.getItem(position);
-                                DBHelper dbHelper = DBHelper.getInstance(getContext());
-                                dbHelper.deleteRoom(roomData);
-                                roomsAdapter.remove(position);
+                            public void onClick(final DialogInterface dialog, int which) {
+                                final RoomData roomData = roomsAdapter.getItem(position);
+                                final DBHelper dbHelper = DBHelper.getInstance(getContext());
+                                switch (which) {
+                                    case 0:
+                                        AlertDialog alertDialogDeletion = new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.you_sure))
+                                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        dbHelper.deleteRoom(roomData);
+                                                        roomsAdapter.remove(position);
+                                                    }
+                                                })
+                                                .setNegativeButton(android.R.string.cancel, null)
+                                                .create();
+                                        alertDialogDeletion.show();
+                                        break;
+                                    case 1:
+                                        final AlertDialog alertDialogRenaming = new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.type_new_name))
+                                               .setView(getActivity().getLayoutInflater().inflate(R.layout.dialog_edtitext, null))
+                                               .setPositiveButton(android.R.string.ok, null)
+                                               .setNegativeButton(android.R.string.cancel, null).create();
+                                        alertDialogRenaming.show();
+                                        View button = (alertDialogRenaming.getButton(DialogInterface.BUTTON_POSITIVE));
+                                        button.setOnClickListener(new View.OnClickListener() {
+                                            @SuppressWarnings("ConstantConditions")
+                                            @Override
+                                            public void onClick(View v) {
+                                                EditText editText = (EditText) alertDialogRenaming.findViewById(R.id.editTextName);
+                                                String name = editText.getText().toString();
+                                                if (name.length() > 0) {
+                                                    roomData.setName(editText.getText().toString());
+                                                    roomsAdapter.notifyDataSetChanged();
+                                                    dbHelper.insertOrUpdateRoom(roomData);
+                                                    ServiceHelper.sendRoom(getContext(), roomData);
+                                                    alertDialogRenaming.dismiss();
+                                                } else {
+                                                    editText.setError(getString(R.string.incorrect_name));
+                                                }
+                                            }
+                                        });
+                                        break;
+                                }
+
                             }
                         });
                 builder.create().show();
                 return true;
             }
         });
+
+        SupplicantState supplicantState;
+        WifiManager wifiManager = (WifiManager) getContext().getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        supplicantState = wifiInfo.getSupplicantState();
+
+        if (supplicantState != SupplicantState.COMPLETED) {
+            fab.setEnabled(false);
+        }
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override

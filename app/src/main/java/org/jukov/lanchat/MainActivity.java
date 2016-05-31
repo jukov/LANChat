@@ -4,6 +4,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.wifi.SupplicantState;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
@@ -13,6 +16,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import org.jukov.lanchat.adapter.ChatAdapter;
 import org.jukov.lanchat.adapter.PeopleAdapter;
@@ -176,7 +180,7 @@ public class MainActivity extends NavigationDrawerActivity {
     private void initAdapters() {
         DBHelper dbHelper = DBHelper.getInstance(this);
 
-        roomsAdapter = new RoomsAdapter(getApplicationContext());
+        roomsAdapter = new RoomsAdapter(getApplicationContext(), dbHelper.getRooms());
         chatAdapter = new ChatAdapter(this, dbHelper.getPublicMessages());
         peopleAdapter = new PeopleAdapter(this);
 
@@ -228,7 +232,6 @@ public class MainActivity extends NavigationDrawerActivity {
                                     peopleAdapter.setOffline(peopleData);
                                     break;
                                 case CHANGE_NAME:
-                                    peopleAdapter.setOffline(peopleData);
                                     peopleAdapter.add(peopleData);
                                     break;
                                 default:
@@ -262,7 +265,17 @@ public class MainActivity extends NavigationDrawerActivity {
     }
 
     private void initService() {
-        Log.d(getClass().getSimpleName(), "Connecting to service");
-        ServiceHelper.startService(this);
+        SupplicantState supplicantState;
+        WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        supplicantState = wifiInfo.getSupplicantState();
+        String ssid = wifiInfo.getSSID();
+
+        if (supplicantState == SupplicantState.COMPLETED && !ssid.equals("<unknown ssid>") && !ssid.equals("0x")) {
+            Log.d(getClass().getSimpleName(), "Connecting to service");
+            ServiceHelper.startService(this);
+        } else {
+            Toast.makeText(getApplicationContext(), R.string.require_wifi, Toast.LENGTH_LONG).show();
+        }
     }
 }

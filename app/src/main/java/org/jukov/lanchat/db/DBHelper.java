@@ -29,7 +29,7 @@ public class DBHelper extends SQLiteOpenHelper {
     @SuppressWarnings("WeakerAccess")
     public static final String TAG = DBHelper.class.getSimpleName();
 
-    private static final int DATABASE_VERSION = 14;
+    private static final int DATABASE_VERSION = 15;
     private static final String DATABASE_NAME = "LANChatDatabase";
 
     private final Context context;
@@ -137,12 +137,12 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PEOPLE);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ROOMS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRIVATE_MESSAGES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_GLOBAL_MESSAGES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRIVATE_MESSAGES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ROOMS_MESSAGES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRIVATE_ROOM_PARTICIPANTS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ROOMS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PEOPLE);
         onCreate(db);
     }
 
@@ -584,11 +584,6 @@ public class DBHelper extends SQLiteOpenHelper {
                 KEY_ID_RECEIVER + " = ?) OR (" +
                 KEY_ID_PEOPLE + " = ? AND " +
                 KEY_ID_RECEIVER + " = ?)", new String[] {myID, companionID, companionID, myID});
-    }
-
-    public void deleteMessages(RoomData roomData) {
-//        String roomID = Integer.toString(getRoomID(roomData.getUid()));
-//        sqLiteDatabase.delete(TABLE_ROOMS_MESSAGES, KEY_ID_ROOM + " = ?", new String[] {roomID});
     }
 
     public void deleteRoom(RoomData roomData) {

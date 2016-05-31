@@ -22,7 +22,6 @@
             android:configChanges="keyboardHidden|orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -37,9 +36,9 @@
             android:configChanges="keyboardHidden|orientation|screenSize">
         </activity>
         <activity
-        android:name=".RoomCreatingActivity"
-        android:theme="@style/AppTheme.NoActionBar"
-        android:configChanges="keyboardHidden|orientation|screenSize">
+            android:name=".RoomCreatingActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="keyboardHidden|orientation|screenSize">
         </activity>
         <activity
             android:name=".AddingPeopleActivity"

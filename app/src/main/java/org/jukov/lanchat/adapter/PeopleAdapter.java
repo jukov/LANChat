@@ -78,11 +78,7 @@ public class PeopleAdapter extends BaseAdapter {
                 people.add(peopleData);
             } else {
                 int index = people.indexOf(peopleData);
-                people.remove(index);
-                if (people.size() == 0)
-                    people.add(peopleData);
-                else
-                    people.set(index, peopleData);
+                people.set(index, peopleData);
             }
             notifyDataSetChanged();
         }

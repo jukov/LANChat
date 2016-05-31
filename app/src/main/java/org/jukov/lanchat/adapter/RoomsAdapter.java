@@ -58,7 +58,7 @@ public final class RoomsAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = convertView;
         if (view == null) {
-            view = layoutInflater.inflate(R.layout.listview_people, parent, false);
+            view = layoutInflater.inflate(R.layout.listview_room, parent, false);
         }
 
         RoomData roomData = getItem(position);
@@ -91,6 +91,7 @@ public final class RoomsAdapter extends BaseAdapter {
             rooms.remove(roomData);
             if (position != -1) {
                 rooms.add(position, roomData);
+                notifyDataSetChanged();
                 return;
             }
             rooms.add(roomData);
@@ -100,5 +101,6 @@ public final class RoomsAdapter extends BaseAdapter {
 
     public void remove(int position) {
         rooms.remove(position);
+        notifyDataSetChanged();
     }
 }

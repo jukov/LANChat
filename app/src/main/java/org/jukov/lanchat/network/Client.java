@@ -5,7 +5,6 @@ import android.util.Log;
 
 import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.ChatData;
-import org.jukov.lanchat.dto.DataBundle;
 import org.jukov.lanchat.dto.MessagingData;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.dto.RoomData;
@@ -19,6 +18,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.AbstractCollection;
+import java.util.List;
 
 import static org.jukov.lanchat.dto.ServiceData.MessageType;
 
@@ -46,8 +46,8 @@ public class Client extends Thread implements Closeable {
         peopleData = new PeopleData(context);
         dbHelper = DBHelper.getInstance(context);
         dbHelper.insertOrUpdatePeople(peopleData);
-        DataBundle<RoomData> dataBundle = new DataBundle<>(dbHelper.getRooms(), 50);
-        Log.d(TAG, Integer.toString(dataBundle.size()));
+//        DataBundle<RoomData> dataBundle = new DataBundle<>(dbHelper.getRooms(), 50);
+//        Log.d(TAG, Integer.toString(dataBundle.size()));
         while (socket == null) {
             try {
                 socket = new Socket(ip, port);
@@ -55,9 +55,9 @@ public class Client extends Thread implements Closeable {
                 dataInputStream = new DataInputStream(socket.getInputStream());
                 peopleData.setAction(PeopleData.ActionType.CONNECT);
                 sendMessage(JSONConverter.toJSON(peopleData));
-                if (dataBundle.size() > 0) {
-                    sendMessage(JSONConverter.toJSON(dataBundle));
-                }
+//                if (dataBundle.size() > 0) {
+//                    sendMessage(JSONConverter.toJSON(dataBundle));
+//                }
                 peopleData.setAction(PeopleData.ActionType.NONE);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -87,9 +87,19 @@ public class Client extends Thread implements Closeable {
                 Object data = JSONConverter.toPOJO(message);
                 if (data instanceof ChatData) {
                     ChatData chatData = (ChatData) data;
-                    dbHelper.insertMessage(chatData);
-                    ServiceHelper.receiveMessage(context, chatData);
-
+                    if (chatData.getMessageType() == ChatData.MessageType.ROOM) {
+                        List<RoomData> rooms = dbHelper.getRooms();
+                        for (RoomData roomData : rooms) {
+                            if (chatData.getDestinationUID().equals(roomData.getUid())) {
+                                dbHelper.insertMessage(chatData);
+                                ServiceHelper.receiveMessage(context, chatData);
+                                break;
+                            }
+                        }
+                    } else {
+                        dbHelper.insertMessage(chatData);
+                        ServiceHelper.receiveMessage(context, chatData);
+                    }
                 } else if (data instanceof PeopleData) {
                     PeopleData peopleData = (PeopleData) data;
                     dbHelper.insertOrUpdatePeople(peopleData);

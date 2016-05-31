@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.util.Log;
 import android.view.MenuItem;
 
 import org.jukov.lanchat.adapter.ChatAdapter;
@@ -14,7 +13,6 @@ import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.fragment.PrivateChatFragment;
 import org.jukov.lanchat.service.LANChatService;
-import org.jukov.lanchat.service.ServiceHelper;
 import org.jukov.lanchat.util.Utils;
 
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ID;
@@ -50,7 +48,6 @@ public class PrivateChatActivity extends NavigationDrawerActivity {
         initAdapter();
         initFragment();
         initBroadcastReceiver();
-        initService();
     }
 
     @Override
@@ -125,10 +122,5 @@ public class PrivateChatActivity extends NavigationDrawerActivity {
         };
         IntentFilter intentFilter = new IntentFilter(PRIVATE_MESSAGE_ACTION);
         registerReceiver(broadcastReceiver, intentFilter);
-    }
-
-    private void initService() {
-        Log.d(getClass().getSimpleName(), "Connecting to service");
-        ServiceHelper.startService(this);
     }
 }

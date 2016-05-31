@@ -1,10 +1,13 @@
 package org.jukov.lanchat.fragment;
 
+import android.content.Context;
 import android.content.DialogInterface;
+import android.net.wifi.SupplicantState;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -39,8 +42,19 @@ public abstract class ChatFragment extends BaseFragment {
 
     void initViews() {
         ListView listViewMessages = (ListView) layout.findViewById(R.id.listViewMessages);
+
         buttonSend = (ImageButton) layout.findViewById(R.id.imageButtonSend);
         editTextMessage = (EditText) layout.findViewById(R.id.editTextMessage);
+
+        SupplicantState supplicantState;
+        WifiManager wifiManager = (WifiManager) getContext().getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        supplicantState = wifiInfo.getSupplicantState();
+
+        if (supplicantState != SupplicantState.COMPLETED) {
+            buttonSend.setEnabled(false);
+            editTextMessage.setEnabled(false);
+        }
 
         listViewMessages.setAdapter(chatAdapter);
 

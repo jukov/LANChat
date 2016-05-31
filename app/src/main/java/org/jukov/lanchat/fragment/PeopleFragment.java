@@ -79,9 +79,18 @@ public class PeopleFragment extends ListFragment {
                         .setItems(new String[] {getString(R.string.delete_messages)}, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                PeopleData peopleData = peopleAdapter.getItem(position);
-                                DBHelper dbHelper = DBHelper.getInstance(getContext());
-                                dbHelper.deleteMessages(peopleData);
+                                AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.you_sure))
+                                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                PeopleData peopleData = peopleAdapter.getItem(position);
+                                                DBHelper dbHelper = DBHelper.getInstance(getContext());
+                                                dbHelper.deleteMessages(peopleData);
+                                            }
+                                        })
+                                        .setNegativeButton(android.R.string.cancel, null)
+                                        .create();
+                                alertDialog.show();
                             }
                         });
                 builder.create().show();
