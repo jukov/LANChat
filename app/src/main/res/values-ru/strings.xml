@@ -37,4 +37,11 @@
     <string name="require_wifi">Для работы приложения требуется Wi-Fi подключение. Пожалуйста, подключитесь к точке доступа и перезапустите приложение</string>
     <string name="type_new_name">Введите новое имя</string>
     <string name="you_sure">Вы уверены?</string>
+    <string name="copied_to_clipboard">Текст скопирован в буфер обмена</string>
+    <string name="copy_text">Копировать текст</string>
+    <string name="enable_led">Включить световой индикатор</string>
+    <string name="enable_notifications">Включить уведомления</string>
+    <string name="enable_vibration">Включить вибрацию</string>
+    <string name="notification_ringtone">Тип звукового оповещения</string>
+    <string name="notifications">Уведомления</string>
 </resources>

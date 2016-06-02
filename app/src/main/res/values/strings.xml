@@ -46,8 +46,9 @@
     <string name="delete_room">Delete room</string>
     <string name="notifications">Notifications</string>
     <string name="enable_notifications">Enable notifications</string>
-    <string name="enable_sound">Enable sound</string>
     <string name="enable_vibration">Enable vibration</string>
     <string name="enable_led">Enable LED</string>
     <string name="notification_ringtone">Notification ringtone</string>
+    <string name="copy_text">Copy text</string>
+    <string name="copied_to_clipboard">Text copied to clipboard</string>
 </resources>
