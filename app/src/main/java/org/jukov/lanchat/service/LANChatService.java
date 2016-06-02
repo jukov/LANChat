@@ -24,9 +24,11 @@ import java.util.concurrent.TimeUnit;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ROOM;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_STATE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.INIT_SERVICE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.MESSAGE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.NAME_CHANGE_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PRIVATE_CHAT_STATE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.SEARCH_SERVER_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.SEND_ROOM_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.START_SERVER_ACTION;
@@ -87,6 +89,9 @@ public class LANChatService extends Service {
                     break;
                 case SEND_ROOM_ACTION:
                     sendRoom(intent);
+                    break;
+                case PRIVATE_CHAT_STATE_ACTION:
+                    sendPrivateChatState(intent.getBooleanExtra(EXTRA_STATE, false));
                     break;
                 default:
                     Log.w(getClass().getSimpleName(), "Unexpected intent action type");
@@ -171,6 +176,12 @@ public class LANChatService extends Service {
             e.printStackTrace();
         }
 
+    }
+
+    private void sendPrivateChatState(boolean state) {
+        if (client != null) {
+            client.setPrivateChatState(state);
+        }
     }
 
     class ServerSearch extends Thread {

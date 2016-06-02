@@ -1,8 +1,22 @@
 package org.jukov.lanchat.network;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
+import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
+import org.jukov.lanchat.PrivateChatActivity;
+import org.jukov.lanchat.R;
 import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.MessagingData;
@@ -11,6 +25,7 @@ import org.jukov.lanchat.dto.RoomData;
 import org.jukov.lanchat.dto.ServiceData;
 import org.jukov.lanchat.service.ServiceHelper;
 import org.jukov.lanchat.util.JSONConverter;
+import org.jukov.lanchat.util.PreferenceConstants;
 
 import java.io.Closeable;
 import java.io.DataInputStream;
@@ -39,6 +54,7 @@ public class Client extends Thread implements Closeable {
 
     private PeopleData peopleData;
     private int connections;
+    private boolean privateChatState;
 
     public Client(Context context, String ip, int port) {
         this.context = context;
@@ -76,6 +92,10 @@ public class Client extends Thread implements Closeable {
         peopleData.setAction(PeopleData.ActionType.NONE);
     }
 
+    public void setPrivateChatState(boolean privateChatState) {
+        this.privateChatState = privateChatState;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public void run() {
@@ -87,18 +107,67 @@ public class Client extends Thread implements Closeable {
                 Object data = JSONConverter.toPOJO(message);
                 if (data instanceof ChatData) {
                     ChatData chatData = (ChatData) data;
-                    if (chatData.getMessageType() == ChatData.MessageType.ROOM) {
-                        List<RoomData> rooms = dbHelper.getRooms();
-                        for (RoomData roomData : rooms) {
-                            if (chatData.getDestinationUID().equals(roomData.getUid())) {
+
+                    switch (chatData.getMessageType()) {
+                        case GLOBAL:
+                            dbHelper.insertMessage(chatData);
+                            ServiceHelper.receiveMessage(context, chatData);
+                            break;
+                        case PRIVATE:
+
+                            if (!privateChatState) {
+                                PeopleData senderData = dbHelper.getPeople(chatData.getUid());
+
+                                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+
+                                if (sharedPreferences.getBoolean(PreferenceConstants.ENABLE_NOTIFICATIONS, false)) {
+                                    NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+                                            .setSmallIcon(R.drawable.ic_account_multiple)
+                                            .setContentTitle(senderData.getName())
+                                            .setContentText(chatData.getText());
+
+//                                if (sharedPreferences.getBoolean(PreferenceConstants.ENABLE_SOUND, false))
+//                                     builder.setSound();
+                                    builder.setSound(Uri.parse(sharedPreferences.getString(PreferenceConstants.NOTIFICATION_RINGTONE, "")));
+                                    if (sharedPreferences.getBoolean(PreferenceConstants.ENABLE_VIBRATION, false))
+                                        builder.setVibrate(new long[]{500, 500, 500, 500});
+                                    if (sharedPreferences.getBoolean(PreferenceConstants.ENABLE_LED, false))
+                                        builder.setLights(Color.MAGENTA, 3000, 3000);
+
+                                    Intent intent = new Intent(context, PrivateChatActivity.class);
+                                    intent.putExtra(ServiceHelper.IntentConstants.EXTRA_NAME, senderData.getName());
+                                    intent.putExtra(ServiceHelper.IntentConstants.EXTRA_UID, senderData.getUid());
+                                    intent.putExtra(ServiceHelper.IntentConstants.EXTRA_PEOPLE_AROUND, connections);
+
+                                    PendingIntent pendingIntent = PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                                    builder.setContentIntent(pendingIntent);
+
+                                    Notification notification = new NotificationCompat.BigTextStyle(builder).bigText(chatData.getText()).build();
+
+                                    NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                                    notificationManager.notify(1, notification);
+                                }
+                            }
+
+                            dbHelper.insertMessage(chatData);
+                            ServiceHelper.receiveMessage(context, chatData);
+                            break;
+                        case ROOM:
+                            if (chatData.getMessageType() == ChatData.MessageType.ROOM) {
+                                List<RoomData> rooms = dbHelper.getRooms();
+                                for (RoomData roomData : rooms) {
+                                    if (chatData.getDestinationUID().equals(roomData.getUid())) {
+                                        dbHelper.insertMessage(chatData);
+                                        ServiceHelper.receiveMessage(context, chatData);
+                                        break;
+                                    }
+                                }
+                            } else {
                                 dbHelper.insertMessage(chatData);
                                 ServiceHelper.receiveMessage(context, chatData);
-                                break;
                             }
-                        }
-                    } else {
-                        dbHelper.insertMessage(chatData);
-                        ServiceHelper.receiveMessage(context, chatData);
+                            break;
                     }
                 } else if (data instanceof PeopleData) {
                     PeopleData peopleData = (PeopleData) data;

@@ -118,7 +118,9 @@ public class MainActivity extends NavigationDrawerActivity {
                 case REQUEST_CODE_ROOM_CREATING:
                     Log.d(TAG, "REQUEST_CODE_ROOM_CREATING");
                     break;
-                default:
+                case REQUEST_CODE_ADDING_PEOPLE:
+                case REQUEST_CODE_PRIVATE_CHAT:
+                case REQUEST_CODE_ROOM_CHAT:
                     int id = data.getIntExtra(EXTRA_ID, 0);
                     Fragment fragment = fragments.get(id);
                     if (fragment instanceof PreferenceFragmentCompat)

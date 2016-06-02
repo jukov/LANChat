@@ -13,7 +13,10 @@ import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.fragment.PrivateChatFragment;
 import org.jukov.lanchat.service.LANChatService;
+import org.jukov.lanchat.service.ServiceHelper;
 import org.jukov.lanchat.util.Utils;
+
+import java.util.Set;
 
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
@@ -48,6 +51,20 @@ public class PrivateChatActivity extends NavigationDrawerActivity {
         initAdapter();
         initFragment();
         initBroadcastReceiver();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        ServiceHelper.sendPrivateChatState(getApplicationContext(), true);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        ServiceHelper.sendPrivateChatState(getApplicationContext(), false);
     }
 
     @Override

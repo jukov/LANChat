@@ -475,6 +475,10 @@ public class DBHelper extends SQLiteOpenHelper {
         return messagesList;
     }
 
+    public PeopleData getPeople(String uid) {
+        return getPeople(getPeopleID(uid));
+    }
+
     public List<ChatData> getPrivateMessages(String myUID, String companionUID) {
         databaseLock.lock();
 

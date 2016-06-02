@@ -15,4 +15,22 @@
             android:defaultValue="10"
             android:numeric="integer"/>
     </PreferenceCategory>
+    <PreferenceCategory android:title="@string/notifications">
+        <CheckBoxPreference
+            android:key="enable_notifications"
+            android:title="@string/enable_notifications"
+            />
+        <Preference
+            android:key="notification_ringtone"
+            android:title="@string/notification_ringtone">
+        </Preference>
+        <CheckBoxPreference
+            android:key="enable_vibration"
+            android:title="@string/enable_vibration"
+            />
+        <CheckBoxPreference
+            android:key="enable_led"
+            android:title="@string/enable_led"
+            />
+    </PreferenceCategory>
 </PreferenceScreen>

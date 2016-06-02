@@ -16,34 +16,35 @@ import java.util.Arrays;
 public class ServiceHelper {
 
     public class IntentConstants {
+
         public static final String INIT_SERVICE_ACTION =        "org.jukov.lanchat.CONNECT_TO_SERVICE";
         public static final String SEARCH_SERVER_ACTION =       "org.jukov.lanchat.SEARCH_SERVER";
         public static final String START_SERVER_ACTION =        "org.jukov.lanchat.START_SERVER";
-
         public static final String PEOPLE_AROUND_ACTION =       "org.jukov.lanchat.PEOPLE_AROUND";
-        public static final String NAME_CHANGE_ACTION =         "org.jukov.lanchat.CHANGE_NAME";
 
+        public static final String NAME_CHANGE_ACTION =         "org.jukov.lanchat.CHANGE_NAME";
         public static final String GLOBAL_MESSAGE_ACTION =      "org.jukov.lanchat.GLOBAL_MESSAGE";
+
         public static final String PRIVATE_MESSAGE_ACTION =     "org.jukov.lanchat.PRIVATE_MESSAGE";
         public static final String ROOM_MESSAGE_ACTION =        "org.jukov.lanchat.ROOM_MESSAG";
         public static final String MESSAGE_ACTION =             "org.jukov.lanchat.MESSAGE";
-
         public static final String PEOPLE_ACTION =              "org.jukov.lanchat.PEOPLE";
 
         public static final String SET_ALL_OFFLINE_ACTION =   "org.jukov.lanchat.CLEAR_PEOPLE_LIST";
         public static final String SEND_ROOM_ACTION =           "org.jukov.lanchat.SEND_ROOM";
+        public static final String PRIVATE_CHAT_STATE_ACTION = "org.jukov.lanchat.PRIVATE_CHAT_STATE";
 
         public static final String EXTRA_NAME =             "name";
         public static final String EXTRA_MESSAGE =          "message";
         public static final String EXTRA_MESSAGE_BUNDLE =   "message_bundle";
         public static final String EXTRA_UID =              "uid";
         public static final String EXTRA_ID =               "id";
-        public static final String EXTRA_PEOPLE_AROUND =   "mode";
+        public static final String EXTRA_PEOPLE_AROUND =    "mode";
         public static final String EXTRA_ACTION =           "action";
         public static final String EXTRA_ROOM =             "room";
         public static final String EXTRA_PARTICIPANTS =     "participants";
+        public static final String EXTRA_STATE =            "state";
     }
-
     /*
     * Methods for messages from activity to service
     */
@@ -84,6 +85,13 @@ public class ServiceHelper {
         Intent intent = new Intent(context, LANChatService.class);
         intent.setAction(IntentConstants.SEND_ROOM_ACTION);
         intent.putExtra(IntentConstants.EXTRA_ROOM, roomData);
+        context.startService(intent);
+    }
+
+    public static void sendPrivateChatState(Context context, boolean state) {
+        Intent intent = new Intent(context, LANChatService.class);
+        intent.setAction(IntentConstants.PRIVATE_CHAT_STATE_ACTION);
+        intent.putExtra(IntentConstants.EXTRA_STATE, state);
         context.startService(intent);
     }
 
