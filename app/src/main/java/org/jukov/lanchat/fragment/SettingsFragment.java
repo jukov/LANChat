@@ -9,18 +9,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v7.preference.CheckBoxPreference;
-import android.support.v7.preference.EditTextPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
-import android.util.Log;
 
 import org.jukov.lanchat.R;
-import org.jukov.lanchat.util.PreferenceConstants;
 
 import static org.jukov.lanchat.util.PreferenceConstants.ENABLE_LED;
 import static org.jukov.lanchat.util.PreferenceConstants.ENABLE_NOTIFICATIONS;
-import static org.jukov.lanchat.util.PreferenceConstants.ENABLE_SOUND;
 import static org.jukov.lanchat.util.PreferenceConstants.ENABLE_VIBRATION;
 import static org.jukov.lanchat.util.PreferenceConstants.NOTIFICATION_RINGTONE;
 

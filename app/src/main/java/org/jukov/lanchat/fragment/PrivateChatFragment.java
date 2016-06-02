@@ -1,7 +1,6 @@
 package org.jukov.lanchat.fragment;
 
 import android.os.Bundle;
-import android.service.notification.NotificationListenerService;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;

@@ -20,8 +20,8 @@ import android.widget.TextView;
 import org.jukov.lanchat.adapter.ChatAdapter;
 import org.jukov.lanchat.service.ServiceHelper;
 
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PEOPLE_AROUND_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_PEOPLE_AROUND;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PEOPLE_AROUND_ACTION;
 
 /**
  * Created by jukov on 21.04.2016.

@@ -5,7 +5,6 @@ import android.net.DhcpInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
-import android.util.Log;
 
 import java.io.IOException;
 import java.net.InetAddress;
