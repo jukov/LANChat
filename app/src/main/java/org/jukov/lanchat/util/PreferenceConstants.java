@@ -8,7 +8,6 @@ public interface PreferenceConstants {
     String NAME = "name";
     String MAX_CLIENTS = "max_clients";
     String ENABLE_NOTIFICATIONS = "enable_notifications";
-    String ENABLE_SOUND = "enable_sound";
     String ENABLE_VIBRATION = "enable_vibration";
     String ENABLE_LED = "enable_led";
     String NOTIFICATION_RINGTONE = "notification_ringtone";

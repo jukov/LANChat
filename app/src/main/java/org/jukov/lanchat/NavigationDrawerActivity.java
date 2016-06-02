@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import org.jukov.lanchat.adapter.ChatAdapter;
 import org.jukov.lanchat.service.ServiceHelper;
+import org.jukov.lanchat.util.PreferenceConstants;
 
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_PEOPLE_AROUND;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PEOPLE_AROUND_ACTION;
@@ -119,7 +120,7 @@ public abstract class NavigationDrawerActivity extends BaseActivity implements
         }
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         TextView textView = (TextView) navigationDrawerHeaderView.findViewById(R.id.textViewName);
-        textView.setText(getString(R.string.nav_header_hello, sharedPreferences.getString("name", getString(R.string.default_name))));
+        textView.setText(getString(R.string.nav_header_hello, sharedPreferences.getString(PreferenceConstants.NAME, getString(R.string.default_name))));
 
         textViewMode = (TextView) navigationDrawerHeaderView.findViewById(R.id.textViewPeopleAround);
         textViewMode.setText(getString(R.string.nav_header_people_around, peopleAround));

@@ -11,6 +11,7 @@ import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.dto.RoomData;
 import org.jukov.lanchat.dto.ServiceData;
 import org.jukov.lanchat.util.JSONConverter;
+import org.jukov.lanchat.util.PreferenceConstants;
 import org.jukov.lanchat.util.Utils;
 
 import java.io.Closeable;
@@ -69,7 +70,7 @@ public class Server extends Thread implements Closeable {
         this.port = port;
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String max_clients = sharedPreferences.getString("max_clients", "10");
+        String max_clients = sharedPreferences.getString(PreferenceConstants.MAX_CLIENTS, "10");
         try {
             CLIENT_THREADS_COUNT = Integer.valueOf(max_clients);
         }

@@ -9,6 +9,7 @@ import android.support.v7.preference.PreferenceManager;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 
 import org.jukov.lanchat.R;
+import org.jukov.lanchat.util.PreferenceConstants;
 import org.jukov.lanchat.util.Utils;
 
 /**
@@ -30,7 +31,7 @@ public abstract class MessagingData extends Data implements Parcelable {
 
     public MessagingData(Context context) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        name = sharedPreferences.getString("name", context.getString(R.string.default_name));
+        name = sharedPreferences.getString(PreferenceConstants.NAME, context.getString(R.string.default_name));
         uid = Utils.getAndroidID(context);
     }
 
