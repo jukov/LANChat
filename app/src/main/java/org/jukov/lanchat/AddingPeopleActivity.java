@@ -116,7 +116,7 @@ public class AddingPeopleActivity extends BaseActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        ListView listViewPeople = (ListView) findViewById(R.id.listViewPeople);
+        ListView listViewPeople = (ListView) findViewById(R.id.listView);
 
         if (listViewPeople != null) {
             listViewPeople.setAdapter(arrayAdapterPeople);

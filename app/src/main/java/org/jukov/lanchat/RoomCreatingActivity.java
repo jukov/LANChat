@@ -145,7 +145,7 @@ public class RoomCreatingActivity extends BaseActivity {
 
         roomNameText = (EditText) findViewById(R.id.editTextRoomName);
         isPrivate = (CheckBox) findViewById(R.id.checkBoxIsPrivate);
-        listViewPeople = (ListView) findViewById(R.id.listViewPeople);
+        listViewPeople = (ListView) findViewById(R.id.listView);
 
         if (roomNameText != null) {
             roomNameText.addTextChangedListener(new TextWatcher() {

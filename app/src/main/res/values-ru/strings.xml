@@ -6,7 +6,7 @@
     <string name="cant_create_room">Нельзя создать более 1000 комнат</string>
     <string name="create_room">Создать комнату</string>
     <string name="default_name">Аноним</string>
-    <string name="edit_text_message_typehere">Введите сообщение…</string>
+    <string name="type_here">Введите сообщение…</string>
     <string name="exit">Выход</string>
     <string name="global_chat">Глобальный чат</string>
     <string name="nav_header_hello">Привет, %s</string>
@@ -30,7 +30,6 @@
     <string name="delete_messages">Удалить сообщения</string>
     <string name="offline">Не в сети</string>
     <string name="online">В сети</string>
-    <string name="star_message">Отметить сообщение</string>
     <string name="delete_room">Удалить комнату</string>
     <string name="incorrect_name">Неверное название</string>
     <string name="rename_room">Переименовать комнату</string>

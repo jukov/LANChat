@@ -68,7 +68,6 @@ public abstract class ChatFragment extends BaseFragment {
                 builder.setTitle(getString(R.string.choose_action))
                         .setItems(new String[]{
                                 getString(R.string.delete_message),
-                                getString(R.string.star_message),
                                 getString(R.string.copy_text)}, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -80,9 +79,6 @@ public abstract class ChatFragment extends BaseFragment {
                                         chatAdapter.remove(position);
                                         break;
                                     case 1:
-
-                                        break;
-                                    case 2:
                                         ClipboardManager clipboardManager = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
                                         ClipData clipData = ClipData.newPlainText("LANChat", chatData.getText());
                                         clipboardManager.setPrimaryClip(clipData);
