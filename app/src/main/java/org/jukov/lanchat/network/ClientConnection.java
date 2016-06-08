@@ -34,12 +34,18 @@ class ClientConnection extends Connection {
         Log.d(getClass().getSimpleName(), "Connection started");
         try {
             while (!socket.isClosed()) {
-                String message = dataInputStream.readUTF();
+//                String message = dataInputStream.readUTF();
+                int length = dataInputStream.readInt();
+                byte[] messageArray = new byte[length];
+                dataInputStream.readFully(messageArray);
+//                Log.d(getClass().getSimpleName(), message);
+                String message = new String(messageArray, "UTF-8");
                 Log.d(getClass().getSimpleName(), "Receive message");
                 Object data = JSONConverter.toPOJO(message);
                 if (data instanceof PeopleData) {
                     peopleData = (PeopleData) data;
-                } else if (data instanceof ChatData) {
+                } else
+                if (data instanceof ChatData) {
                     if (((ChatData) data).getMessageType() == GLOBAL)
                         server.addMessage((ChatData) data);
                 } else if (data instanceof RoomData) {

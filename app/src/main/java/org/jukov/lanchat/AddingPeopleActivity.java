@@ -13,8 +13,9 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ListView;
 
-import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.PeopleData;
+import org.jukov.lanchat.util.DBHelper;
+import org.jukov.lanchat.util.StorageHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -97,6 +98,9 @@ public class AddingPeopleActivity extends BaseActivity {
         for (PeopleData peopleData : participants) {
             if (people.contains(peopleData))
                 people.remove(peopleData);
+            else {
+                peopleData.setProfilePicture(StorageHelper.loadProfilePicture(getApplicationContext(), peopleData.getUid() + "_profile_picture.jpg"));
+            }
         }
 
         arrayAdapterPeople = new ArrayAdapter<>(

@@ -22,7 +22,8 @@ public class ServiceHelper {
         public static final String START_SERVER_ACTION =        "org.jukov.lanchat.START_SERVER";
         public static final String PEOPLE_AROUND_ACTION =       "org.jukov.lanchat.PEOPLE_AROUND";
 
-        public static final String NAME_CHANGE_ACTION =         "org.jukov.lanchat.CHANGE_NAME";
+        public static final String PROFILE_NAME_CHANGE_ACTION =         "org.jukov.lanchat.CHANGE_NAME";
+        public static final String PROFILE_PICTURE_CHANGE_ACTION ="org.jukov.lanchat.CHANGE_PROFILE_PICTURE";
         public static final String GLOBAL_MESSAGE_ACTION =      "org.jukov.lanchat.GLOBAL_MESSAGE";
 
         public static final String PRIVATE_MESSAGE_ACTION =     "org.jukov.lanchat.PRIVATE_MESSAGE";
@@ -40,10 +41,12 @@ public class ServiceHelper {
         public static final String EXTRA_UID =              "uid";
         public static final String EXTRA_ID =               "id";
         public static final String EXTRA_PEOPLE_AROUND =    "mode";
-        public static final String EXTRA_ACTION =           "action";
         public static final String EXTRA_ROOM =             "room";
         public static final String EXTRA_PARTICIPANTS =     "participants";
         public static final String EXTRA_STATE =            "state";
+        public static final String EXTRA_PEOPLE =           "people";
+        public static final String EXTRA_PROFILE_PICTURE =  "profile_picture";
+
     }
     /*
     * Methods for messages from activity to service
@@ -76,8 +79,15 @@ public class ServiceHelper {
 
     public static void changeName(Context context, String newName) {
         Intent intent = new Intent(context, LANChatService.class);
-        intent.setAction(IntentConstants.NAME_CHANGE_ACTION);
+        intent.setAction(IntentConstants.PROFILE_NAME_CHANGE_ACTION);
         intent.putExtra(IntentConstants.EXTRA_NAME, newName);
+        context.startService(intent);
+    }
+
+    public static void changeProfilePicture(Context context, String encodedNewProfilePicture) {
+        Intent intent = new Intent(context, LANChatService.class);
+        intent.setAction(IntentConstants.PROFILE_PICTURE_CHANGE_ACTION);
+        intent.putExtra(IntentConstants.EXTRA_PROFILE_PICTURE, encodedNewProfilePicture);
         context.startService(intent);
     }
 
@@ -113,10 +123,7 @@ public class ServiceHelper {
 
     public static void receivePeople(Context context, PeopleData peopleData) {
         Intent intent = new Intent(IntentConstants.PEOPLE_ACTION);
-//        intent.putExtra(IntentConstants.EXTRA_PEOPLE)
-        intent.putExtra(IntentConstants.EXTRA_NAME, peopleData.getName());
-        intent.putExtra(IntentConstants.EXTRA_UID, peopleData.getUid());
-        intent.putExtra(IntentConstants.EXTRA_ACTION, peopleData.getAction().getValue());
+        intent.putExtra(IntentConstants.EXTRA_PEOPLE, peopleData);
         context.sendBroadcast(intent);
     }
 

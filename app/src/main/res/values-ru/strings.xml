@@ -43,4 +43,6 @@
     <string name="enable_vibration">Включить вибрацию</string>
     <string name="notification_ringtone">Тип звукового оповещения</string>
     <string name="notifications">Уведомления</string>
+    <string name="choose_from_gallery">Выбрать из галереи</string>
+    <string name="take_a_picture">Сделать фото</string>
 </resources>

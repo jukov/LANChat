@@ -39,7 +39,10 @@ abstract class Connection implements Closeable, Runnable {
 
     public void sendMessage(String message) {
         try {
-            dataOutputStream.writeUTF(message);
+            byte[] data = message.getBytes("UTF-8");
+            dataOutputStream.writeInt(data.length);
+            dataOutputStream.write(data);
+//            dataOutputStream.writeUTF(message);
             dataOutputStream.flush();
         } catch (IOException e) {
             e.printStackTrace();

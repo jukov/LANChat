@@ -17,10 +17,11 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.dto.RoomData;
 import org.jukov.lanchat.service.ServiceHelper;
+import org.jukov.lanchat.util.DBHelper;
+import org.jukov.lanchat.util.StorageHelper;
 import org.jukov.lanchat.util.Utils;
 
 import java.util.ArrayList;
@@ -114,6 +115,9 @@ public class RoomCreatingActivity extends BaseActivity {
 
         DBHelper dbHelper = DBHelper.getInstance(getApplicationContext());
         List<PeopleData> people = dbHelper.getPeople();
+        for (PeopleData peopleData : people) {
+            peopleData.setProfilePicture(StorageHelper.loadProfilePicture(getApplicationContext(), peopleData.getUid() + "_profile_picture.jpg"));
+        }
 
         String myUID = Utils.getAndroidID(getApplicationContext());
         Iterator<PeopleData> iterator = people.iterator();

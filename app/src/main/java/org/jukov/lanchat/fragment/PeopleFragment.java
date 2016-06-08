@@ -18,9 +18,9 @@ import org.jukov.lanchat.MainActivity;
 import org.jukov.lanchat.PrivateChatActivity;
 import org.jukov.lanchat.R;
 import org.jukov.lanchat.adapter.PeopleAdapter;
-import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.service.ServiceHelper;
+import org.jukov.lanchat.util.DBHelper;
 
 /**
  * Created by jukov on 16.02.2016.

@@ -1,4 +1,4 @@
-package org.jukov.lanchat.db;
+package org.jukov.lanchat.util;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -10,7 +10,6 @@ import android.util.Log;
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.dto.RoomData;
-import org.jukov.lanchat.util.Utils;
 
 import java.util.AbstractCollection;
 import java.util.ArrayList;

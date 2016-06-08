@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.jukov.lanchat.R;
@@ -53,7 +54,13 @@ public class PeopleAdapter extends BaseAdapter {
 
         TextView textViewName = (TextView) view.findViewById(R.id.textViewName);
         TextView textViewStatus = (TextView) view.findViewById(R.id.textViewStatus);
+        ImageView imageViewProfilePicture = (ImageView) view.findViewById(R.id.imageViewPicture);
 
+        if (peopleData.getProfilePicture() != null)
+            imageViewProfilePicture.setImageBitmap(peopleData.getProfilePicture());
+        else
+            //noinspection deprecation
+            imageViewProfilePicture.setImageDrawable(context.getResources().getDrawable(android.R.drawable.sym_def_app_icon));
         textViewName.setText(peopleData.getName());
 
         switch (peopleData.getAction()) {
@@ -63,7 +70,7 @@ public class PeopleAdapter extends BaseAdapter {
             case DISCONNECT:
                 textViewStatus.setText(context.getString(R.string.offline));
                 break;
-            case CHANGE_NAME:
+            case CHANGE_PROFILE:
                 textViewStatus.setText(context.getString(R.string.online));
                 break;
             case NONE:

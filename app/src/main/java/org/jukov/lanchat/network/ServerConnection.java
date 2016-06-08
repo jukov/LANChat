@@ -28,7 +28,12 @@ class ServerConnection extends Connection {
         try {
             while (!socket.isClosed()) {
                 Log.d(getClass().getSimpleName(), "ReceiveMessage");
-                String message = dataInputStream.readUTF();
+//                String message = dataInputStream.readUTF();
+                int length = dataInputStream.readInt();
+                byte[] messageArray = new byte[length];
+                dataInputStream.readFully(messageArray);
+//                Log.d(getClass().getSimpleName(), message);
+                String message = new String(messageArray, "UTF-8");
                 Object data = JSONConverter.toPOJO(message);
                 if (data instanceof ChatData) {
                     if (((ChatData) data).getMessageType() == ChatData.MessageType.GLOBAL)

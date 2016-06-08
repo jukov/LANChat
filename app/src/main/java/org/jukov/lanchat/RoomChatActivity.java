@@ -11,13 +11,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import org.jukov.lanchat.adapter.ChatAdapter;
-import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.dto.RoomData;
 import org.jukov.lanchat.fragment.RoomChatFragment;
 import org.jukov.lanchat.service.LANChatService;
 import org.jukov.lanchat.service.ServiceHelper;
+import org.jukov.lanchat.util.DBHelper;
 
 import java.util.Arrays;
 import java.util.List;

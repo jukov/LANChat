@@ -54,4 +54,6 @@
     <string name="copied_to_clipboard">Text copied to clipboard</string>
     <string name="require_wifi">Application require Wi-Fi connection. Please, connect to the access point and restart</string>
     <string name="cant_create_room">Can\'t create more than 1000 rooms</string>
+    <string name="choose_from_gallery">Choose from gallery</string>
+    <string name="take_a_picture">Take a picture</string>
 </resources>

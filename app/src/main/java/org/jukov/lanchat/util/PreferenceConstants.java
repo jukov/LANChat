@@ -5,6 +5,7 @@ package org.jukov.lanchat.util;
  */
 public interface PreferenceConstants {
     String NAME = "name";
+    String PROFILE_PICTURE = "profile_picture";
     String MAX_CLIENTS = "max_clients";
     String ENABLE_NOTIFICATIONS = "enable_notifications";
     String ENABLE_VIBRATION = "enable_vibration";

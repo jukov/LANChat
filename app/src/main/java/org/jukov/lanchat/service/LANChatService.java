@@ -23,12 +23,14 @@ import java.util.concurrent.TimeUnit;
 
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_PROFILE_PICTURE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ROOM;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_STATE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.INIT_SERVICE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.MESSAGE_ACTION;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.NAME_CHANGE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PRIVATE_CHAT_STATE_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PROFILE_NAME_CHANGE_ACTION;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PROFILE_PICTURE_CHANGE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.SEARCH_SERVER_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.SEND_ROOM_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.START_SERVER_ACTION;
@@ -84,8 +86,11 @@ public class LANChatService extends Service {
                 case MESSAGE_ACTION:
                     sendMessage(intent);
                     break;
-                case NAME_CHANGE_ACTION:
+                case PROFILE_NAME_CHANGE_ACTION:
                     changeName(intent);
+                    break;
+                case PROFILE_PICTURE_CHANGE_ACTION:
+                    changeProfilePicture(intent);
                     break;
                 case SEND_ROOM_ACTION:
                     sendRoom(intent);
@@ -162,9 +167,8 @@ public class LANChatService extends Service {
     }
 
     private void changeName(Intent intent) {
-        if (client != null) {
+        if (client != null)
             client.changeName(intent.getStringExtra(EXTRA_NAME));
-        }
     }
 
     private void sendRoom(Intent intent) {
@@ -179,9 +183,13 @@ public class LANChatService extends Service {
     }
 
     private void sendPrivateChatState(boolean state) {
-        if (client != null) {
+        if (client != null)
             client.setPrivateChatState(state);
-        }
+    }
+
+    private void changeProfilePicture(Intent intent) {
+        if (client != null)
+            client.changeProfilePicture(intent.getStringExtra(EXTRA_PROFILE_PICTURE));
     }
 
     class ServerSearch extends Thread {

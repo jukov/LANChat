@@ -1,5 +1,6 @@
 package org.jukov.lanchat.fragment;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -24,9 +25,9 @@ import org.jukov.lanchat.R;
 import org.jukov.lanchat.RoomChatActivity;
 import org.jukov.lanchat.RoomCreatingActivity;
 import org.jukov.lanchat.adapter.RoomsAdapter;
-import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.RoomData;
 import org.jukov.lanchat.service.ServiceHelper;
+import org.jukov.lanchat.util.DBHelper;
 
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ROOM;
 
@@ -108,7 +109,7 @@ public class RoomsFragment extends ListFragment {
                                         alertDialogDeletion.show();
                                         break;
                                     case 1:
-                                        final AlertDialog alertDialogRenaming = new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.type_new_name))
+                                        @SuppressLint("InflateParams") final AlertDialog alertDialogRenaming = new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.type_new_name))
                                                .setView(getActivity().getLayoutInflater().inflate(R.layout.dialog_edtitext, null))
                                                .setPositiveButton(android.R.string.ok, null)
                                                .setNegativeButton(android.R.string.cancel, null).create();

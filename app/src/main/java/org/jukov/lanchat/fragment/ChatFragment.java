@@ -20,8 +20,8 @@ import android.widget.Toast;
 import org.jukov.lanchat.NavigationDrawerActivity;
 import org.jukov.lanchat.R;
 import org.jukov.lanchat.adapter.ChatAdapter;
-import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.ChatData;
+import org.jukov.lanchat.util.DBHelper;
 
 /**
  * Created by jukov on 20.04.2016.

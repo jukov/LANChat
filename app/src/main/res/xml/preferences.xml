@@ -6,6 +6,9 @@
             android:summary="@string/settings_name_summary"
             android:title="@string/settings_name"
             android:defaultValue="@string/default_name"/>
+        <Preference
+            android:key="profile_picture"
+            android:title="@string/profile_picture"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/preference_network">
         <EditTextPreference
@@ -18,19 +21,15 @@
     <PreferenceCategory android:title="@string/notifications">
         <CheckBoxPreference
             android:key="enable_notifications"
-            android:title="@string/enable_notifications"
-            />
+            android:title="@string/enable_notifications" />
         <Preference
             android:key="notification_ringtone"
-            android:title="@string/notification_ringtone">
-        </Preference>
+            android:title="@string/notification_ringtone"/>
         <CheckBoxPreference
             android:key="enable_vibration"
-            android:title="@string/enable_vibration"
-            />
+            android:title="@string/enable_vibration" />
         <CheckBoxPreference
             android:key="enable_led"
-            android:title="@string/enable_led"
-            />
+            android:title="@string/enable_led" />
     </PreferenceCategory>
 </PreferenceScreen>

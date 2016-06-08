@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -21,7 +22,6 @@ import android.widget.Toast;
 import org.jukov.lanchat.adapter.ChatAdapter;
 import org.jukov.lanchat.adapter.PeopleAdapter;
 import org.jukov.lanchat.adapter.RoomsAdapter;
-import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.dto.RoomData;
@@ -32,6 +32,9 @@ import org.jukov.lanchat.fragment.RoomsFragment;
 import org.jukov.lanchat.fragment.SettingsFragment;
 import org.jukov.lanchat.service.LANChatService;
 import org.jukov.lanchat.service.ServiceHelper;
+import org.jukov.lanchat.util.Base64Converter;
+import org.jukov.lanchat.util.DBHelper;
+import org.jukov.lanchat.util.StorageHelper;
 import org.jukov.lanchat.util.Utils;
 
 import java.util.Arrays;
@@ -39,13 +42,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_MESSAGE_BUNDLE;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_NAME;
+import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_PEOPLE;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ROOM;
-import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_UID;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.GLOBAL_MESSAGE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.PEOPLE_ACTION;
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.SEND_ROOM_ACTION;
@@ -115,10 +116,6 @@ public class MainActivity extends NavigationDrawerActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
-                case REQUEST_CODE_ROOM_CREATING:
-                    Log.d(TAG, "REQUEST_CODE_ROOM_CREATING");
-                    break;
-                case REQUEST_CODE_ADDING_PEOPLE:
                 case REQUEST_CODE_PRIVATE_CHAT:
                 case REQUEST_CODE_ROOM_CHAT:
                     int id = data.getIntExtra(EXTRA_ID, 0);
@@ -147,6 +144,10 @@ public class MainActivity extends NavigationDrawerActivity {
 
     public int getPeopleAround() {
         return peopleAround;
+    }
+
+    public void setProfilePicture(Bitmap bitmap) {
+        imageViewProfilePicture.setImageBitmap(bitmap);
     }
 
     @Override
@@ -187,6 +188,9 @@ public class MainActivity extends NavigationDrawerActivity {
         peopleAdapter = new PeopleAdapter(this);
 
         List<PeopleData> people = dbHelper.getPeople();
+        for (PeopleData peopleData : people) {
+            peopleData.setProfilePicture(StorageHelper.loadProfilePicture(getApplicationContext(), peopleData.getUid() + "_profile_picture.jpg"));
+        }
         Iterator<PeopleData> iterator = people.iterator();
         while (iterator.hasNext()) {
             PeopleData peopleData = iterator.next();
@@ -220,12 +224,10 @@ public class MainActivity extends NavigationDrawerActivity {
                         }
                         break;
                     case PEOPLE_ACTION:
-                        String name = intent.getStringExtra(EXTRA_NAME);
-                        String uid = intent.getStringExtra(EXTRA_UID);
-                        int action = intent.getIntExtra(EXTRA_ACTION, -1);
-                        Log.d(TAG, Integer.toString(action));
-                        PeopleData peopleData = new PeopleData(name, uid, PeopleData.ActionType.fromInt(action));
-                        if (!uid.equals(Utils.getAndroidID(getApplicationContext())))
+                        PeopleData peopleData = intent.getParcelableExtra(EXTRA_PEOPLE);
+                        if (peopleData.getEncodedProfilePicture() != null && peopleData.getEncodedProfilePicture().length() > 0)
+                            peopleData.setProfilePicture(Base64Converter.getBitmapFromString(peopleData.getEncodedProfilePicture()));
+                        if (!peopleData.getUid().equals(Utils.getAndroidID(getApplicationContext())))
                             switch (peopleData.getAction()) {
                                 case CONNECT:
                                     peopleAdapter.add(peopleData);
@@ -233,7 +235,7 @@ public class MainActivity extends NavigationDrawerActivity {
                                 case DISCONNECT:
                                     peopleAdapter.setOffline(peopleData);
                                     break;
-                                case CHANGE_NAME:
+                                case CHANGE_PROFILE:
                                     peopleAdapter.add(peopleData);
                                     break;
                                 default:

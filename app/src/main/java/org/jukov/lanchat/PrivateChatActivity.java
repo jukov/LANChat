@@ -9,11 +9,11 @@ import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
 import org.jukov.lanchat.adapter.ChatAdapter;
-import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.fragment.PrivateChatFragment;
 import org.jukov.lanchat.service.LANChatService;
 import org.jukov.lanchat.service.ServiceHelper;
+import org.jukov.lanchat.util.DBHelper;
 import org.jukov.lanchat.util.Utils;
 
 import static org.jukov.lanchat.service.ServiceHelper.IntentConstants.EXTRA_ID;

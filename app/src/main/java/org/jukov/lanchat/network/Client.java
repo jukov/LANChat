@@ -14,15 +14,16 @@ import android.util.Log;
 
 import org.jukov.lanchat.PrivateChatActivity;
 import org.jukov.lanchat.R;
-import org.jukov.lanchat.db.DBHelper;
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.dto.MessagingData;
 import org.jukov.lanchat.dto.PeopleData;
 import org.jukov.lanchat.dto.RoomData;
 import org.jukov.lanchat.dto.ServiceData;
 import org.jukov.lanchat.service.ServiceHelper;
+import org.jukov.lanchat.util.DBHelper;
 import org.jukov.lanchat.util.JSONConverter;
 import org.jukov.lanchat.util.PreferenceConstants;
+import org.jukov.lanchat.util.StorageHelper;
 
 import java.io.Closeable;
 import java.io.DataInputStream;
@@ -59,8 +60,6 @@ public class Client extends Thread implements Closeable {
         peopleData = new PeopleData(context);
         dbHelper = DBHelper.getInstance(context);
         dbHelper.insertOrUpdatePeople(peopleData);
-//        DataBundle<RoomData> dataBundle = new DataBundle<>(dbHelper.getRooms(), 50);
-//        Log.d(TAG, Integer.toString(dataBundle.size()));
         while (socket == null) {
             try {
                 socket = new Socket(ip, port);
@@ -68,9 +67,6 @@ public class Client extends Thread implements Closeable {
                 dataInputStream = new DataInputStream(socket.getInputStream());
                 peopleData.setAction(PeopleData.ActionType.CONNECT);
                 sendMessage(JSONConverter.toJSON(peopleData));
-//                if (dataBundle.size() > 0) {
-//                    sendMessage(JSONConverter.toJSON(dataBundle));
-//                }
                 peopleData.setAction(PeopleData.ActionType.NONE);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -80,7 +76,18 @@ public class Client extends Thread implements Closeable {
 
     public void changeName(String name) {
         peopleData.setName(name);
-        peopleData.setAction(PeopleData.ActionType.CHANGE_NAME);
+        peopleData.setAction(PeopleData.ActionType.CHANGE_PROFILE);
+        try {
+            sendMessage(JSONConverter.toJSON(peopleData));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        peopleData.setAction(PeopleData.ActionType.NONE);
+    }
+
+    public void changeProfilePicture(String encodedProfilePicture) {
+        peopleData.setEncodedProfilePicture(encodedProfilePicture);
+        peopleData.setAction(PeopleData.ActionType.CHANGE_PROFILE);
         try {
             sendMessage(JSONConverter.toJSON(peopleData));
         } catch (IOException e) {
@@ -99,8 +106,12 @@ public class Client extends Thread implements Closeable {
         Log.d(getClass().getSimpleName(), "Client started");
         try {
             while (!socket.isClosed()) {
-                String message = dataInputStream.readUTF();
-                Log.d(getClass().getSimpleName(), message);
+//                String message = dataInputStream.readUTF();
+                int length = dataInputStream.readInt();
+                byte[] messageArray = new byte[length];
+                dataInputStream.readFully(messageArray);
+                String message = new String(messageArray, "UTF-8");
+//                Log.d(getClass().getSimpleName(), message);
                 Object data = JSONConverter.toPOJO(message);
                 if (data instanceof ChatData) {
                     ChatData chatData = (ChatData) data;
@@ -166,9 +177,13 @@ public class Client extends Thread implements Closeable {
                             }
                             break;
                     }
+
                 } else if (data instanceof PeopleData) {
                     PeopleData peopleData = (PeopleData) data;
                     dbHelper.insertOrUpdatePeople(peopleData);
+                    peopleData.tryCreateBitmap();
+                    if (peopleData.getProfilePicture() != null)
+                        StorageHelper.storeProfilePicture(context, peopleData.getProfilePicture(), peopleData.getUid() + "_profile_picture.jpg");
                     ServiceHelper.receivePeople(context, peopleData);
                     switch (peopleData.getAction()) {
                         case CONNECT:
@@ -246,7 +261,10 @@ public class Client extends Thread implements Closeable {
     public void sendMessage(String message) {
         try {
             Log.d(getClass().getSimpleName(), "In sendMessage()");
-            dataOutputStream.writeUTF(message);
+            byte[] data = message.getBytes("UTF-8");
+            dataOutputStream.writeInt(data.length);
+            dataOutputStream.write(data);
+//            dataOutputStream.writeUTF(message);
             dataOutputStream.flush();
         } catch (IOException e) {
             e.printStackTrace();
