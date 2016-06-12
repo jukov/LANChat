@@ -15,6 +15,8 @@ import java.util.Arrays;
  */
 public class ServiceHelper {
 
+    private static final String TAG = ServiceHelper.class.getSimpleName();
+
     public class IntentConstants {
 
         public static final String INIT_SERVICE_ACTION =        "org.jukov.lanchat.CONNECT_TO_SERVICE";
@@ -95,7 +97,9 @@ public class ServiceHelper {
         Intent intent = new Intent(context, LANChatService.class);
         intent.setAction(IntentConstants.SEND_ROOM_ACTION);
         intent.putExtra(IntentConstants.EXTRA_ROOM, roomData);
+//        String className = context.startService(intent).getClassName();
         context.startService(intent);
+//        Log.d(TAG, className);
     }
 
     public static void sendPrivateChatState(Context context, boolean state) {

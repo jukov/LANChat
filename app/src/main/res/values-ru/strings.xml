@@ -45,4 +45,5 @@
     <string name="notifications">Уведомления</string>
     <string name="choose_from_gallery">Выбрать из галереи</string>
     <string name="take_a_picture">Сделать фото</string>
+    <string name="profile_picture_summary">Изменить изображение профиля</string>
 </resources>

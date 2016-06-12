@@ -73,10 +73,14 @@ public class RoomCreatingActivity extends BaseActivity {
         switch (item.getItemId()) {
             case R.id.action_menu_done:
                 DBHelper dbHelper = DBHelper.getInstance(getApplicationContext());
+                for (PeopleData peopleData : privateParticipants) {
+                    peopleData.setProfilePicture(null);
+                    peopleData.setEncodedProfilePicture(null);
+                }
                 RoomData roomData = new RoomData(
                         roomNameText.getText().toString(),
                         Utils.newRoomUID(getApplicationContext()),
-                        isPrivate.isChecked() ? privateParticipants : null);
+                        privateParticipants);
                 dbHelper.insertOrUpdateRoom(roomData);
                 ServiceHelper.sendRoom(getApplicationContext(), roomData);
                 Intent intent = new Intent();

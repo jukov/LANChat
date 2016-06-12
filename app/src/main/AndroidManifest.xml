@@ -47,6 +47,6 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:configChanges="keyboardHidden|orientation|screenSize">
         </activity>
-        <service android:name=".service.LANChatService" />
+        <service android:name="org.jukov.lanchat.service.LANChatService" />
     </application>
 </manifest>

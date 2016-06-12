@@ -5,9 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.net.wifi.SupplicantState;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
@@ -269,13 +266,7 @@ public class MainActivity extends NavigationDrawerActivity {
     }
 
     private void initService() {
-        SupplicantState supplicantState;
-        WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        supplicantState = wifiInfo.getSupplicantState();
-        String ssid = wifiInfo.getSSID();
-
-        if (supplicantState == SupplicantState.COMPLETED && !ssid.equals("<unknown ssid>") && !ssid.equals("0x")) {
+        if (Utils.isConnectedToWiFi(getApplicationContext())) {
             Log.d(getClass().getSimpleName(), "Connecting to service");
             ServiceHelper.startService(this);
         } else {

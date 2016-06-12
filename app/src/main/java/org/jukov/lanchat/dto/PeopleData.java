@@ -149,6 +149,11 @@ public class PeopleData extends MessagingData {
     };
 
     @Override
+    public int describeContents() {
+        return 2;
+    }
+
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
         dest.writeInt(actionType.getValue());

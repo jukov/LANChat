@@ -3,7 +3,7 @@ package org.jukov.lanchat.dto;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -52,16 +52,31 @@ public class RoomData extends MessagingData {
     };
 
     @Override
+    public int describeContents() {
+        return 1;
+    }
+
+    @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
-        dest.writeTypedList(participants);
+//        dest.writeTypedList(participants);
+        if (participants != null) {
+            Object[] objectArray = participants.toArray();
+            PeopleData[] peopleDataArray = Arrays.copyOf(objectArray, objectArray.length, PeopleData[].class);
+            dest.writeParcelableArray(peopleDataArray, 2);
+        } else {
+            dest.writeParcelableArray(null, 0);
+        }
     }
 
     private RoomData(Parcel parcel) {
         super(parcel);
-        List<PeopleData> participants = new ArrayList<>();
-        parcel.readTypedList(participants, PeopleData.CREATOR);
-        setParticipants(participants);
+        Parcelable[] parcelableArray = parcel.readParcelableArray(PeopleData.class.getClassLoader());
+        if (parcelableArray != null) {
+            PeopleData[] peopleDataArray = Arrays.copyOf(parcelableArray, parcelableArray.length, PeopleData[].class);
+//        parcel.readTypedList(participants, PeopleData.CREATOR);
+            setParticipants(Arrays.asList(peopleDataArray));
+        }
     }
 
 }

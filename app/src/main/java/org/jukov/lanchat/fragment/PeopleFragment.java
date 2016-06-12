@@ -67,6 +67,16 @@ public class PeopleFragment extends ListFragment {
                 intent.putExtra(ServiceHelper.IntentConstants.EXTRA_NAME, peopleData.getName());
                 intent.putExtra(ServiceHelper.IntentConstants.EXTRA_UID, peopleData.getUid());
                 intent.putExtra(ServiceHelper.IntentConstants.EXTRA_PEOPLE_AROUND, mainActivity.getPeopleAround());
+                switch (peopleData.getAction()) {
+                    case CONNECT:
+                    case CHANGE_PROFILE:
+                        intent.putExtra(ServiceHelper.IntentConstants.EXTRA_STATE, true);
+                        break;
+                    case DISCONNECT:
+                    case NONE:
+                        intent.putExtra(ServiceHelper.IntentConstants.EXTRA_STATE, false);
+                        break;
+                }
                 getActivity().startActivityForResult(intent, BaseActivity.REQUEST_CODE_PRIVATE_CHAT);
             }
         });

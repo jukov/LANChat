@@ -4,9 +4,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.net.wifi.SupplicantState;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -22,6 +19,7 @@ import org.jukov.lanchat.R;
 import org.jukov.lanchat.adapter.ChatAdapter;
 import org.jukov.lanchat.dto.ChatData;
 import org.jukov.lanchat.util.DBHelper;
+import org.jukov.lanchat.util.Utils;
 
 /**
  * Created by jukov on 20.04.2016.
@@ -49,12 +47,7 @@ public abstract class ChatFragment extends BaseFragment {
         buttonSend = (ImageButton) layout.findViewById(R.id.imageButtonSend);
         editTextMessage = (EditText) layout.findViewById(R.id.editTextMessage);
 
-        SupplicantState supplicantState;
-        WifiManager wifiManager = (WifiManager) getContext().getSystemService(Context.WIFI_SERVICE);
-        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        supplicantState = wifiInfo.getSupplicantState();
-
-        if (supplicantState != SupplicantState.COMPLETED) {
+        if (!Utils.isConnectedToWiFi(getContext())) {
             buttonSend.setEnabled(false);
             editTextMessage.setEnabled(false);
         }

@@ -111,7 +111,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     // No ringtone has been selected, set to the default
                     intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Settings.System.DEFAULT_NOTIFICATION_URI);
                 }
-
                 startActivityForResult(intent, REQUEST_CODE_ALERT_RINGTONE);
                 return true;
             case PROFILE_PICTURE:

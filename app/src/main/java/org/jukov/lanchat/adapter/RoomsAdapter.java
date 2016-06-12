@@ -1,6 +1,7 @@
 package org.jukov.lanchat.adapter;
 
 import android.content.Context;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -77,8 +78,9 @@ public final class RoomsAdapter extends BaseAdapter {
     public void add(RoomData roomData) {
         boolean isParticipant = false;
         if (roomData.getParticipants() != null && roomData.getParticipants().size() > 0) {
-            for (PeopleData peopleData1 : roomData.getParticipants()) {
-                if (peopleData1.getUid().contains(Utils.getAndroidID(context))) {
+            for (Parcelable parcelable : roomData.getParticipants()) {
+                PeopleData peopleData = (PeopleData) parcelable;
+                if (peopleData.getUid().contains(Utils.getAndroidID(context))) {
                     isParticipant = true;
                     break;
                 }

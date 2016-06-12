@@ -65,14 +65,10 @@ public class PeopleAdapter extends BaseAdapter {
 
         switch (peopleData.getAction()) {
             case CONNECT:
-                textViewStatus.setText(context.getString(R.string.online));
-                break;
-            case DISCONNECT:
-                textViewStatus.setText(context.getString(R.string.offline));
-                break;
             case CHANGE_PROFILE:
                 textViewStatus.setText(context.getString(R.string.online));
                 break;
+            case DISCONNECT:
             case NONE:
                 textViewStatus.setText(context.getString(R.string.offline));
         }

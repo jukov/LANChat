@@ -8,7 +8,8 @@
             android:defaultValue="@string/default_name"/>
         <Preference
             android:key="profile_picture"
-            android:title="@string/profile_picture"/>
+            android:title="@string/profile_picture"
+            android:summary="@string/profile_picture_summary"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/preference_network">
         <EditTextPreference

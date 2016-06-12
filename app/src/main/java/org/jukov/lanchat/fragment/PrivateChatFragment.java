@@ -44,6 +44,9 @@ public class PrivateChatFragment extends ChatFragment {
     protected void initViews() {
         super.initViews();
 
+        buttonSend.setEnabled(privateChatActivity.getState());
+        editTextMessage.setEnabled(privateChatActivity.getState());
+
         buttonSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

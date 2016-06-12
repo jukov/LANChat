@@ -2,11 +2,13 @@ package org.jukov.lanchat.util;
 
 import android.content.Context;
 import android.net.DhcpInfo;
+import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -62,11 +64,30 @@ public class Utils {
         return myAddr;
     }
 
-    @Deprecated
-    public static String getWifiAddress(Context context) {
+    public static boolean isConnectedToWiFi(Context context) {
+//        final int AP_STATE_DISABLING = 10;
+//        final int AP_STATE_DISABLED = 11;
+//        final int AP_STATE_ENABLING = 12;
+        final int AP_STATE_ENABLED = 13;
+//        final int AP_STATE_FAILED = 14;
+
+        SupplicantState supplicantState;
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        return android.text.format.Formatter.formatIpAddress(wifiInfo.getIpAddress());
+        supplicantState = wifiInfo.getSupplicantState();
+        String ssid = wifiInfo.getSSID();
+
+        int actualState = 0;
+
+        try {
+            Method method = wifiManager.getClass().getDeclaredMethod("getWifiApState");
+            method.setAccessible(true);
+            actualState = (Integer) method.invoke(wifiManager, (Object[]) null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return ((supplicantState == SupplicantState.COMPLETED && !ssid.equals("<unknown ssid>") && !ssid.equals("0x")) || actualState == AP_STATE_ENABLED);
     }
 
     public static String getAndroidID(Context context) {

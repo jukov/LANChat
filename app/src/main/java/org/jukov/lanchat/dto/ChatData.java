@@ -136,6 +136,11 @@ public class ChatData extends MessagingData {
         dest.writeString(destinationUID);
     }
 
+    @Override
+    public int describeContents() {
+        return 3;
+    }
+
     public static Parcelable.Creator<? extends MessagingData> CREATOR = new Parcelable.Creator<ChatData>() {
         @Override
         public ChatData createFromParcel(Parcel source) {
