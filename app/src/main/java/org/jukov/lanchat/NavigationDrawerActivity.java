@@ -80,6 +80,13 @@ public abstract class NavigationDrawerActivity extends BaseActivity implements
         switch (key) {
             case PreferenceConstants.NAME:
                 String name = sharedPreferences.getString(PreferenceConstants.NAME, getString(R.string.default_name));
+                Log.d(getClass().getSimpleName(), name);
+                if (name.length() > 20) {
+                    name = name.substring(0, 20);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString(PreferenceConstants.NAME, name);
+                    editor.apply();
+                }
                 TextView textView = (TextView) navigationDrawerHeaderView.findViewById(R.id.textViewName);
                 ServiceHelper.changeName(this, name);
                 textView.setText(getString(R.string.nav_header_hello, name));

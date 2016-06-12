@@ -75,14 +75,16 @@ public class Client extends Thread implements Closeable {
     }
 
     public void changeName(String name) {
-        peopleData.setName(name);
-        peopleData.setAction(PeopleData.ActionType.CHANGE_PROFILE);
-        try {
-            sendMessage(JSONConverter.toJSON(peopleData));
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (!peopleData.getName().equals(name)) {
+            peopleData.setName(name);
+            peopleData.setAction(PeopleData.ActionType.CHANGE_PROFILE);
+            try {
+                sendMessage(JSONConverter.toJSON(peopleData));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            peopleData.setAction(PeopleData.ActionType.NONE);
         }
-        peopleData.setAction(PeopleData.ActionType.NONE);
     }
 
     public void changeProfilePicture(String encodedProfilePicture) {
